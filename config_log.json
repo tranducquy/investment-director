@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "formatters": {
+    "fmt1": {
+      "format": "[%(asctime)s] %(levelname)s - %(filename)s#%(funcName)s:%(lineno)d: %(message)s",
+      "datefmt": "%Y/%m/%d %H:%M:%S"
+    }
+  },  
+  "handlers": {
+    "consoleHandler": {
+      "class": "logging.StreamHandler",
+      "level": "DEBUG",
+      "formatter": "fmt1",
+      "stream": "ext://sys.stdout"
+    },
+    "fileRotatingHandler": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "level": "DEBUG",
+      "formatter": "fmt1",
+      "filename": "cccrawler.log",
+      "encoding": "utf8",
+      "when": "D",
+      "interval": 1,
+      "backupCount": 365
+    }
+  },  
+  "loggers": {
+    "test": {
+      "handlers": [ 
+        "consoleHandler", 
+        "fileRotatingHandler" 
+      ],  
+      "level": "DEBUG",
+      "qualname": "test",
+      "propagate": "no"
+    },
+    "file": {
+      "handlers": [ 
+        "fileRotatingHandler" 
+      ],  
+      "level": "DEBUG",
+      "qualname": "test",
+      "propagate": "no"
+    },
+    "console": {
+      "handlers": [ 
+        "consoleHandler"
+      ],  
+      "level": "DEBUG",
+      "qualname": "test",
+      "propagate": "no"
+    }
+  },
+  "_root": {
+    "level": "DEBUG",
+    "handlers": [
+      "consoleHandler"
+    ]   
+  }
+}
+
+
+

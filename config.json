@@ -1,0 +1,7 @@
+
+{
+  "logger": "test",
+  "dbfile": "market-history.db",
+  "start_date": "2001-01-01",
+  "end_date": "2019-07-31"
+}
