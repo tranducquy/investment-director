@@ -12,3 +12,38 @@ create table ohlc
 )
 ;
 
+create table backtest_result 
+(
+    symbol text,
+    strategy text,
+    start_date text,
+    end_date text,
+    backtest_period integer,
+    trading_period integer,
+    average_period_per_trade integer,
+    initial_assets decimal(10,5),
+    last_assets decimal(10,5),
+    rate_of_return decimal(10,5),
+    win_count integer,
+    loss_count integer,
+    win_value decimal(10,5),
+    loss_value decimal(10,5),
+    win_rate decimal(10,5),
+    payoffratio decimal(10,5),
+    expected_rate decimal(10,5),
+    expected_rate_per_1day decimal(10,5),
+    long_win_value decimal(10,5),
+    long_loss_value decimal(10,5),
+    long_win_rate decimal(10,5),
+    long_payoffratio decimal(10,5),
+    long_expected_rate decimal(10,5),
+    long_expected_rate_per_1day decimal(10,5),
+    short_win_value decimal(10,5),
+    short_loss_value decimal(10,5),
+    short_win_rate decimal(10,5),
+    short_payoffratio decimal(10,5),
+    short_expected_rate decimal(10,5),
+    short_expected_rate_per_1day decimal(10,5),
+    primary key(symbol, strategy, start_date, end_date)
+)
+;
