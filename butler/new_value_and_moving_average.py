@@ -15,6 +15,8 @@ class Butler():
 
     def check_open_long(self, q, idx):
         #高値更新, 終値が移動平均より上
+        if q.quotes['high'][idx] is None or q.quotes['close'][idx] is None:
+            return False
         past_high = self.get_maximum_high_price_for_nv(q, idx)
         if q.quotes['high'][idx] > past_high and q.quotes['close'][idx] > q.sma[idx]:
             return True
@@ -23,6 +25,8 @@ class Butler():
 
     def check_open_short(self, q, idx):
         #安値更新, 終値が移動平均より下
+        if q.quotes['low'][idx] is None or q.quotes['close'][idx] is None:
+            return False
         past_low = self.get_minimum_low_price_for_nv(q, idx)
         if past_low > q.quotes['low'][idx] and q.sma[idx] > q.quotes['close'][idx]:
             return True

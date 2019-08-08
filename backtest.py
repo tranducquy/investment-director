@@ -99,8 +99,6 @@ def get_summary_msgheader():
     return msg
 
 def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
-    #TODO:long win rate
-    #TODO:short win rate
     if quotes.quotes.index.size == 0:
         return "\n"
     if summary['WinCount'] == 0 and summary['LoseCount'] == 0:
@@ -155,6 +153,10 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
         short_expected_rate_per_1day = 0
     else:
         short_expected_rate_per_1day = round(short_expected_rate / (summary['ShortPositionHavingDays'] / (summary['ShortWinCount'] + summary['ShortLoseCount'])), 2)
+    if summary['PositionHavingDays'] == 0 and (summary['WinCount'] + summary['LoseCount']) == 0:
+        position_having_days_per_trade = 0
+    else:
+        position_having_days_per_trade = round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']), 2)
     start_date = quotes.get_headdate()
     end_date =quotes.get_taildate()
     msg = ""
@@ -165,7 +167,7 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
         msg += ",%s" % (end_date)
         msg += ",%d" % (datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
         msg += ",%d" % (summary['PositionHavingDays'])
-        msg += ",%d" % round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']), 2) 
+        msg += ",%d" % position_having_days_per_trade
         msg += ",%f" % (summary['InitValue'])
         msg += ",%f" % (summary['LastValue'])
         msg += ",%f" % rate_of_return
@@ -196,7 +198,7 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
         msg += ",終了日:%s" % (end_date)
         msg += ",日数：%d" % (datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
         msg += ",トレード保有日数:%d" % (summary['PositionHavingDays'])
-        msg += ",1トレードあたりの平均日数:%d" % (summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']))
+        msg += ",1トレードあたりの平均日数:%d" % position_having_days_per_trade
         msg += ",初期資産:%f" % (summary['InitValue'])
         msg += ",最終資産:%f" % (summary['LastValue'])
         msg += ",全体騰落率(%%):%f" % rate_of_return
@@ -228,7 +230,7 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
             ,end_date
             ,(datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
             ,summary['PositionHavingDays']
-            ,round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']), 2)
+            ,round(position_having_days_per_trade, 2)
             ,summary['InitValue']
             ,summary['LastValue']
             ,rate_of_return
@@ -240,12 +242,16 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
             ,payoffratio
             ,expected_rate
             ,expected_rate_per_1day
+            ,summary['LongWinCount']
+            ,summary['LongLoseCount']
             ,summary['LongWinValue']
             ,summary['LongLoseValue']
             ,long_win_rate
             ,long_payoffratio
             ,long_expected_rate
             ,long_expected_rate_per_1day
+            ,summary['ShortWinCount']
+            ,summary['ShortLoseCount']
             ,summary['ShortWinValue']
             ,summary['ShortLoseValue']
             ,short_win_rate
@@ -274,12 +280,16 @@ def save_simulate_result(
                     ,payoffratio
                     ,expected_rate
                     ,expected_rate_per_1day
+                    ,long_win_count
+                    ,long_loss_count
                     ,long_win_value
                     ,long_loss_value
                     ,long_win_rate
                     ,long_payoffratio
                     ,long_expected_rate
                     ,long_expected_rate_per_1day
+                    ,short_win_count
+                    ,short_loss_count
                     ,short_win_value
                     ,short_loss_value
                     ,short_win_rate
@@ -309,12 +319,16 @@ def save_simulate_result(
                     ,payoffratio
                     ,expected_rate
                     ,expected_rate_per_1day
+                    ,long_win_count
+                    ,long_loss_count
                     ,long_win_value
                     ,long_loss_value
                     ,long_win_rate
                     ,long_payoffratio
                     ,long_expected_rate
                     ,long_expected_rate_per_1day
+                    ,short_win_count
+                    ,short_loss_count
                     ,short_win_value
                     ,short_loss_value
                     ,short_win_rate
@@ -325,6 +339,10 @@ def save_simulate_result(
                 values
                 ( 
                      ?
+                    ,?
+                    ,?
+                    ,?
+                    ,?
                     ,?
                     ,?
                     ,?
@@ -375,12 +393,16 @@ def save_simulate_result(
         ,payoffratio
         ,expected_rate
         ,expected_rate_per_1day
+        ,long_win_count
+        ,long_loss_count
         ,long_win_value
         ,long_loss_value
         ,long_win_rate
         ,long_payoffratio
         ,long_expected_rate
         ,long_expected_rate_per_1day
+        ,short_win_count
+        ,short_loss_count
         ,short_win_value
         ,short_loss_value
         ,short_win_rate
@@ -489,6 +511,11 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
                 p.create_order_stop_market_close_short(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
         #1日の結果を出力
+        close = 0
+        if quotes.quotes['close'][idx] is None:
+            close = 0
+        else:
+            close = quotes.quotes['close'][idx]
         history = make_history(
               business_date
             , quotes
@@ -500,17 +527,13 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
             , p.cash
             , p.pos_vol
             , p.pos_price
-            , round(p.cash + p.pos_vol * quotes.quotes['close'][idx], 2)
+            , round(p.cash + p.pos_vol * close, 2)
             , trade_perfomance
             )
         output_history_writer.writerow(history)
     #シミュレーション結果を出力
     summary_msg_log = make_summary_msg(symbol, title, p.summary, quotes, False)
     summary_msg_csv = make_summary_msg(symbol, title, p.summary, quotes, True)
-    #summary_msg_db = make_summary_msg(symbol, title, p.summary, quotes)
-    #db
-    #summary
-    #log
     logger.info(summary_msg_log)
     output_summary.write(summary_msg_csv)
     output_history.close()

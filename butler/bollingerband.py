@@ -17,6 +17,8 @@ class Butler():
 
     def check_open_long(self, q, idx):
         #当日高値が2σ以上
+        if q.quotes['high'][idx] is None or q.upper2_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower2_sigma[idx] is None:
+            return False
         long_flg = q.quotes['high'][idx] >= q.upper2_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower2_sigma[idx]
         if long_flg == True and short_flg == False:
@@ -26,6 +28,8 @@ class Butler():
 
     def check_open_short(self, q, idx):
         #当日安値が2σ以下
+        if q.quotes['high'][idx] is None or q.upper2_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower2_sigma[idx] is None:
+            return False
         long_flg = q.quotes['high'][idx] >= q.upper2_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower2_sigma[idx]
         if long_flg == False and short_flg == True:
@@ -34,12 +38,16 @@ class Butler():
             return False
 
     def check_close_long(self, pos_price, q, idx):
+        if q.quotes['close'][idx] is None:
+            return False
         if abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return True
         else:
             return False
 
     def check_close_short(self, pos_price, q, idx):
+        if q.quotes['close'][idx] is None:
+            return False
         if abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return True
         else:
@@ -56,10 +64,14 @@ class Butler():
         return (price, vol)
 
     def create_order_stop_market_close_long(self, q, idx, tick):
+        if q.quotes['low'][idx] is None:
+            return 0.00
         price = q.quotes['low'][idx]
         return round(price-tick,2)
 
     def create_order_stop_market_close_short(self, q, idx, tick):
+        if q.quotes['high'][idx] is None:
+            return 0.00
         price = q.quotes['high'][idx]
         return round(price+tick,2)
 
