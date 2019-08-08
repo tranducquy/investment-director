@@ -14,10 +14,8 @@ def insert_history(business_date, symbol, open_price, high_price, low_price, clo
     try:
         conn = sqlite3.connect(dbfile)
         c = conn.cursor()
-        if volume == 0:
-            param = ( symbol, business_date.strftime("%Y-%m-%d"), open_price, high_price, low_price, close_price, 0 )
-        else:
-            param = ( symbol, business_date.strftime("%Y-%m-%d"), open_price, high_price, low_price, close_price, volume )
+        v = volume.astype("int32")
+        param = ( symbol, business_date.strftime("%Y-%m-%d"), open_price, high_price, low_price, close_price, int(v) )
         c.execute('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', param)
         conn.commit()
         conn.close

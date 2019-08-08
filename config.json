@@ -2,7 +2,7 @@
 {
   "logger": "test",
   "dbfile": "market-history.db",
-  "symbol": "./symbol/TOPIX.txt",
+  "symbol": "./symbol/SP500.txt",
   "default_period": "-30",
   "backtest_result": "./backtest_result/"
 }
