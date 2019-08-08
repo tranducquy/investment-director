@@ -570,8 +570,10 @@ if __name__ == '__main__':
     start_date = "2018-07-31"
     end_date = "2019-07-31"
     symbol_txt = conf['symbol']
-    symbols = open(symbol_txt, "r")
     #超短期ボリンジャーバンド
+    symbols = open(symbol_txt, "r")
+    symbol_cnt = sum(1 for line in open(symbol_txt))
+    fin_cnt = 0
     for symbol in symbols:
         symbol = symbol.strip()
         ma_duration = 2 #移動平均の日数
@@ -582,9 +584,12 @@ if __name__ == '__main__':
         title = "超短期ボリンジャーバンド%d日_シグマ%s倍_決済差額%s" % (ma_duration, '{:.2f}'.format(ev_sigma_ratio), '{:.2f}'.format(diff_price))
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s.csv' % (start_date, end_date, ma_duration, '{:.2f}'.format(ev_sigma_ratio), '{:.2f}'.format(diff_price))
         simulator_run(title, q, bollinger_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
+        fin_cnt = 1 + fin_cnt
+        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
-    symbols = open(symbol_txt, "r")
     #新値＋移動平均
+    symbols = open(symbol_txt, "r")
+    fin_cnt = 0
     for symbol in symbols:
         symbol = symbol.strip()
         ma_duration = 2 #移動平均の日数
@@ -594,4 +599,6 @@ if __name__ == '__main__':
         title = "新値%d日_移動平均%d日" % (new_value_duration, ma_duration)
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d.csv' % (start_date, end_date, new_value_duration, ma_duration)
         simulator_run(title, q, nv_ma_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
+        fin_cnt = 1 + fin_cnt
+        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
