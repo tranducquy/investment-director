@@ -81,8 +81,10 @@ def make_history(
 def get_summary_msgheader():
     msg  = "シンボル"
     msg += ",ストラテジ"
-    msg += ",開始日"
-    msg += ",終了日"
+    msg += ",バックテスト開始日"
+    msg += ",バックテスト終了日"
+    msg += ",取引開始日"
+    msg += ",取引終了日"
     msg += ",バックテスト日数"
     msg += ",トレード保有日数"
     msg += ",1トレードあたりの平均日数"
@@ -157,15 +159,19 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
         position_having_days_per_trade = 0
     else:
         position_having_days_per_trade = round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']), 2)
-    start_date = quotes.get_headdate()
-    end_date =quotes.get_taildate()
+    start_date = quotes.start_date
+    end_date =quotes.end_date
+    market_start_date = quotes.get_headdate()
+    market_end_date =quotes.get_taildate()
     msg = ""
     if for_csv:
         msg  = "%s" % symbol
         msg += ",%s" % title
         msg += ",%s" % (start_date)
         msg += ",%s" % (end_date)
-        msg += ",%d" % (datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
+        msg += ",%s" % (market_start_date)
+        msg += ",%s" % (market_end_date)
+        msg += ",%d" % (datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
         msg += ",%d" % (summary['PositionHavingDays'])
         msg += ",%d" % position_having_days_per_trade
         msg += ",%f" % (summary['InitValue'])
@@ -194,9 +200,11 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
     else:
         msg  = "%s" % symbol
         msg += ",%s" % title
-        msg += ",開始日:%s" % (start_date)
-        msg += ",終了日:%s" % (end_date)
-        msg += ",日数：%d" % (datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
+        msg += ",バックテスト開始日:%s" % (start_date)
+        msg += ",バックテスト終了日:%s" % (end_date)
+        msg += ",取引開始日:%s" % (market_start_date)
+        msg += ",取引終了日:%s" % (market_end_date)
+        msg += ",日数：%d" % (datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
         msg += ",トレード保有日数:%d" % (summary['PositionHavingDays'])
         msg += ",1トレードあたりの平均日数:%d" % position_having_days_per_trade
         msg += ",初期資産:%f" % (summary['InitValue'])
@@ -228,7 +236,9 @@ def make_summary_msg(csvfilename, title, summary, quotes, for_csv):
             ,title
             ,start_date
             ,end_date
-            ,(datetime.datetime.strptime(end_date, "%Y-%m-%d") - datetime.datetime.strptime(start_date, "%Y-%m-%d")).days
+            ,market_start_date
+            ,market_end_date
+            ,(datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
             ,summary['PositionHavingDays']
             ,round(position_having_days_per_trade, 2)
             ,summary['InitValue']
@@ -266,6 +276,8 @@ def save_simulate_result(
                     ,strategy
                     ,start_date
                     ,end_date
+                    ,market_start_date
+                    ,market_end_date
                     ,backtest_period
                     ,trading_period
                     ,average_period_per_trade
@@ -305,6 +317,8 @@ def save_simulate_result(
                     ,strategy
                     ,start_date
                     ,end_date
+                    ,market_start_date
+                    ,market_end_date
                     ,backtest_period
                     ,trading_period
                     ,average_period_per_trade
@@ -372,6 +386,8 @@ def save_simulate_result(
                     ,?
                     ,?
                     ,?
+                    ,?
+                    ,?
                 )
     """,
     (
@@ -379,6 +395,8 @@ def save_simulate_result(
         ,strategy
         ,start_date
         ,end_date
+        ,market_start_date
+        ,market_end_date
         ,backtest_period
         ,trading_period
         ,average_period_per_trade
@@ -540,17 +558,17 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
     output_summary.close()
 
 if __name__ == '__main__':
-    initial_cash = 1000000
     trade_fee = 0.1
-    tick = 0.5
+    tick = 0.1
 
     conf = common.read_conf()
     s = my_logger.Logger()
     dbfile = conf['dbfile']
+    initial_cash = int(conf['initial_cash'])
     backtest_result_path = conf['backtest_result']
     backtest_summary_filename = backtest_result_path + '/summary.csv'
-    start_date = "2015-01-01"
-    end_date = "2018-12-31"
+    start_date = "2018-07-31"
+    end_date = "2019-07-31"
     symbol_txt = conf['symbol']
     symbols = open(symbol_txt, "r")
     #超短期ボリンジャーバンド
@@ -573,7 +591,7 @@ if __name__ == '__main__':
         new_value_duration = 1 #新値の日数
         q = Quotes(dbfile, symbol, start_date, end_date, ma_duration)
         nv_ma_butler = new_value_and_moving_average.Butler(new_value_duration)
-        title = "新値%d日_移動平均%d日" % (ma_duration, new_value_duration)
-        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d.csv' % (start_date, end_date, ma_duration, new_value_duration)
+        title = "新値%d日_移動平均%d日" % (new_value_duration, ma_duration)
+        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d.csv' % (start_date, end_date, new_value_duration, ma_duration)
         simulator_run(title, q, nv_ma_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
 

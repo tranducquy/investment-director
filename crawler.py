@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if len(args) == 3:
         start_date = args[1]
         end_date = args[2]
-    #実行時引数が1つで特定の文字であれば、設定ファイルから取得
+    #実行時引数が0であれば、設定ファイルから対象期間を取得
     elif len(args) == 1:
         default_period = int(conf['default_period'])
         start_date = (datetime.datetime.now() + datetime.timedelta(days=default_period)).strftime('%Y-%m-%d')

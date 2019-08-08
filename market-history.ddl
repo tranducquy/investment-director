@@ -18,6 +18,8 @@ create table backtest_result
     strategy text,
     start_date text,
     end_date text,
+    market_start_date text,
+    market_end_date text,
     backtest_period integer,
     trading_period integer,
     average_period_per_trade integer,
