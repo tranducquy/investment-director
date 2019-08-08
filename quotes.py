@@ -3,12 +3,13 @@ import sqlite3
 import pandas as pd
 
 class Quotes():
-    def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15):
+    def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2):
         self.dbfile = dbfile
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
         self.ma_duration = ma_duration
+        self.ev_sigma_ratio = ev_sigma_ratio 
         self.get_history()
         self.set_sigma()
 
@@ -47,6 +48,8 @@ class Quotes():
         self.lower2_sigma = self.sma - self.sigma * 2
         self.upper3_sigma = self.sma + self.sigma * 3
         self.lower3_sigma = self.sma - self.sigma * 3
+        self.upper_ev_sigma = self.sma + self.sigma * self.ev_sigma_ratio
+        self.lower_ev_sigma = self.sma - self.sigma * self.ev_sigma_ratio
 
     def get_headdate(self):
         if self.quotes.index.size != 0:

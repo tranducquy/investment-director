@@ -558,10 +558,11 @@ if __name__ == '__main__':
         symbol = symbol.strip()
         ma_duration = 2 #移動平均の日数
         diff_price = 0.1 #決済する差額
-        q = Quotes(dbfile, symbol, start_date, end_date, ma_duration)
-        bollinger_butler = bollingerband.Butler(ma_duration, diff_price)
-        title = "超短期ボリンジャーバンド%d日_決済差額%f" % (ma_duration, round(diff_price, 2))
-        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_diff%f.csv' % (start_date, end_date, ma_duration, round(diff_price, 2))
+        ev_sigma_ratio = 2.0 #トレンドを判定するsigmaの倍率
+        q = Quotes(dbfile, symbol, start_date, end_date, ma_duration, ev_sigma_ratio)
+        bollinger_butler = bollingerband.Butler(ma_duration, diff_price, ev_sigma_ratio)
+        title = "超短期ボリンジャーバンド%d日_シグマ%s倍_決済差額%s" % (ma_duration, '{:.2f}'.format(ev_sigma_ratio), '{:.2f}'.format(diff_price))
+        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s.csv' % (start_date, end_date, ma_duration, '{:.2f}'.format(ev_sigma_ratio), '{:.2f}'.format(diff_price))
         simulator_run(title, q, bollinger_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
 
     symbols = open(symbol_txt, "r")
@@ -575,6 +576,4 @@ if __name__ == '__main__':
         title = "新値%d日_移動平均%d日" % (ma_duration, new_value_duration)
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d.csv' % (start_date, end_date, ma_duration, new_value_duration)
         simulator_run(title, q, nv_ma_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
-
-
 

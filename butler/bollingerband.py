@@ -11,16 +11,17 @@ class Butler():
      3. 転換価格をσの何倍にするか決める
      4. 翌日場が開く前にその転換価格±１ティックの価格(買いは上、売りは下)で逆指値注文を入れる
     '''
-    def __init__(self, bollinger_duration, diff_price):
+    def __init__(self, bollinger_duration, diff_price, sigma_ratio):
         self.duration = bollinger_duration
         self.diff_price = diff_price 
+        self.sigma_ratio = sigma_ratio
 
     def check_open_long(self, q, idx):
         #当日高値が2σ以上
-        if q.quotes['high'][idx] is None or q.upper2_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower2_sigma[idx] is None:
+        if q.quotes['high'][idx] is None or q.upper_ev_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower_ev_sigma[idx] is None:
             return False
-        long_flg = q.quotes['high'][idx] >= q.upper2_sigma[idx]
-        short_flg = q.quotes['low'][idx] <= q.lower2_sigma[idx]
+        long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
+        short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if long_flg == True and short_flg == False:
             return True
         else:
@@ -28,10 +29,10 @@ class Butler():
 
     def check_open_short(self, q, idx):
         #当日安値が2σ以下
-        if q.quotes['high'][idx] is None or q.upper2_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower2_sigma[idx] is None:
+        if q.quotes['high'][idx] is None or q.upper_ev_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower_ev_sigma[idx] is None:
             return False
-        long_flg = q.quotes['high'][idx] >= q.upper2_sigma[idx]
-        short_flg = q.quotes['low'][idx] <= q.lower2_sigma[idx]
+        long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
+        short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if long_flg == False and short_flg == True:
             return True
         else:
