@@ -26,7 +26,7 @@ class Butler():
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        volume_flg = q.quotes['volume'][idx] >= q.vol_ma[idx]
+        volume_flg = q.quotes['volume'][idx] >= q.vol_upper_ev_sigma[idx]
         if long_flg == True and short_flg == False and volume_flg == True:
             return True
         else:
@@ -42,7 +42,7 @@ class Butler():
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        volume_flg = q.quotes['volume'][idx] <= q.vol_ma[idx]
+        volume_flg = q.quotes['volume'][idx] >= q.vol_upper_ev_sigma[idx]
         if long_flg == False and short_flg == True and volume_flg == True:
             return True
         else:
