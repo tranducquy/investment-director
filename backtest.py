@@ -19,6 +19,7 @@ from butler import new_value_and_moving_average
 from butler import bollingerband_and_volume_bollingerband
 from butler import bollingerband_and_volume_moving_average
 from butler import new_value_and_moving_average_and_volume_moving_average
+from butler import new_value_and_moving_average_and_volume_bollingerband
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -59,6 +60,9 @@ def make_history(
         , quotes.sma[idx]
         , quotes.upper_ev_sigma[idx]
         , quotes.lower_ev_sigma[idx]
+        , quotes.vol_ma[idx]
+        , quotes.vol_upper_ev_sigma[idx]
+        , quotes.vol_lower_ev_sigma[idx]
         , order_info['create_date']
         , order_info['order_type']
         , order_info['vol']
@@ -167,6 +171,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
     end_date =quotes.end_date
     market_start_date = quotes.get_headdate()
     market_end_date =quotes.get_taildate()
+    regist_date = datetime.datetime.today().strftime("%Y-%m-%d")
     msg = ""
     if for_csv:
         msg  = "%s" % symbol
@@ -200,7 +205,8 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",%f" % short_win_rate
         msg += ",%f" % short_payoffratio
         msg += ",%f" % short_expected_rate
-        msg += ",%f\n" % short_expected_rate_per_1day
+        msg += ",%f" % short_expected_rate_per_1day
+        msg += ",%s\n" % regist_date
     else:
         msg  = "%s" % symbol
         msg += ",%s" % title
@@ -216,24 +222,10 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",全体騰落率(%%):%f" % rate_of_return
         msg += ",勝ちトレード数:%d" % (summary['WinCount'])
         msg += ",負けトレード数:%d" % (summary['LoseCount'])
-        msg += ",勝ち額:%f" % (summary['WinValue'])
-        msg += ",負け額:%f" % (summary['LoseValue'])
         msg += ",勝率(%%):%f" % win_rate
         msg += ",ペイオフレシオ:%f" % payoffratio
         msg += ",1トレードあたりの期待損益率(%%):%f" % expected_rate
-        msg += ",トレード1日あたりの期待損益率(%%):%f\n" % expected_rate_per_1day
-        msg += ",勝ち額(long):%f" % (summary['LongWinValue'])
-        msg += ",負け額(long):%f" % (summary['LongLoseValue'])
-        msg += ",勝率(%%)(long):%f" % long_win_rate
-        msg += ",ペイオフレシオ(long):%f" % long_payoffratio
-        msg += ",1トレードあたりの期待損益率(%%)(long):%f" % long_expected_rate
-        msg += ",トレード1日あたりの期待損益率(%%)(long):%f\n" % long_expected_rate_per_1day
-        msg += ",勝ち額(short):%f" % (summary['ShortWinValue'])
-        msg += ",負け額(short):%f" % (summary['ShortLoseValue'])
-        msg += ",勝率(%%)(short):%f" % short_win_rate
-        msg += ",ペイオフレシオ(short):%f" % short_payoffratio
-        msg += ",1トレードあたりの期待損益率(%%)(short):%f" % short_expected_rate
-        msg += ",トレード1日あたりの期待損益率(%%)(short):%f\n" % short_expected_rate_per_1day
+        msg += ",トレード1日あたりの期待損益率(%%):%f" % expected_rate_per_1day
         #DBに結果を保存してしまう
         save_simulate_result(
              symbol
@@ -272,6 +264,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
             ,short_payoffratio
             ,short_expected_rate
             ,short_expected_rate_per_1day
+            ,regist_date
         )
     return msg
 
@@ -312,6 +305,7 @@ def save_simulate_result(
                     ,short_payoffratio
                     ,short_expected_rate
                     ,short_expected_rate_per_1day
+                    ,regist_date
 ):
     conn = sqlite3.connect(dbfile)
     conn.execute("""
@@ -353,10 +347,12 @@ def save_simulate_result(
                     ,short_payoffratio
                     ,short_expected_rate
                     ,short_expected_rate_per_1day
+                    ,regist_date
                 )
                 values
                 ( 
                      ?
+                    ,?
                     ,?
                     ,?
                     ,?
@@ -431,6 +427,7 @@ def save_simulate_result(
         ,short_payoffratio
         ,short_expected_rate
         ,short_expected_rate_per_1day
+        ,regist_date
     ))
     conn.commit()
     conn.close()
@@ -568,7 +565,7 @@ def backtest_bollingerband(symbol_txt, start_date, end_date, ma, diff, ev_sigma)
     for symbol in symbols:
         symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma)
-        bollinger_butler = bollingerband.Butler(ma, diff, ev_sigma)
+        bollinger_butler = bollingerband.Butler(ma, diff)
         title = "超短期ボリンジャー%d日_%s倍_決済差額%s" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
         simulator_run(title, q, bollinger_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
@@ -583,7 +580,7 @@ def backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, ma, d
         symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma)
         butler = bollingerband_and_volume_moving_average.Butler(ma, diff)
-        title = "超短期ボリンジャー%d日_σ%s倍_%s_出来高%d日" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma, '{:.2f}'.format(vol_ev_sigma_ratio))
+        title = "超短期ボリンジャー%d日_σ%s倍_%s_出来高移動平均%d日" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma)
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s_vol%d.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma)
         simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
         fin_cnt = 1 + fin_cnt
@@ -596,7 +593,7 @@ def backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_
     for symbol in symbols:
         symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma, vol_ev_sigma_ratio)
-        butler = bollingerband_and_volume_moving_average.Butler(ma, diff, ev_sigma)
+        butler = bollingerband_and_volume_moving_average.Butler(ma, diff)
         title = "超短期ボリンジャー%d日_σ%s倍_%s_出来高ボリンジャー%d日_σ%s倍" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma, '{:.2f}'.format(vol_ev_sigma_ratio))
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s_vol%d_s%s.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma, '{:.2f}'.format(vol_ev_sigma_ratio))
         simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
@@ -625,12 +622,26 @@ def backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, 
         symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
         butler = new_value_and_moving_average_and_volume_moving_average.Butler(new_value)
-        title = "新値%d日_移動平均%d日_出来高%d日" % (new_value, ma, vol_ma_duration)
+        title = "新値%d日_移動平均%d日_出来高移動平均%d日" % (new_value, ma, vol_ma_duration)
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d_vol%d.csv' % (start_date, end_date, new_value, ma, vol_ma_duration)
         simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
+def backtest_new_value_and_moving_average_and_volume_bollingerband(symbol_txt, start_date, end_date, ma, new_value, vol_ma_duration, vol_ev_sigma_ratio):
+    symbols = open(symbol_txt, "r")
+    symbol_cnt = sum(1 for line in open(symbol_txt))
+    fin_cnt = 0
+    for symbol in symbols:
+        symbol = symbol.strip()
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
+        butler = new_value_and_moving_average_and_volume_bollingerband.Butler(new_value)
+        title = "新値%d日_移動平均%d日_出来高ボリンジャー%d日_σ%s倍" % (new_value, ma, vol_ma_duration, '{:.2f}'.format(vol_ev_sigma_ratio))
+        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d_vol%d_%s.csv' % (start_date, end_date, new_value, ma, vol_ma_duration, '{:.2f}'.format(vol_ev_sigma_ratio))
+        simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, tick) 
+        fin_cnt = 1 + fin_cnt
+        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
+        
 def backtest(symbol_txt):
     start_date = "2018-08-01"
     end_date = "2019-07-31"
@@ -648,19 +659,24 @@ def backtest(symbol_txt):
     #超短期ボリンジャーバンド+出来高移動平均
     bol_ma = 3 #終値移動平均の日数
     diff_price = 0.1 #決済する差額
-    ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
-    vol_ma = 20 #出来高移動平均の日数
-    #backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 20, 3.5)
-    for m in range(1, vol_ma+1):
-        backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, m)
+    vol_ma = 30 #出来高移動平均の日数
+    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 21)
+    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 21)
+    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 10)
+    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 5)
+    # for m in range(1, vol_ma+1):
+    #    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, m) #2019/08/10. 出来高21日 1日当たりの期待利益率0.095
 
     #超短期ボリンジャーバンド+出来高ボリンジャーバンド
     bol_ma = 3 #終値移動平均の日数
     diff_price = 0.1 #決済する差額
     ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
     vol_ma = 20 #出来高移動平均の日数
-    vol_ev_sigma_ratio = 3.0 #出来高sigmaの判定倍率
-    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 3, diff_price, 1, 20, 3.5)
+    vol_ev_sigma_ratio = 2.7 #出来高sigmaの判定倍率
+    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)
+    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, 14, 2.0)
+    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, vol_ma, vol_ev_sigma_ratio)
+    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 14, 2.0)
     #for ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
         #for m in range(2, vol_ma+1):
             #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 3, diff_price, 1, m, ev_s)
@@ -670,16 +686,29 @@ def backtest(symbol_txt):
     new_value_duration = 3 #新値の日数
     #backtest_new_value_and_moving_average(symbol_txt, start_date, end_date, 1, 1)
     #backtest_new_value_and_moving_average(symbol_txt, start_date, end_date, 4, 1)
-    #backtest_new_value_and_moving_average(symbol_txt, start_date, end_date, 12, 1)
+    #backtest_new_value_and_moving_average(symbol_txt, start_date, end_date, 14, 1)
     #for m in range(1,nv_ma+1):
     #    for n in range(1, new_value_duration+1):
     #        backtest_new_value_and_moving_average(symbol_txt, start_date, end_date, m, n)
 
     #新値＋移動平均+出来高移動平均
-    nv_ma = 15 #移動平均の日数
-    new_value_duration = 3 #新値の日数
-    #backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, 1, 1, 20)
+    nv_ma = 4 #移動平均の日数
+    new_value_duration = 1 #新値の日数
+    vol_ma = 10 #出来高移動平均の日数
+    backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, vol_ma)
+    backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, 5)
+    #for vol_m in range(2, vol_ma+1):
+    #    backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, vol_m)
 
+    #新値＋移動平均+出来高ボリンジャー
+    nv_ma = 14 #移動平均の日数
+    new_value_duration = 1 #新値の日数
+    vol_ma = 30 #出来高移動平均の日数
+    vol_ev_sigma_ratio = 3.0 #出来高sigmaの判定倍率
+    #backtest_new_value_and_moving_average_and_volume_bollingerband(symbol_txt, start_date, end_date, nv_ma, new_value_duration, 20, 1)
+    #for vol_ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
+    #    for vol_m in range(2, vol_ma+1):
+    #        backtest_new_value_and_moving_average_and_volume_bollingerband(symbol_txt, start_date, end_date, nv_ma, new_value_duration, vol_m, vol_ev_s)
 
 if __name__ == '__main__':
     trade_fee = 0.1

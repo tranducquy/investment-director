@@ -1,12 +1,13 @@
-
+﻿
 -- strategy summary
 SELECT
  count(symbol) as 件数
 ,strategy
 ,start_date
 ,end_date
-,sum(rate_of_return) as 合計騰落率
+,avg(win_rate) * avg(expected_rate_per_1day) as 平均勝率×一日当たりの期待損益率平均
 ,avg(rate_of_return) as 平均騰落率
+,avg(win_rate) as 平均勝率
 ,avg(trading_period) as 平均取引日数
 ,avg(expected_rate) as 平均期待損益率
 ,avg(expected_rate_per_1day) as 一日当たりの期待損益率平均
@@ -20,7 +21,7 @@ from backtest_result
 where start_date = '2018-08-01'
 group by strategy, start_date, end_date
 having count(symbol) > 1000
-order by 9 desc
+order by 5 desc
 ;
 
 

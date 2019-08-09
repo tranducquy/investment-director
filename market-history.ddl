@@ -50,6 +50,7 @@ create table backtest_result
     short_payoffratio decimal(10,5),
     short_expected_rate decimal(10,5),
     short_expected_rate_per_1day decimal(10,5),
+    regist_date text,
     primary key(symbol, strategy, start_date, end_date)
 )
 ;
