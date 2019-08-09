@@ -17,23 +17,33 @@ class Butler():
         self.sigma_ratio = sigma_ratio
 
     def check_open_long(self, q, idx):
-        #当日高値がevσ以上
-        if q.quotes['high'][idx] is None or q.upper_ev_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower_ev_sigma[idx] is None:
+        #当日高値がevσ以上かつ出来高がevσ以上
+        if (q.quotes['high'][idx] is None 
+            or q.upper_ev_sigma[idx] is None 
+            or q.quotes['low'][idx] is None 
+            or q.lower_ev_sigma[idx] is None
+            or q.vol_upper_ev_sigma[idx] is None):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        if long_flg == True and short_flg == False:
+        volume_flg = q.quotes['volume'][idx] >= q.vol_upper_ev_sigma[idx]
+        if long_flg == True and short_flg == False and volume_flg == True:
             return True
         else:
             return False
 
     def check_open_short(self, q, idx):
-        #当日安値がevσ以下
-        if q.quotes['high'][idx] is None or q.upper_ev_sigma[idx] is None or q.quotes['low'][idx] is None or q.lower_ev_sigma[idx] is None:
+        #当日安値がevσ以下かつ出来高がevσ以上
+        if (q.quotes['high'][idx] is None 
+                or q.upper_ev_sigma[idx] is None 
+                or q.quotes['low'][idx] is None 
+                or q.lower_ev_sigma[idx] is None
+                or q.vol_upper_ev_sigma[idx] is None):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        if long_flg == False and short_flg == True:
+        volume_flg = q.quotes['volume'][idx] >= q.vol_upper_ev_sigma[idx]
+        if long_flg == False and short_flg == True and volume_flg == True:
             return True
         else:
             return False

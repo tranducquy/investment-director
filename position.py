@@ -24,8 +24,8 @@ class Position():
             ,'LoseCount':0
             ,'WinValue':0.00
             ,'LoseValue':0.00
-            ,'InitValue': initial_cash
-            ,'LastValue':0.00
+            ,'InitValue':initial_cash
+            ,'LastValue':initial_cash
             ,'ProfitRateSummary':0.00
             ,'PositionHavingDays':0
             ,'LongWinCount':0
@@ -151,7 +151,7 @@ class Position():
                 self.summary['LongLoseValue'] += profit_value
             if order_type == OrderType.STOP_MARKET_SHORT:
                 self.summary['ShortLoseValue'] += profit_value
-        self.summary['LastValue'] = round(self.cash + (self.pos_vol * self.pos_price), 2)
+        self.summary['LastValue'] = self.cash + (self.pos_vol * self.pos_price)
         self.summary['ProfitRateSummary'] += profit_rate
         if order_type == OrderType.STOP_MARKET_LONG:
             self.summary['LongProfitRateSummary'] += profit_rate

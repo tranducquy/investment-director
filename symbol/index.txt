@@ -1,5 +1,4 @@
 ^N225
-TOPIX
 ^GSPC
 ^DJI
 ^HSI

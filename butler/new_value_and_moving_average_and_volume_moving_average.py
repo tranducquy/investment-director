@@ -14,39 +14,31 @@ class Butler():
         self.nv_duration = duration
 
     def check_open_long(self, q, idx):
-        #高値更新, 終値が移動平均より上
-        if q.quotes['high'][idx] is None or q.quotes['close'][idx] is None:
+        #高値更新, 終値が移動平均より上、出来高が移動平均より上
+        if q.quotes['high'][idx] is None or q.quotes['close'][idx] is None or q.quotes['volume'][idx] is None:
             return False
         past_high = self.get_maximum_high_price_for_nv(q, idx)
-        past_close = self.get_maximum_close_price_for_nv(q, idx)
-        today_open = q.quotes['open'][idx]
         today_high = q.quotes['high'][idx]
         today_close = q.quotes['close'][idx]
+        today_volume = q.quotes['volume'][idx]
         today_sma = q.sma[idx]
-        if (today_high > past_high 
-                and today_close > today_sma 
-                #and today_close > today_open
-                #and today_close > past_close
-                ):
+        today_vol_ma = q.vol_ma[idx]
+        if today_high > past_high and today_close > today_sma and today_volume > today_vol_ma:
             return True
         else:
             return False
 
     def check_open_short(self, q, idx):
-        #安値更新, 終値が移動平均より下
-        if q.quotes['low'][idx] is None or q.quotes['close'][idx] is None:
+        #安値更新, 終値が移動平均より下、出来高が移動平均より上
+        if q.quotes['low'][idx] is None or q.quotes['close'][idx] is None or q.quotes['volume'][idx] is None:
             return False
         past_low = self.get_minimum_low_price_for_nv(q, idx)
-        past_close = self.get_minimum_close_price_for_nv(q, idx)
-        today_open = q.quotes['open'][idx]
         today_low = q.quotes['low'][idx]
+        today_volume = q.quotes['volume'][idx]
         today_sma = q.sma[idx]
         today_close = q.quotes['close'][idx]
-        if (past_low > today_low 
-                and today_sma > today_close 
-                #and today_open > today_close
-                #and past_close > today_close
-                ):
+        today_vol_ma = q.vol_ma[idx]
+        if past_low > today_low and today_sma > today_close and today_volume > today_vol_ma:
             return True
         else:
             return False
@@ -89,18 +81,4 @@ class Butler():
         if maxlength < self.nv_duration or idx < self.nv_duration:
             return -1
         ary = q.quotes['low'][idx-self.nv_duration:idx]
-        return min(ary)
-
-    def get_maximum_close_price_for_nv(self, q, idx):
-        maxlength = len(q.quotes)
-        if maxlength < self.nv_duration or idx < self.nv_duration:
-            return -1
-        ary = q.quotes['close'][idx-self.nv_duration:idx]
-        return max(ary)
-
-    def get_minimum_close_price_for_nv(self, q, idx):
-        maxlength = len(q.quotes)
-        if maxlength < self.nv_duration or idx < self.nv_duration:
-            return -1
-        ary = q.quotes['close'][idx-self.nv_duration:idx]
         return min(ary)
