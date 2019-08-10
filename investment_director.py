@@ -39,7 +39,7 @@ if __name__ == '__main__':
      symbol
     ,strategy
     from backtest_result
-    where symbol in (
+    where (symbol in (
         select 
         symbol
         from backtest_result
@@ -56,11 +56,13 @@ if __name__ == '__main__':
         and end_date = ?
         and backtest_period > 300*3
         and rate_of_return > 0
-    )
+    ) 
     and start_date = ?
     and end_date = ?
     and backtest_period > 300*15
-    and rate_of_return > 0
+    and rate_of_return > 0)
+    or symbol in ('BTC-USD', 'BTC-JPY', 'BTC-ETH')
+    order by rate_of_return
     """, (start_date_1year, end_date, start_date_3year, end_date, start_date_15year, end_date))
     symbols = c.fetchall()
     conn.close()
@@ -75,9 +77,9 @@ if __name__ == '__main__':
             if q.quotes['business_date'][idx] == end_date:
                 if butler.check_open_long(q, idx):
                     price = butler.get_price_stop_market_long(high, tick)
-                    logger.info("long ute:[%s] price:[%f]" % (symbol, price))
+                    logger.info("[%s]に逆指値でlongうて 逆指値:[%f]" % (symbol, price))
                 elif butler.check_open_short(q, idx):
                     price = butler.get_price_stop_market_short(high, tick)
-                    logger.info("short ute:[%s] price:[%f]" % (symbol, price))
+                    logger.info("[%s]に逆指値でshortうて 逆指値:[%f]" % (symbol, price))
     
     #TODO:ポジション有り
