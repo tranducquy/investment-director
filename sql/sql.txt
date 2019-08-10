@@ -26,8 +26,6 @@ order by 10 desc
 
 
 --個別銘柄
-
--- strategy summary
 SELECT
  symbol
 ,strategy

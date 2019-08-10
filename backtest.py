@@ -5,7 +5,8 @@ import os
 import sys
 from quotes import Quotes
 import csv
-import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import sqlite3
 import numpy as np
 import common
@@ -171,7 +172,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
     end_date =quotes.end_date
     market_start_date = quotes.get_headdate()
     market_end_date =quotes.get_taildate()
-    regist_date = datetime.datetime.today().strftime("%Y-%m-%d")
+    regist_date = datetime.today().strftime("%Y-%m-%d")
     msg = ""
     if for_csv:
         msg  = "%s" % symbol
@@ -180,7 +181,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",%s" % (end_date)
         msg += ",%s" % (market_start_date)
         msg += ",%s" % (market_end_date)
-        msg += ",%d" % (datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
+        msg += ",%d" % (datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
         msg += ",%d" % (summary['PositionHavingDays'])
         msg += ",%d" % position_having_days_per_trade
         msg += ",%f" % (summary['InitValue'])
@@ -214,7 +215,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",バックテスト終了日:%s" % (end_date)
         msg += ",取引開始日:%s" % (market_start_date)
         msg += ",取引終了日:%s" % (market_end_date)
-        msg += ",日数：%d" % (datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
+        msg += ",日数：%d" % (datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
         msg += ",トレード保有日数:%d" % (summary['PositionHavingDays'])
         msg += ",1トレードあたりの平均日数:%d" % position_having_days_per_trade
         msg += ",初期資産:%f" % (summary['InitValue'])
@@ -234,7 +235,7 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
             ,end_date
             ,market_start_date
             ,market_end_date
-            ,(datetime.datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.datetime.strptime(market_start_date, "%Y-%m-%d")).days
+            ,(datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
             ,summary['PositionHavingDays']
             ,round(position_having_days_per_trade, 2)
             ,summary['InitValue']
@@ -642,16 +643,14 @@ def backtest_new_value_and_moving_average_and_volume_bollingerband(symbol_txt, s
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
         
-def backtest(symbol_txt):
-    start_date = "2018-08-01"
-    end_date = "2019-07-31"
+def backtest(symbol_txt, start_date, end_date):
     #超短期ボリンジャーバンド
     bol_ma = 8 #移動平均の日数
     diff_price = 0.1 #決済する差額
     ev_sigma_ratio = 3.0 #トレンドを判定するsigmaの倍率
     #backtest_bollingerband(symbol_txt, start_date, end_date, 3, diff_price, 1)
     #backtest_bollingerband(symbol_txt, start_date, end_date, 4, diff_price, 1.3)
-    #backtest_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2)
+    backtest_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2)
     #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
     #    for bol_m in range(2, bol_ma+1):
     #        backtest_bollingerband(symbol_txt, start_date, end_date, bol_m, diff_price, ev_s)
@@ -660,10 +659,10 @@ def backtest(symbol_txt):
     bol_ma = 3 #終値移動平均の日数
     diff_price = 0.1 #決済する差額
     vol_ma = 30 #出来高移動平均の日数
-    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 21)
-    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 21)
-    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 10)
-    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 5)
+    #backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 21)
+    #backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 21)
+    #backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 10)
+    #backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, 5)
     # for m in range(1, vol_ma+1):
     #    backtest_bollingerband_and_volume_ma(symbol_txt, start_date, end_date, 3, diff_price, 1, m) #2019/08/10. 出来高21日 1日当たりの期待利益率0.095
 
@@ -671,12 +670,12 @@ def backtest(symbol_txt):
     bol_ma = 3 #終値移動平均の日数
     diff_price = 0.1 #決済する差額
     ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
-    vol_ma = 20 #出来高移動平均の日数
-    vol_ev_sigma_ratio = 2.7 #出来高sigmaの判定倍率
-    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)
-    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, 14, 2.0)
-    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, vol_ma, vol_ev_sigma_ratio)
-    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 14, 2.0)
+    vol_ma = 14 #出来高移動平均の日数
+    vol_ev_sigma_ratio = 2.0 #出来高sigmaの判定倍率
+    backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)
+    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, 14, 2.0)
+    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, vol_ma, vol_ev_sigma_ratio)
+    #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 5, diff_price, 1.2, 14, 2.0)
     #for ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
         #for m in range(2, vol_ma+1):
             #backtest_bollingerband_and_volume_bollingerband(symbol_txt, start_date, end_date, 3, diff_price, 1, m, ev_s)
@@ -694,9 +693,9 @@ def backtest(symbol_txt):
     #新値＋移動平均+出来高移動平均
     nv_ma = 4 #移動平均の日数
     new_value_duration = 1 #新値の日数
-    vol_ma = 10 #出来高移動平均の日数
+    vol_ma = 20 #出来高移動平均の日数
     backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, vol_ma)
-    backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, 5)
+    #backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, 5)
     #for vol_m in range(2, vol_ma+1):
     #    backtest_new_value_and_moving_average_and_volume_moving_average(symbol_txt, start_date, end_date, nv_ma, new_value_duration, vol_m)
 
@@ -720,5 +719,25 @@ if __name__ == '__main__':
     backtest_result_path = conf['backtest_result']
     backtest_summary_filename = backtest_result_path + '/summary.csv'
     symbol_txt = conf['symbol']
-    backtest(symbol_txt)
+    args = len(sys.argv)
+    today = datetime.today()
+    start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
+    end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+    if args == 3:
+        start_date = sys.argv[1]
+        end_date = sys.argv[2]
+        backtest(symbol_txt, start_date, end_date)
+    else:
+        #3ヶ月
+        start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
+        backtest(symbol_txt, start_date, end_date)
+        #1年
+        start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
+        backtest(symbol_txt, start_date, end_date)
+        #3年
+        start_date = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
+        backtest(symbol_txt, start_date, end_date)
+        #15年
+        start_date = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
+        backtest(symbol_txt, start_date, end_date)
 

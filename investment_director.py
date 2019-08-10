@@ -2,7 +2,8 @@
 import sys
 import sqlite3
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import common
 import my_logger
 import quotes
@@ -19,17 +20,24 @@ if __name__ == '__main__':
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('investment-director.')
-    symbol_txt = conf['symbol']
+    #symbol_txt = conf['symbol']
     dbfile = conf['dbfile']
     tick = 1
+    #symbols = open(symbol_txt, "r")
+    #1,3,15年のバックテストで利益の出ている銘柄のみ探す
+    conn = sqlite3.connect(dbfile)
+    c = conn.cursor()
     today = datetime.today()
-    start_date = today - datetime.timedelta(days=30)
-    end_date = datetime.strftime(today, '%Y-%m-%d')
-    symbols = open(symbol_txt, "r")
-    #TODO:3か月,1,3,15年のバックテストで利益の出ている銘柄のみ探す
-    """
+    start_date_3month = (today - relativedelta(months=1)).strftime("%Y-%m-%d")
+    start_date_1year = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
+    start_date_3year = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
+    start_date_15year = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
+    start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+    c.execute("""
     select
-    symbol
+     symbol
+    ,strategy
     from backtest_result
     where symbol in (
         select 
@@ -39,25 +47,28 @@ if __name__ == '__main__':
             select
             symbol
             from backtest_result
-            where start_date = '2018-08-10'
-            and end_date = '2019-08-09'
-            and trading_period > 300*1
+            where start_date = ?
+            and end_date = ?
+            and backtest_period > 300*1
             and rate_of_return > 0
         )
-        and start_date = '2016-08-10'
-        and end_date = '2019-08-09'
-        and trading_period > 300*3
+        and start_date = ?
+        and end_date = ?
+        and backtest_period > 300*3
         and rate_of_return > 0
     )
-    and start_date = '2004-08-10'
-    and end_date = '2019-08-09'
-    and trading_period > 300*15
+    and start_date = ?
+    and end_date = ?
+    and backtest_period > 300*15
     and rate_of_return > 0
-    """
+    """, (start_date_1year, end_date, start_date_3year, end_date, start_date_15year, end_date))
+    symbols = c.fetchall()
+    conn.close()
 
     #ポジション無し
-    for symbol in symbols:
-        symbol = symbol.strip()
+    for s in symbols:
+        symbol = s[0]
+        strategy = s[1]
         q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
         butler = new_value_and_moving_average_and_volume_moving_average.Butler(1)
         for idx, high in enumerate(q.quotes['high']):
