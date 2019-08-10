@@ -17,7 +17,7 @@
       "class": "logging.handlers.TimedRotatingFileHandler",
       "level": "DEBUG",
       "formatter": "fmt1",
-      "filename": "cccrawler.log",
+      "filename": "investment-director.log",
       "encoding": "utf8",
       "when": "D",
       "interval": 1,
