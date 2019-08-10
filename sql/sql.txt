@@ -21,7 +21,35 @@ from backtest_result
 where start_date = '2018-08-01'
 group by strategy, start_date, end_date
 having count(symbol) > 1000
-order by 5 desc
+order by 10 desc
 ;
+
+
+--個別銘柄
+
+-- strategy summary
+SELECT
+ symbol
+,strategy
+,start_date
+,end_date
+,rate_of_return as 騰落率
+,win_rate as 勝率
+,trading_period as 取引日数
+,expected_rate as 期待損益率
+,expected_rate_per_1day as 一日当たりの期待損益率
+,long_expected_rate as 期待損益率long
+,long_expected_rate_per_1day as 一日当たりの期待損益率long
+,short_expected_rate as 期待損益率short
+,short_expected_rate_per_1day as 一日当たりの期待損益率short
+,average_period_per_trade as 取引当たりの日数
+,win_count+loss_count as 取引数
+from backtest_result
+where start_date = '2018-08-01'
+and end_date = '2019-07-31'
+order by rate_of_return desc
+;
+
+
 
 

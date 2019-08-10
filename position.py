@@ -148,9 +148,9 @@ class Position():
         else:
             self.summary['LoseValue'] += abs(profit_value)
             if order_type == OrderType.STOP_MARKET_LONG:
-                self.summary['LongLoseValue'] += profit_value
+                self.summary['LongLoseValue'] += abs(profit_value)
             if order_type == OrderType.STOP_MARKET_SHORT:
-                self.summary['ShortLoseValue'] += profit_value
+                self.summary['ShortLoseValue'] += abs(profit_value)
         self.summary['LastValue'] = self.cash + (self.pos_vol * self.pos_price)
         self.summary['ProfitRateSummary'] += profit_rate
         if order_type == OrderType.STOP_MARKET_LONG:

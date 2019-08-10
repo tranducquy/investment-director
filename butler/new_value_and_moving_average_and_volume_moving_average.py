@@ -55,6 +55,14 @@ class Butler():
         price = round(price + tick, 2)
         vol = math.floor(cash / price)
         return (price, vol)
+ 
+    def get_price_stop_market_long(self, price, tick):
+        price = round(price + tick, 2)
+        return price
+
+    def get_price_stop_market_short(self, price, tick):
+        price = round(price + tick, 2)
+        return price
 
     def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
         price = round(price - tick, 2)
