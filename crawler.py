@@ -12,15 +12,18 @@ logger = s.myLogger()
 def insert_history(business_date, symbol, open_price, high_price, low_price, close_price, volume):
     dbfile = conf['dbfile']
     try:
-        conn = sqlite3.connect(dbfile)
+        conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
         c = conn.cursor()
-        v = volume.astype("int32")
+        v = volume.astype("int64")
         param = ( symbol, business_date.strftime("%Y-%m-%d"), open_price, high_price, low_price, close_price, int(v) )
         c.execute('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', param)
         conn.commit()
         conn.close
     except Exception as err:
         logger.error('error dayo. {0}'.format(err))
+        if conn: conn.rollback()
+    finally:
+        if conn: conn.commit()
 
 if __name__ == '__main__':
     args = sys.argv
@@ -44,7 +47,7 @@ if __name__ == '__main__':
     for symbol in symbols:
         symbol = symbol.strip()
         data = yf.download(symbol, start=start_date, end=end_date)
-        idx = data.index.size-1
+        idx = data.index.size
         for i in range(idx):
             insert_history(data.index[i], symbol, data['Open'][i], data['High'][i], data['Low'][i], data['Close'][i], data['Volume'][i])
         logger.info("downloaded:[%s][%s-%s]" % (symbol, start_date, end_date))
