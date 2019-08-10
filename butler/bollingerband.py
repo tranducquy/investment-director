@@ -54,11 +54,15 @@ class Butler():
             return False
 
     def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
+        if cash == 0 or price == 0:
+            return (-1, -1)
         price = round(price + tick, 2)
         vol = math.floor(cash / price)
         return (price, vol)
 
     def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
+        if cash == 0 or price == 0:
+            return (-1, -1)
         price = round(price - tick, 2)
         vol = math.floor((cash / price) * -1)
         return (price, vol)
