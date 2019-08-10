@@ -41,7 +41,6 @@ if __name__ == '__main__':
     ,strategy
     from backtest_result
     where 
-    (
     (symbol, strategy) in (
         select 
          symbol
@@ -67,11 +66,6 @@ if __name__ == '__main__':
     and backtest_period > 300*15
     and rate_of_return > 0
     and strategy in ('新値1日_移動平均4日_出来高移動平均20日', '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10', '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍')
-    )
-    or (
-        symbol in ('BTC-USD', 'BTC-JPY', 'BTC-ETH')
-        and strategy in ('新値1日_移動平均4日_出来高移動平均20日', '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10', '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍')
-        )
     order by rate_of_return
     """, (start_date_1year, end_date, start_date_3year, end_date, start_date_15year, end_date))
     symbols = c.fetchall()

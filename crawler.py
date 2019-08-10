@@ -46,6 +46,8 @@ if __name__ == '__main__':
         symbol = symbol.strip()
         data = yf.download(symbol, start=start_date, end=end_date)
         idx = data.index.size
+        max_date = ''
+        min_date = ''
         quotes = list()
         for i in range(idx):
             business_date = (data.index[i]).strftime("%Y-%m-%d")
@@ -55,6 +57,14 @@ if __name__ == '__main__':
             close_price = data['Close'][i]
             volume = int((data['Volume'][i]).astype('int64'))
             quotes.append( (symbol, business_date, open_price, high_price, low_price, close_price, volume) )
+            if max_date == '':
+                max_date = business_date
+            elif business_date > max_date:
+                max_date = business_date
+            if min_date == '':
+                min_date = business_date
+            elif business_date < min_date:
+                min_date = business_date
         insert_history(quotes)
-        logger.info("downloaded:[%s][%s-%s]" % (symbol, start_date, end_date))
+        logger.info("downloaded:[%s][%s-%s] [%s-%s]" % (symbol, start_date, end_date, min_date, max_date))
 
