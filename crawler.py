@@ -37,7 +37,7 @@ if __name__ == '__main__':
     elif len(args) == 1:
         default_period = int(conf['default_period'])
         start_date = (datetime.datetime.now() + datetime.timedelta(days=default_period)).strftime('%Y-%m-%d')
-        end_date = (datetime.datetime.now() + datetime.timedelta(days=-1)).strftime('%Y-%m-%d') #昨日
+        end_date = (datetime.datetime.now()).strftime('%Y-%m-%d')
     else:
         sys.exit()
     symbol_txt = conf['symbol']
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             high_price = data['High'][i]
             low_price = data['Low'][i]
             close_price = data['Close'][i]
-            volume = int(data['Volume'][i])
+            volume = int((data['Volume'][i]).astype('int64'))
             quotes.append( (symbol, business_date, open_price, high_price, low_price, close_price, volume) )
         insert_history(quotes)
         logger.info("downloaded:[%s][%s-%s]" % (symbol, start_date, end_date))

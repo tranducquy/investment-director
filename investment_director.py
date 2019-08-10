@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 import common
 import my_logger
 import quotes
+from butler import bollingerband
 from butler import bollingerband_and_volume_bollingerband
 from butler import bollingerband_and_volume_moving_average
 from butler import new_value_and_moving_average_and_volume_moving_average
@@ -39,13 +40,17 @@ if __name__ == '__main__':
      symbol
     ,strategy
     from backtest_result
-    where (symbol in (
+    where 
+    (
+    (symbol, strategy) in (
         select 
-        symbol
+         symbol
+        ,strategy
         from backtest_result
-        where symbol in (
+        where (symbol, strategy) in (
             select
-            symbol
+             symbol
+            ,strategy
             from backtest_result
             where start_date = ?
             and end_date = ?
@@ -60,8 +65,13 @@ if __name__ == '__main__':
     and start_date = ?
     and end_date = ?
     and backtest_period > 300*15
-    and rate_of_return > 0)
-    or symbol in ('BTC-USD', 'BTC-JPY', 'BTC-ETH')
+    and rate_of_return > 0
+    and strategy in ('新値1日_移動平均4日_出来高移動平均20日', '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10', '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍')
+    )
+    or (
+        symbol in ('BTC-USD', 'BTC-JPY', 'BTC-ETH')
+        and strategy in ('新値1日_移動平均4日_出来高移動平均20日', '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10', '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍')
+        )
     order by rate_of_return
     """, (start_date_1year, end_date, start_date_3year, end_date, start_date_15year, end_date))
     symbols = c.fetchall()
@@ -71,15 +81,22 @@ if __name__ == '__main__':
     for s in symbols:
         symbol = s[0]
         strategy = s[1]
-        q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
-        butler = new_value_and_moving_average_and_volume_moving_average.Butler(1)
+        if strategy == '新値1日_移動平均4日_出来高移動平均20日':
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
+            butler = new_value_and_moving_average_and_volume_moving_average.Butler(1)
+        if strategy == '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10':
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
+            butler = bollingerband.Butler(1, 0.1)
+        if strategy == '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍':
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 14, 2.0)
+            butler = bollingerband_and_volume_bollingerband.Butler(1, 0.1)
         for idx, high in enumerate(q.quotes['high']):
             if q.quotes['business_date'][idx] == end_date:
                 if butler.check_open_long(q, idx):
                     price = butler.get_price_stop_market_long(high, tick)
-                    logger.info("[%s]に逆指値でlongうて 逆指値:[%f]" % (symbol, price))
+                    logger.info("[%s]に逆指値でlongうて 逆指値:[%f] (%s)" % (symbol, price, strategy))
                 elif butler.check_open_short(q, idx):
                     price = butler.get_price_stop_market_short(high, tick)
-                    logger.info("[%s]に逆指値でshortうて 逆指値:[%f]" % (symbol, price))
+                    logger.info("[%s]に逆指値でshortうて 逆指値:[%f] (%s)" % (symbol, price, strategy))
     
     #TODO:ポジション有り
