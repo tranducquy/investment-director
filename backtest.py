@@ -108,7 +108,7 @@ def get_summary_msgheader():
     msg += ",負け額"
     msg += ",勝率(%%)"
     msg += ",ペイオフレシオ"
-    msg += ",1トレードあたりの期待損益率(%%)¥n"
+    msg += ",1トレードあたりの期待損益率(%%)\n"
     return msg
 
 def make_summary_msg(symbol, title, summary, quotes, for_csv):
@@ -309,13 +309,15 @@ def save_simulate_result(
                     ,short_expected_rate
                     ,short_expected_rate_per_1day
                     ,regist_date
-):
-    global lock
-    lock.acquire()
-    conn = sqlite3.connect(dbfile)
-    conn.execute("""
-                insert or replace into backtest_result 
-                (
+    ):
+    try:
+        global lock
+        lock.acquire()
+        conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
+        c = conn.cursor()
+        c.execute("""
+                    insert or replace into backtest_result 
+                    (
                      symbol
                     ,strategy
                     ,start_date
@@ -356,47 +358,47 @@ def save_simulate_result(
                 )
                 values
                 ( 
-                     ?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                    ,?
-                )
-    """,
-    (
-        symbol
+                         ?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                    )
+                """,
+        (
+         symbol
         ,strategy
         ,start_date
         ,end_date
@@ -433,10 +435,15 @@ def save_simulate_result(
         ,short_expected_rate
         ,short_expected_rate_per_1day
         ,regist_date
-    ))
-    conn.commit()
-    conn.close()
-    lock.release()
+        ))
+    except Exception as err:
+        if conn: 
+            conn.rollback()
+    finally:
+        if conn: 
+            conn.commit()
+            conn.close
+        lock.release()
 
 def simulator_run(title, quotes, butler, symbol, output_summary_filename, output_history_filename, initial_cash, trade_fee, tick):
     p = Position(initial_cash, trade_fee, tick)
@@ -573,7 +580,6 @@ def backtest_bollingerband(symbols, start_date, end_date, ma, diff, ev_sigma):
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma)
         bollinger_butler = bollingerband.Butler(ma, diff)
         title = "超短期ボリンジャー%d日_%s倍_決済差額%s" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
@@ -586,7 +592,6 @@ def backtest_bollingerband_and_volume_ma(symbols, start_date, end_date, ma, diff
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma)
         butler = bollingerband_and_volume_moving_average.Butler(ma, diff)
         title = "超短期ボリンジャー%d日_σ%s倍_%s_出来高移動平均%d日" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma)
@@ -599,7 +604,6 @@ def backtest_bollingerband_and_volume_bollingerband(symbols, start_date, end_dat
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma, vol_ev_sigma_ratio)
         butler = bollingerband_and_volume_moving_average.Butler(ma, diff)
         title = "超短期ボリンジャー%d日_σ%s倍_%s_出来高ボリンジャー%d日_σ%s倍" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma, '{:.2f}'.format(vol_ev_sigma_ratio))
@@ -612,7 +616,6 @@ def backtest_new_value_and_moving_average(symbols, start_date, end_date, ma, new
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma)
         nv_ma_butler = new_value_and_moving_average.Butler(new_value)
         title = "新値%d日_移動平均%d日" % (new_value, ma)
@@ -625,7 +628,6 @@ def backtest_new_value_and_moving_average_and_volume_moving_average(symbols, sta
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
         butler = new_value_and_moving_average_and_volume_moving_average.Butler(new_value)
         title = "新値%d日_移動平均%d日_出来高移動平均%d日" % (new_value, ma, vol_ma_duration)
@@ -638,7 +640,6 @@ def backtest_new_value_and_moving_average_and_volume_bollingerband(symbols, star
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        symbol = symbol.strip()
         q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
         butler = new_value_and_moving_average_and_volume_bollingerband.Butler(new_value)
         title = "新値%d日_移動平均%d日_出来高ボリンジャー%d日_σ%s倍" % (new_value, ma, vol_ma_duration, '{:.2f}'.format(vol_ev_sigma_ratio))
@@ -653,6 +654,7 @@ def backtest(symbol_txt, start_date, end_date):
     work_size = 100
     thread_pool = list()
     while True:
+        symbols_work = list()
         symbols_len = len(symbols)
         if symbols_len > 100:
             symbols_work = symbols[:work_size]
@@ -666,19 +668,18 @@ def backtest(symbol_txt, start_date, end_date):
         bol_ma = 8 #移動平均の日数
         diff_price = 0.1 #決済する差額
         ev_sigma_ratio = 3.0 #トレンドを判定するsigmaの倍率
-        thread = threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2))
+        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bol_ma+1):
-        #        backtest_bollingerband(symbols, start_date, end_date, bol_m, diff_price, ev_s)
-        thread_pool.append(thread)
+        #        backtest_bollingerband(symbols_work, start_date, end_date, bol_m, diff_price, ev_s)
 
         #超短期ボリンジャーバンド+出来高移動平均
         bol_ma = 3 #終値移動平均の日数
         diff_price = 0.1 #決済する差額
         vol_ma = 20 #出来高移動平均の日数
-        #thread = threading.Thread(target=backtest_bollingerband_and_volume_ma, args=(symbols, start_date, end_date, bol_ma, diff_price, 1, vol_ma))
+        #thread = threading.Thread(target=backtest_bollingerband_and_volume_ma, args=(symbols_work, start_date, end_date, bol_ma, diff_price, 1, vol_ma))
         #for m in range(1, vol_ma+1):
-        #    backtest_bollingerband_and_volume_ma(symbols, start_date, end_date, 3, diff_price, 1, m) #2019/08/10. 出来高21日 1日当たりの期待利益率0.095
+        #    backtest_bollingerband_and_volume_ma(symbols_work, start_date, end_date, 3, diff_price, 1, m) #2019/08/10. 出来高21日 1日当たりの期待利益率0.095
         #thread_pool.append(thread)
 
         #超短期ボリンジャーバンド+出来高ボリンジャーバンド
@@ -687,49 +688,46 @@ def backtest(symbol_txt, start_date, end_date):
         ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
         vol_ma = 14 #出来高移動平均の日数
         vol_ev_sigma_ratio = 2.0 #出来高sigmaの判定倍率
-        thread = threading.Thread(target=backtest_bollingerband_and_volume_bollingerband, args=(symbols, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio))
+        thread_pool.append(threading.Thread(target=backtest_bollingerband_and_volume_bollingerband, args=(symbols_work, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #for ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
             #for m in range(2, vol_ma+1):
-                #backtest_bollingerband_and_volume_bollingerband(symbols, start_date, end_date, 3, diff_price, 1, m, ev_s)
-        thread_pool.append(thread)
+                #backtest_bollingerband_and_volume_bollingerband(symbols_work, start_date, end_date, 3, diff_price, 1, m, ev_s)
 
         #新値＋移動平均
         nv_ma = 4 #移動平均の日数
         new_value_duration = 1 #新値の日数
-        thread = threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols, start_date, end_date, 4, 1))
+        #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols_work, start_date, end_date, 4, 1)))
         #for m in range(1,nv_ma+1):
         #    for n in range(1, new_value_duration+1):
-        #        backtest_new_value_and_moving_average(symbols, start_date, end_date, m, n)
-        thread_pool.append(thread)
+        #        backtest_new_value_and_moving_average(symbols_work, start_date, end_date, m, n)
 
         #新値＋移動平均+出来高移動平均
         nv_ma = 4 #移動平均の日数
         new_value_duration = 1 #新値の日数
         vol_ma = 20 #出来高移動平均の日数
-        thread = threading.Thread(target=backtest_new_value_and_moving_average_and_volume_moving_average, args=(symbols, start_date, end_date, nv_ma, new_value_duration, vol_ma))
+        thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average_and_volume_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
         #for vol_m in range(2, vol_ma+1):
-        #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols, start_date, end_date, nv_ma, new_value_duration, vol_m)
-        thread_pool.append(thread)
+        #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
 
         #新値＋移動平均+出来高ボリンジャー
         nv_ma = 14 #移動平均の日数
         new_value_duration = 1 #新値の日数
         vol_ma = 30 #出来高移動平均の日数
         vol_ev_sigma_ratio = 3.0 #出来高sigmaの判定倍率
-        #thread = threading.Thread(backtest_new_value_and_moving_average_and_volume_bollingerband, args=(symbols, start_date, end_date, nv_ma, new_value_duration, 20, 1))
+        #thread = threading.Thread(backtest_new_value_and_moving_average_and_volume_bollingerband, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, 20, 1))
         #for vol_ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
         #    for vol_m in range(2, vol_ma+1):
-        #        backtest_new_value_and_moving_average_and_volume_bollingerband(symbols, start_date, end_date, nv_ma, new_value_duration, vol_m, vol_ev_s)
+        #        backtest_new_value_and_moving_average_and_volume_bollingerband(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m, vol_ev_s)
         #thread_pool.append(thread)
-    for thread in thread_pool:
-        thread.start()
-    for thread in thread_pool:
-        thread.join()
+    for t in thread_pool:
+        t.start()
+    for t in thread_pool:
+        t.join()
     thread_pool.clear()
 
 if __name__ == '__main__':
     trade_fee = 0.1
-    tick = 1
+    tick = 0.01
     conf = common.read_conf()
     s = my_logger.Logger()
     dbfile = conf['dbfile']

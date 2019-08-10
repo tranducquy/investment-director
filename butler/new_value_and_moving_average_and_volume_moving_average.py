@@ -15,12 +15,15 @@ class Butler():
 
     def check_open_long(self, q, idx):
         #高値更新, 終値が移動平均より上、出来高が移動平均より上
-        if q.quotes['high'][idx] is None or q.quotes['close'][idx] is None or q.quotes['volume'][idx] is None:
+        if (q.quotes['high'][idx] is None 
+                or q.quotes['close'][idx] is None 
+                or q.quotes['volume'][idx] is None
+                or q.vol_ma[idx] is None):
             return False
         past_high = self.get_maximum_high_price_for_nv(q, idx)
         today_high = q.quotes['high'][idx]
         today_close = q.quotes['close'][idx]
-        today_volume = q.quotes['volume'][idx]
+        today_volume = int(q.quotes['volume'][idx])
         today_sma = q.sma[idx]
         today_vol_ma = q.vol_ma[idx]
         if today_high > past_high and today_close > today_sma and today_volume > today_vol_ma:
@@ -30,11 +33,14 @@ class Butler():
 
     def check_open_short(self, q, idx):
         #安値更新, 終値が移動平均より下、出来高が移動平均より上
-        if q.quotes['low'][idx] is None or q.quotes['close'][idx] is None or q.quotes['volume'][idx] is None:
+        if (q.quotes['low'][idx] is None 
+                or q.quotes['close'][idx] is None 
+                or q.quotes['volume'][idx] is None
+                or q.vol_ma[idx] is None):
             return False
         past_low = self.get_minimum_low_price_for_nv(q, idx)
         today_low = q.quotes['low'][idx]
-        today_volume = q.quotes['volume'][idx]
+        today_volume = int(q.quotes['volume'][idx])
         today_sma = q.sma[idx]
         today_close = q.quotes['close'][idx]
         today_vol_ma = q.vol_ma[idx]
@@ -52,30 +58,30 @@ class Butler():
         return True
 
     def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
-        price = round(price + tick, 2)
+        price = price + tick
         vol = math.floor(cash / price)
         return (price, vol)
  
     def get_price_stop_market_long(self, price, tick):
-        price = round(price + tick, 2)
+        price = price + tick
         return price
 
     def get_price_stop_market_short(self, price, tick):
-        price = round(price + tick, 2)
+        price = price + tick
         return price
 
     def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
-        price = round(price - tick, 2)
+        price = price - tick
         vol = math.floor((cash / price) * -1)
         return (price, vol)
 
     def create_order_stop_market_close_long(self, q, idx, tick):
         price = self.get_minimum_low_price_for_nv(q, idx)
-        return round(price-tick,2)
+        return price-tick
 
     def create_order_stop_market_close_short(self, q, idx, tick):
         price = self.get_maximum_high_price_for_nv(q, idx)
-        return round(price+tick,2)
+        return price+tick
 
     def get_maximum_high_price_for_nv(self, q, idx):
         maxlength = len(q.quotes)

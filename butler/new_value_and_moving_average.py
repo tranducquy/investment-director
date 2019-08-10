@@ -60,22 +60,22 @@ class Butler():
         return True
 
     def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
-        price = round(price + tick, 2)
+        price = price + tick
         vol = math.floor(cash / price)
         return (price, vol)
 
     def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
-        price = round(price - tick, 2)
+        price = price - tick
         vol = math.floor((cash / price) * -1)
         return (price, vol)
 
     def create_order_stop_market_close_long(self, q, idx, tick):
         price = self.get_minimum_low_price_for_nv(q, idx)
-        return round(price-tick,2)
+        return price-tick
 
     def create_order_stop_market_close_short(self, q, idx, tick):
         price = self.get_maximum_high_price_for_nv(q, idx)
-        return round(price+tick,2)
+        return price+tick
 
     def get_maximum_high_price_for_nv(self, q, idx):
         maxlength = len(q.quotes)

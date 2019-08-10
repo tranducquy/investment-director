@@ -18,14 +18,14 @@ class Butler():
     def check_open_long(self, q, idx):
         #当日高値がevσ以上かつ出来高がevσ以上
         if (q.quotes['high'][idx] is None 
-            or q.upper_ev_sigma[idx] is None 
-            or q.quotes['low'][idx] is None 
-            or q.lower_ev_sigma[idx] is None
-            or q.vol_upper_ev_sigma[idx] is None):
+                or q.upper_ev_sigma[idx] is None 
+                or q.quotes['low'][idx] is None 
+                or q.lower_ev_sigma[idx] is None
+                or q.vol_ma[idx] is None):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        volume_flg = q.quotes['volume'][idx] >= q.vol_ma[idx]
+        volume_flg = int(q.quotes['volume'][idx]) >= q.vol_ma[idx]
         if long_flg == True and short_flg == False and volume_flg == True:
             return True
         else:
@@ -37,11 +37,11 @@ class Butler():
                 or q.upper_ev_sigma[idx] is None 
                 or q.quotes['low'][idx] is None 
                 or q.lower_ev_sigma[idx] is None
-                or q.vol_upper_ev_sigma[idx] is None):
+                or q.vol_ma[idx] is None):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        volume_flg = q.quotes['volume'][idx] <= q.vol_ma[idx]
+        volume_flg = int(q.quotes['volume'][idx]) <= q.vol_ma[idx]
         if long_flg == False and short_flg == True and volume_flg == True:
             return True
         else:
@@ -66,14 +66,14 @@ class Butler():
     def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
         if cash == 0 or price == 0:
             return (-1, -1)
-        price = round(price + tick, 2)
+        price = price + tick
         vol = math.floor(cash / price)
         return (price, vol)
 
     def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
         if cash == 0 or price == 0:
             return (-1, -1)
-        price = round(price - tick, 2)
+        price = price - tick
         vol = math.floor((cash / price) * -1)
         return (price, vol)
 
@@ -81,11 +81,11 @@ class Butler():
         if q.quotes['low'][idx] is None:
             return 0.00
         price = q.quotes['low'][idx]
-        return round(price-tick,2)
+        return price-tick
 
     def create_order_stop_market_close_short(self, q, idx, tick):
         if q.quotes['high'][idx] is None:
             return 0.00
         price = q.quotes['high'][idx]
-        return round(price+tick,2)
+        return price+tick
 
