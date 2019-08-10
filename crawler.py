@@ -9,21 +9,19 @@ import my_logger
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def insert_history(business_date, symbol, open_price, high_price, low_price, close_price, volume):
+def insert_history(quotes):
     dbfile = conf['dbfile']
     try:
         conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
         c = conn.cursor()
-        v = volume.astype("int64")
-        param = ( symbol, business_date.strftime("%Y-%m-%d"), open_price, high_price, low_price, close_price, int(v) )
-        c.execute('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', param)
-        conn.commit()
-        conn.close
+        c.executemany('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', quotes)
     except Exception as err:
         logger.error('error dayo. {0}'.format(err))
         if conn: conn.rollback()
     finally:
-        if conn: conn.commit()
+        if conn: 
+            conn.commit()
+            conn.close
 
 if __name__ == '__main__':
     args = sys.argv
@@ -48,7 +46,15 @@ if __name__ == '__main__':
         symbol = symbol.strip()
         data = yf.download(symbol, start=start_date, end=end_date)
         idx = data.index.size
+        quotes = list()
         for i in range(idx):
-            insert_history(data.index[i], symbol, data['Open'][i], data['High'][i], data['Low'][i], data['Close'][i], data['Volume'][i])
+            business_date = (data.index[i]).strftime("%Y-%m-%d")
+            open_price = data['Open'][i]
+            high_price = data['High'][i]
+            low_price = data['Low'][i]
+            close_price = data['Close'][i]
+            volume = int(data['Volume'][i])
+            quotes.append( (symbol, business_date, open_price, high_price, low_price, close_price, volume) )
+        insert_history(quotes)
         logger.info("downloaded:[%s][%s-%s]" % (symbol, start_date, end_date))
 
