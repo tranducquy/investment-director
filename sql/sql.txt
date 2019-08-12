@@ -38,14 +38,64 @@ SELECT
 ,expected_rate_per_1day as 一日当たりの期待損益率
 ,long_expected_rate as 期待損益率long
 ,long_expected_rate_per_1day as 一日当たりの期待損益率long
+,long_win_count+long_loss_count as 取引数long
 ,short_expected_rate as 期待損益率short
 ,short_expected_rate_per_1day as 一日当たりの期待損益率short
+,short_win_count+short_loss_count as 取引数short
 ,average_period_per_trade as 取引当たりの日数
 ,win_count+loss_count as 取引数
 from backtest_result
-where start_date = '2018-08-01'
-and end_date = '2019-07-31'
-order by rate_of_return desc
+where 0 = 0
+and symbol = '5401.T'
+and regist_date = '2019-08-12'
+order by start_date, rate_of_return desc
+;
+
+
+-- 抽出
+   select
+     symbol
+    ,strategy
+    ,regist_date
+    ,rate_of_return
+    ,expected_rate
+    ,expected_rate_per_1day
+    ,average_period_per_trade
+    ,win_rate
+    from backtest_result
+    where 
+    (symbol||strategy) in (
+        select 
+         symbol||strategy
+        from backtest_result
+        where (symbol||strategy) in (
+            select
+             symbol||strategy
+            from backtest_result
+            where (symbol||strategy) in (
+                select
+                 symbol||strategy
+                from backtest_result
+                where start_date = '2019-05-12'
+				and end_date = '2019-08-11'
+                and backtest_period > 20*3
+                and rate_of_return > 0
+            )
+            and start_date = '2018-08-12'
+			and end_date = '2019-08-11'
+            and backtest_period > 300*1
+            and rate_of_return > 0
+        )
+        and start_date = '2016-08-12'
+        and end_date = '2019-08-11'
+        and backtest_period > 300*3
+        and rate_of_return > 0
+    ) 
+    and start_date = '2004-08-12'
+    and end_date = '2019-08-11'
+    and backtest_period > 300*15
+    and rate_of_return > 0
+    order by rate_of_return desc
 ;
 
 

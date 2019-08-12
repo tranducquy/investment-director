@@ -67,16 +67,28 @@ class Butler():
     def create_order_stop_market_long_for_all_cash(self, cash, q, idx):
         if q.quotes['high'][idx] is None or cash <= 0:
             return (-1, -1)
-        price = q.quotes['high'][idx] + self.tick
+        price = self.create_order_stop_market_long(q, idx)
         vol = math.floor(cash / price)
         return (price, vol)
+        
+    def create_order_stop_market_long(self, q, idx):
+        if q.quotes['high'][idx] is None:
+            return -1
+        price = q.quotes['high'][idx] + self.tick
+        return price
         
     def create_order_stop_market_short_for_all_cash(self, cash, q, idx):
         if q.quotes['low'][idx] is None or cash <= 0:
             return (-1, -1)
-        price = q.quotes['low'][idx] - self.tick
+        price = self.create_order_stop_market_short(q, idx)
         vol = math.floor((cash / price) * -1)
         return (price, vol)
+
+    def create_order_stop_market_short(self, q, idx):
+        if q.quotes['low'][idx] is None:
+            return -1
+        price = q.quotes['low'][idx] - self.tick
+        return price
 
     def create_order_stop_market_close_long(self, q, idx):
         if q.quotes['low'][idx] is None:
