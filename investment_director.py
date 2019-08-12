@@ -80,10 +80,10 @@ if __name__ == '__main__':
             butler = new_value_and_moving_average_and_volume_moving_average.Butler(1)
         if strategy == '超短期ボリンジャーバンド5日_シグマ1.20倍_決済差額0.10':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
-            butler = bollingerband.Butler(1, 0.1)
+            butler = bollingerband.Butler(1, 0.0001)
         if strategy == '超短期ボリンジャー3日_σ1.00倍_0.10_出来高ボリンジャー14日_σ2.00倍':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 14, 2.0)
-            butler = bollingerband_and_volume_bollingerband.Butler(1, 0.1)
+            butler = bollingerband_and_volume_bollingerband.Butler(1, 0.0001)
         for idx, high in enumerate(q.quotes['high']):
             if q.quotes['business_date'][idx] == end_date:
                 if butler.check_open_long(q, idx):

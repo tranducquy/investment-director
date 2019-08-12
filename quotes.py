@@ -1,6 +1,7 @@
 
 import sqlite3
 import pandas as pd
+import my_lock
 
 class Quotes():
     def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, vol_ma_duration=15, vol_ev_sigma_ratio=1):
@@ -19,8 +20,10 @@ class Quotes():
         return isinstance(v, str)
 
     def get_history(self):
-        conn = sqlite3.connect(self.dbfile)
-        df = pd.read_sql_query("""select
+        try:
+            my_lock.lock.acquire()
+            conn = sqlite3.connect(self.dbfile, isolation_level='EXCLUSIVE')
+            df = pd.read_sql_query("""select
                                       symbol
                                      , business_date
                                      , open
@@ -38,8 +41,15 @@ class Quotes():
                                          ,self.start_date
                                          ,self.end_date
                                         ), conn)
-        conn.close()    
-        self.quotes = df
+        except Exception as err:
+            print(err)
+        finally:
+            if conn: 
+                self.quotes = df
+                conn.close
+            else:
+                self.quotes = None
+            my_lock.lock.release()
 
     def set_sigma(self):
         #終値の配列から移動平均、標準偏差の配列を算出

@@ -11,9 +11,10 @@ class Butler():
      3. 転換価格をσの何倍にするか決める
      4. 翌日場が開く前にその転換価格±１ティックの価格(買いは上、売りは下)で逆指値注文を入れる
     '''
-    def __init__(self, bollinger_duration, diff_price):
+    def __init__(self, tick, bollinger_duration, diff_price):
         self.duration = bollinger_duration
         self.diff_price = diff_price 
+        self.tick = tick
 
     def check_open_long(self, q, idx):
         #当日高値がevσ以上かつ出来高がevσ以上
@@ -63,29 +64,29 @@ class Butler():
         else:
             return False
 
-    def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
-        if cash == 0 or price == 0:
+    def create_order_stop_market_long_for_all_cash(self, cash, q, idx):
+        if q.quotes['high'][idx] is None or cash <= 0:
             return (-1, -1)
-        price = price + tick
+        price = q.quotes['high'][idx] + self.tick
         vol = math.floor(cash / price)
         return (price, vol)
-
-    def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
-        if cash == 0 or price == 0:
+    
+    def create_order_stop_market_short_for_all_cash(self, cash, q, idx):
+        if q.quotes['low'][idx] is None or cash <= 0:
             return (-1, -1)
-        price = price - tick
+        price = q.quotes['low'][idx] - self.tick
         vol = math.floor((cash / price) * -1)
         return (price, vol)
-
-    def create_order_stop_market_close_long(self, q, idx, tick):
+    
+    def create_order_stop_market_close_long(self, q, idx):
         if q.quotes['low'][idx] is None:
             return 0.00
-        price = q.quotes['low'][idx]
-        return price-tick
+        price = q.quotes['low'][idx] - self.tick
+        return price
 
-    def create_order_stop_market_close_short(self, q, idx, tick):
+    def create_order_stop_market_close_short(self, q, idx):
         if q.quotes['high'][idx] is None:
             return 0.00
-        price = q.quotes['high'][idx]
-        return price+tick
+        price = q.quotes['high'][idx] + self.tick
+        return price
 

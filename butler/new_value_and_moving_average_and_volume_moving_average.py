@@ -10,8 +10,9 @@ class Butler():
      2. ポジションと逆の??日高値または安値を更新した場合、ポジションを解消する
     '''
 
-    def __init__(self, duration):
+    def __init__(self, tick, duration):
         self.nv_duration = duration
+        self.tick = tick
 
     def check_open_long(self, q, idx):
         #高値更新, 終値が移動平均より上、出来高が移動平均より上
@@ -20,7 +21,7 @@ class Butler():
                 or q.quotes['volume'][idx] is None
                 or q.vol_ma[idx] is None):
             return False
-        past_high = self.get_maximum_high_price_for_nv(q, idx)
+        past_high = self._get_maximum_high_price_for_nv(q, idx)
         today_high = q.quotes['high'][idx]
         today_close = q.quotes['close'][idx]
         today_volume = int(q.quotes['volume'][idx])
@@ -38,7 +39,7 @@ class Butler():
                 or q.quotes['volume'][idx] is None
                 or q.vol_ma[idx] is None):
             return False
-        past_low = self.get_minimum_low_price_for_nv(q, idx)
+        past_low = self._get_minimum_low_price_for_nv(q, idx)
         today_low = q.quotes['low'][idx]
         today_volume = int(q.quotes['volume'][idx])
         today_sma = q.sma[idx]
@@ -57,40 +58,40 @@ class Butler():
         #新値＋移動平均でポジションがある場合、ポジションクローズの逆指値注文は毎日必ず入れる
         return True
 
-    def create_order_stop_market_long_for_all_cash(self, cash, price, tick):
-        price = price + tick
+    def create_order_stop_market_long_for_all_cash(self, cash, q, idx):
+        if q.quotes['high'][idx] is None or cash <= 0:
+            return (-1, -1)
+        price = q.quotes['high'][idx] + self.tick
         vol = math.floor(cash / price)
         return (price, vol)
- 
-    def get_price_stop_market_long(self, price, tick):
-        price = price + tick
-        return price
 
-    def get_price_stop_market_short(self, price, tick):
-        price = price + tick
-        return price
-
-    def create_order_stop_market_short_for_all_cash(self, cash, price, tick):
-        price = price - tick
+    def create_order_stop_market_short_for_all_cash(self, cash, q, idx):
+        if q.quotes['low'][idx] is None or cash <= 0:
+            return (-1, -1)
+        price = q.quotes['low'][idx] - self.tick
         vol = math.floor((cash / price) * -1)
         return (price, vol)
 
-    def create_order_stop_market_close_long(self, q, idx, tick):
-        price = self.get_minimum_low_price_for_nv(q, idx)
-        return price-tick
+    def create_order_stop_market_close_long(self, q, idx):
+        if q.quotes['low'][idx] is None:
+            return -1
+        price = q.quotes['low'][idx] - self.tick
+        return price
 
-    def create_order_stop_market_close_short(self, q, idx, tick):
-        price = self.get_maximum_high_price_for_nv(q, idx)
-        return price+tick
+    def create_order_stop_market_close_short(self, q, idx):
+        if q.quotes['high'][idx] is None:
+            return -1
+        price = q.quotes['high'][idx] + self.tick
+        return price
 
-    def get_maximum_high_price_for_nv(self, q, idx):
+    def _get_maximum_high_price_for_nv(self, q, idx):
         maxlength = len(q.quotes)
         if maxlength < self.nv_duration or idx < self.nv_duration:
             return -1
         ary = q.quotes['high'][idx-self.nv_duration:idx]
         return max(ary)
 
-    def get_minimum_low_price_for_nv(self, q, idx):
+    def _get_minimum_low_price_for_nv(self, q, idx):
         maxlength = len(q.quotes)
         if maxlength < self.nv_duration or idx < self.nv_duration:
             return -1
