@@ -675,6 +675,7 @@ def backtest(symbol_txt, start_date, end_date):
         bol_ma = 8 #移動平均の日数
         diff_price = 0.0001 #決済する差額
         ev_sigma_ratio = 3.0 #トレンドを判定するsigmaの倍率
+        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 3, diff_price, 1.0)))
         thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bol_ma+1):
