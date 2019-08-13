@@ -25,34 +25,7 @@ order by 10 desc
 ;
 
 
---個別銘柄
-SELECT
- symbol
-,strategy
-,start_date
-,end_date
-,rate_of_return as 騰落率
-,win_rate as 勝率
-,trading_period as 取引日数
-,expected_rate as 期待損益率
-,expected_rate_per_1day as 一日当たりの期待損益率
-,long_expected_rate as 期待損益率long
-,long_expected_rate_per_1day as 一日当たりの期待損益率long
-,long_win_count+long_loss_count as 取引数long
-,short_expected_rate as 期待損益率short
-,short_expected_rate_per_1day as 一日当たりの期待損益率short
-,short_win_count+short_loss_count as 取引数short
-,average_period_per_trade as 取引当たりの日数
-,win_count+loss_count as 取引数
-from backtest_result
-where 0 = 0
-and symbol = '5401.T'
-and regist_date = '2019-08-12'
-order by start_date, rate_of_return desc
-;
-
-
--- 抽出
+--銘柄抽出
  select
   m3.symbol
 ,m3.strategy
@@ -77,13 +50,41 @@ order by start_date, rate_of_return desc
 ,y1.win_rate as 勝率1年
 ,y3.win_rate as 勝率3年
 ,y15.win_rate as 勝率15年
+,m3.long_expected_rate as 期待利益率long3か月
+,y1.long_expected_rate as 期待利益率long1年
+,y3.long_expected_rate as 期待利益率long3年
+,y15.long_expected_rate as 期待利益率long15年
+,m3.long_expected_rate_per_1day as 一日当たりの期待利益率long3か月
+,y1.long_expected_rate_per_1day as 一日当たりの期待利益率long1年
+,y3.long_expected_rate_per_1day as 一日当たりの期待利益率long3年
+,y15.long_expected_rate_per_1day as 一日当たりの期待利益率long15年
+,m3.long_win_count+m3.long_loss_count as 取引数long3か月
+,y1.long_win_count+y1.long_loss_count as 取引数long1年
+,y3.long_win_count+y3.long_loss_count as 取引数long3年
+,y15.long_win_count+y15.long_loss_count as 取引数long15年
+,m3.short_expected_rate as 期待利益率short3か月
+,y1.short_expected_rate as 期待利益率short1年
+,y3.short_expected_rate as 期待利益率short3年
+,y15.short_expected_rate as 期待利益率short15年
+,m3.short_expected_rate_per_1day as 一日当たりの期待利益率short3か月
+,y1.short_expected_rate_per_1day as 一日当たりの期待利益率short1年
+,y3.short_expected_rate_per_1day as 一日当たりの期待利益率short3年
+,y15.short_expected_rate_per_1day as 一日当たりの期待利益率short15年
+,m3.short_win_count+m3.short_loss_count as 取引数short3か月
+,y1.short_win_count+y1.short_loss_count as 取引数short1年
+,y3.short_win_count+y3.short_loss_count as 取引数short3年
+,y15.short_win_count+y15.short_loss_count as 取引数short15年
+,m3.win_count+m3.loss_count as 取引数3か月
+,y1.win_count+y1.loss_count as 取引数1年
+,y3.win_count+y3.loss_count as 取引数3年
+,y15.win_count+y15.loss_count as 取引数15年
 from backtest_result m3
 left outer join (
 select
  *
 from backtest_result
-where start_date = ?
-and end_date = ?
+where start_date = '2018-08-13'
+and end_date = '2019-08-12'
 and backtest_period > 300*1
 and rate_of_return > 0
 ) y1
@@ -92,8 +93,8 @@ left outer join (
 select
  *
 from backtest_result
-where start_date = ?
-and end_date = ?
+where start_date = '2016-08-13'
+and end_date = '2019-08-12'
 and backtest_period > 300*3
 and rate_of_return > 0
 ) y3
@@ -102,14 +103,14 @@ left outer join (
 select
  *
 from backtest_result
-where start_date = ?
-and end_date = ?
+where start_date = '2004-08-13'
+and end_date = '2019-08-12'
 and backtest_period > 300*15
 and rate_of_return > 0
 ) y15
 on m3.symbol = y15.symbol and m3.strategy = y15.strategy and y3.rate_of_return < y15.rate_of_return
-where m3.start_date = ?
-and m3.end_date = ?
+where m3.start_date = '2019-05-13'
+and m3.end_date = '2019-08-12'
 and m3.rate_of_return > 0
 and m3.rate_of_return < y1.rate_of_return
 and y1.rate_of_return < y3.rate_of_return
