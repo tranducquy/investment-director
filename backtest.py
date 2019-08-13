@@ -110,7 +110,7 @@ def get_summary_msgheader():
     msg += ",負け額"
     msg += ",勝率(%%)"
     msg += ",ペイオフレシオ"
-    msg += ",1トレードあたりの期待損益率(%%)\n"
+    msg += ",1トレードあたりの期待利益率(%%)\n"
     return msg
 
 def make_summary_msg(symbol, title, summary, quotes, for_csv):
@@ -229,8 +229,8 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",負けトレード数:%d" % (summary['LoseCount'])
         msg += ",勝率(%%):%f" % win_rate
         msg += ",ペイオフレシオ:%f" % payoffratio
-        msg += ",1トレードあたりの期待損益率(%%):%f" % expected_rate
-        msg += ",トレード1日あたりの期待損益率(%%):%f" % expected_rate_per_1day
+        msg += ",1トレードあたりの期待利益率(%%):%f" % expected_rate
+        msg += ",トレード1日あたりの期待利益率(%%):%f" % expected_rate_per_1day
         #DBに結果を保存してしまう
         save_simulate_result(
              symbol
@@ -654,7 +654,7 @@ def backtest_new_value_and_moving_average_and_volume_bollingerband(symbols, star
         simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
-        
+
 def backtest(symbol_txt, start_date, end_date):
     with open(symbol_txt, "r") as f:
         symbols = [v.rstrip() for v in f.readlines()]
