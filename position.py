@@ -120,8 +120,8 @@ class Position():
             win = 1
         else:
             lose = 1
-        profit_value = round(self.cash - self.before_cash, 2)
-        profit_rate = round(profit_value / self.before_cash * 100, 2)
+        profit_value = self.cash - self.before_cash
+        profit_rate = profit_value / self.before_cash * 100
         trade_perfomance = {
               'before_cash': self.before_cash
             , 'cash': self.cash
