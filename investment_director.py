@@ -12,11 +12,14 @@ from butler import bollingerband_and_volume_bollingerband
 from butler import bollingerband_and_volume_moving_average
 from butler import new_value_and_moving_average_and_volume_moving_average
 import tick
+from position import Position
+from positiontype import PositionType
+from ordertype import OrderType
 
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def get_last_backtestdate(db):
+def _get_last_backtestdate(db):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     #バックテストの最終登録日を取得
@@ -28,7 +31,7 @@ def get_last_backtestdate(db):
     conn.close()
     return max_date[0]
 
-def get_symbols(db, regist_date, today, end_date):
+def _get_symbols(db, regist_date, today, end_date):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
     start_date_3month = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     start_date_1year = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
@@ -124,9 +127,12 @@ def get_symbols(db, regist_date, today, end_date):
    where m3.start_date = '%s'
    and m3.end_date = '%s'
    and m3.rate_of_return > 0
-   and m3.rate_of_return < y1.rate_of_return
-   and y1.rate_of_return < y3.rate_of_return
-   and y3.rate_of_return < y15.rate_of_return
+   and 
+   (
+       (m3.rate_of_return < y1.rate_of_return and y1.rate_of_return < y3.rate_of_return and y3.rate_of_return < y15.rate_of_return)
+       or 
+       (y1.rate_of_return > 20 and y3.rate_of_return > 60 and y15.rate_of_return < 300)
+   )
    order by m3.rate_of_return desc
        """ % (
              start_date_1year, end_date
@@ -145,11 +151,11 @@ def direct_open_order(dbfile):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_open_order.')
-    max_regist_date = get_last_backtestdate(dbfile)
+    max_regist_date = _get_last_backtestdate(dbfile)
     today = datetime.strptime(max_regist_date, "%Y-%m-%d")
-    start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+    start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
-    symbols = get_symbols(dbfile, max_regist_date, today, end_date)
+    symbols = _get_symbols(dbfile, max_regist_date, today, end_date)
     #ポジション無し
     for s in symbols:
         symbol = s[0]
@@ -170,15 +176,98 @@ def direct_open_order(dbfile):
             butler = bollingerband.Butler(t, 1, 0.0001)
         else:
             continue
+        p = Position(1000000, 0.1, 1)
         for idx, high in enumerate(q.quotes['high']):
+            if idx < q.ma_duration:
+                continue
+            current_position = p.get_position()
+            low = q.quotes['low'][idx]
+            open_price = q.quotes['open'][idx]
             business_date = q.quotes['business_date'][idx]
-            if business_date == max(q.quotes['business_date']):
+            # 開場 
+            # 注文を呼び出す
+            if p.order != None:
+                p.call_order(business_date)
+            # 注文がある場合、約定判定
+            if current_position == PositionType.NOTHING and p.order != None:
+                if p.order.order_type == OrderType.STOP_MARKET_LONG:
+                    #約定判定
+                    if p.order.price == -1:
+                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        p.order.fail_order()
+                    elif high >= p.order.price and open_price >= p.order.price: #寄り付きが高値の場合
+                        if open_price * p.order.vol < p.cash: #現金以上に購入しない
+                            p.open_long(business_date, open_price)
+                        else:
+                            p.order.fail_order()
+                    elif high >= p.order.price:
+                        p.open_long(business_date, p.order.price)
+                    else:
+                        p.order.fail_order()
+                elif p.order.order_type == OrderType.STOP_MARKET_SHORT:
+                    #約定判定
+                    if p.order.price == -1:
+                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        p.order.fail_order()
+                    elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
+                        if open_price * p.order.vol < p.cash: #現金以上に空売りしない
+                            p.open_short(business_date, open_price)
+                        else:
+                            p.order.fail_order()
+                    elif low <= p.order.price:
+                        p.open_short(business_date, p.order.price)
+                    else:
+                        p.order.fail_order()
+            elif current_position == PositionType.LONG and p.order != None:
+                #約定判定
+                if low <= p.order.price and open_price <= p.order.price:
+                    p.close_long(business_date, open_price)
+                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
+                elif low <= p.order.price:
+                    p.close_long(business_date, p.order.price)
+                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
+                else:
+                    p.order.fail_order()
+            elif current_position == PositionType.SHORT and p.order != None:
+                #約定判定
+                if high >= p.order.price and open_price >= p.order.price:
+                    p.close_short(business_date, open_price)
+                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
+                elif high >= p.order.price:
+                    p.close_short(business_date, p.order.price)
+                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_SHORT)
+                else:
+                    p.order.fail_order()
+            #注文は1日だけ有効
+            p.clear_order()
+            # 引け後、翌日の注文作成
+            business_date = q.quotes['business_date'][idx]
+            max_business_date = max(q.quotes['business_date'])
+            current_position = p.get_position()
+            if current_position == PositionType.NOTHING:
                 if butler.check_open_long(q, idx):
-                    price = butler.create_order_stop_market_long(q, idx)
-                    logger.info("[%s]に逆指値でlong(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
+                    #create long order
+                    t = butler.create_order_stop_market_long_for_all_cash(p.cash, q, idx)
+                    p.create_order_stop_market_long(business_date, t[0], t[1])
+                    if business_date == max_business_date:
+                        price = butler.create_order_stop_market_long(q, idx)
+                        logger.info("[%s]に逆指値でlong(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
                 elif butler.check_open_short(q, idx):
-                    price = butler.create_order_stop_market_short(q, idx)
-                    logger.info("[%s]に逆指値でshort(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
+                    #create short order
+                    t = butler.create_order_stop_market_short_for_all_cash(p.cash, q, idx)
+                    p.create_order_stop_market_short(business_date, t[0], t[1])
+                    if business_date == max_business_date:
+                        price = butler.create_order_stop_market_short(q, idx)
+                        logger.info("[%s]に逆指値でshort(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
+            elif current_position == PositionType.LONG:
+                if butler.check_close_long(p.pos_price, q, idx):
+                    price = butler.create_order_stop_market_close_long(q, idx)
+                    p.create_order_stop_market_close_long(business_date, price, p.pos_vol)
+            elif current_position == PositionType.SHORT:
+                if butler.check_close_short(p.pos_price, q, idx):
+                    price = butler.create_order_stop_market_close_short(q, idx)
+                    p.create_order_stop_market_close_short(business_date, price, p.pos_vol)
+
 
 def _check_close_order(butler, q, position_price, symbol, strategy):
     for idx, close_price in enumerate(q.quotes['close']):
@@ -200,7 +289,7 @@ def direct_close_order(dbfile, symbol, position_price):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_close_order.')
-    max_regist_date = get_last_backtestdate(dbfile)
+    max_regist_date = _get_last_backtestdate(dbfile)
     today = datetime.strptime(max_regist_date, "%Y-%m-%d")
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")

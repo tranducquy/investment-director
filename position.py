@@ -53,13 +53,21 @@ class Position():
         self.order = order.Order()
         self.order.set_order(create_date, OrderType.STOP_MARKET_SHORT, price, vol)
     
-    def create_order_stop_market_close_long(self, create_date, price, vol):
+    def create_order_close_stop_market_long(self, create_date, price, vol):
         self.order = order.Order()
         self.order.set_order(create_date, OrderType.CLOSE_STOP_MARKET_LONG, price, vol)
     
-    def create_order_stop_market_close_short(self, create_date, price, vol):
+    def create_order_close_stop_market_short(self, create_date, price, vol):
         self.order = order.Order()
         self.order.set_order(create_date, OrderType.CLOSE_STOP_MARKET_SHORT, price, vol)
+
+    def create_order_close_market_long(self, create_date, price, vol):
+        self.order = order.Order()
+        self.order.set_order(create_date, OrderType.CLOSE_MARKET_LONG, price, vol)
+    
+    def create_order_close_market_short(self, create_date, price, vol):
+        self.order = order.Order()
+        self.order.set_order(create_date, OrderType.CLOSE_MARKET_SHORT, price, vol)
 
     def call_order(self, order_date):
         self.order.order(order_date)
@@ -113,7 +121,8 @@ class Position():
         self.summary['PositionHavingDays'] += (close_date - start_date).days
         self.summary['ShortPositionHavingDays'] += (close_date - start_date).days
 
-    def save_trade_perfomance(self, order_type):
+    def save_trade_perfomance(self, position_type):
+        #TODO:shortが0になる
         win = 0
         lose = 0
         if self.before_cash < self.cash:
@@ -132,30 +141,30 @@ class Position():
         }
         self.summary['WinCount'] += win
         self.summary['LoseCount'] += lose
-        if order_type == OrderType.STOP_MARKET_LONG:
+        if position_type == PositionType.LONG:
             self.summary['LongWinCount'] += win
             self.summary['LongLoseCount'] += lose
-        if order_type == OrderType.STOP_MARKET_SHORT:
+        if position_type == PositionType.SHORT:
             self.summary['ShortWinCount'] += win
             self.summary['ShortLoseCount'] += lose
 
         if win == 1:
             self.summary['WinValue'] += profit_value
-            if order_type == OrderType.STOP_MARKET_LONG:
+            if position_type == PositionType.LONG:
                 self.summary['LongWinValue'] += profit_value
-            if order_type == OrderType.STOP_MARKET_SHORT:
+            if position_type == PositionType.SHORT:
                 self.summary['ShortWinValue'] += profit_value
         else:
             self.summary['LoseValue'] += abs(profit_value)
-            if order_type == OrderType.STOP_MARKET_LONG:
+            if position_type == PositionType.LONG:
                 self.summary['LongLoseValue'] += abs(profit_value)
-            if order_type == OrderType.STOP_MARKET_SHORT:
+            if position_type == PositionType.SHORT:
                 self.summary['ShortLoseValue'] += abs(profit_value)
         self.summary['LastValue'] = self.cash + (self.pos_vol * self.pos_price)
         self.summary['ProfitRateSummary'] += profit_rate
-        if order_type == OrderType.STOP_MARKET_LONG:
+        if position_type == PositionType.LONG:
             self.summary['LongProfitRateSummary'] += profit_rate
-        if order_type == OrderType.STOP_MARKET_SHORT:
+        if position_type == PositionType.SHORT:
             self.summary['ShortProfitRateSummary'] += profit_rate
         return trade_perfomance
 

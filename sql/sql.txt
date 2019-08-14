@@ -18,11 +18,12 @@ SELECT
 ,avg(average_period_per_trade) as 取引当たりの平均日数
 ,avg(win_count+loss_count) as 平均取引数
 from backtest_result
-where start_date = '2018-08-01'
+where 0 = 0
+and start_date = '2004-08-14'
+and end_date = '2019-08-13'
+and regist_date = '2019-08-14'
 group by strategy, start_date, end_date
-having count(symbol) > 1000
 order by 10 desc
-;
 
 
 --銘柄抽出

@@ -1,5 +1,6 @@
 
 import math
+import numpy
 from position import Position
 
 class Butler():
@@ -22,7 +23,9 @@ class Butler():
             or q.upper_ev_sigma[idx] is None 
             or q.quotes['low'][idx] is None 
             or q.lower_ev_sigma[idx] is None
-            or q.vol_upper_ev_sigma[idx] is None):
+            or q.vol_upper_ev_sigma[idx] is None
+            or numpy.isnan(q.vol_upper_ev_sigma[idx])
+            ):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
@@ -38,7 +41,9 @@ class Butler():
                 or q.upper_ev_sigma[idx] is None 
                 or q.quotes['low'][idx] is None 
                 or q.lower_ev_sigma[idx] is None
-                or q.vol_upper_ev_sigma[idx] is None):
+                or q.vol_upper_ev_sigma[idx] is None
+                or numpy.isnan(q.vol_upper_ev_sigma[idx])
+                ):
             return False
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
@@ -90,13 +95,13 @@ class Butler():
         price = q.quotes['low'][idx] - self.tick
         return price
 
-    def create_order_stop_market_close_long(self, q, idx):
+    def create_order_close_stop_market_long(self, q, idx):
         if q.quotes['low'][idx] is None:
             return 0.00
         price = q.quotes['low'][idx] - self.tick
         return price
 
-    def create_order_stop_market_close_short(self, q, idx):
+    def create_order_close_stop_market_short(self, q, idx):
         if q.quotes['high'][idx] is None:
             return 0.00
         price = q.quotes['high'][idx] + self.tick

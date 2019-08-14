@@ -90,13 +90,13 @@ class Butler():
         price = q.quotes['low'][idx] - self.tick
         return price
     
-    def create_order_stop_market_close_long(self, q, idx):
+    def create_order_close_stop_market_long(self, q, idx):
         if q.quotes['low'][idx] is None:
             return 0.00
         price = q.quotes['low'][idx] - self.tick
         return price
 
-    def create_order_stop_market_close_short(self, q, idx):
+    def create_order_close_stop_market_short(self, q, idx):
         if q.quotes['high'][idx] is None:
             return 0.00
         price = q.quotes['high'][idx] + self.tick
