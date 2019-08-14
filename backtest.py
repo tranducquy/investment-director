@@ -502,25 +502,33 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
                 set_order_info(execution_order_info, p.order)
         elif current_position == PositionType.LONG and p.order != None:
             #約定判定
-            if low <= p.order.price and open_price <= p.order.price:
+            if p.order.order_type == OrderType.CLOSE_STOP_MARKET_LONG: #逆指値成行買い返済
+                if low <= p.order.price and open_price <= p.order.price:
+                    p.close_long(business_date, open_price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
+                elif low <= p.order.price:
+                    p.close_long(business_date, p.order.price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
+                else:
+                    p.order.fail_order()
+            elif p.order.order_type == OrderType.CLOSE_MARKET_LONG: #成行買い返済
                 p.close_long(business_date, open_price)
-                trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-            elif low <= p.order.price:
-                p.close_long(business_date, p.order.price)
-                trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-            else:
-                p.order.fail_order()
+                trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
             set_order_info(execution_order_info, p.order)
         elif current_position == PositionType.SHORT and p.order != None:
             #約定判定
-            if high >= p.order.price and open_price >= p.order.price:
+            if p.order.order_type == OrderType.CLOSE_STOP_MARKET_SHORT: #逆指値成行売り返済
+                if high >= p.order.price and open_price >= p.order.price:
+                    p.close_short(business_date, open_price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
+                elif high >= p.order.price:
+                    p.close_short(business_date, p.order.price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
+                else:
+                    p.order.fail_order()
+            elif p.order.order_type == OrderType.CLOSE_MARKET_SHORT: #成行売り返済
                 p.close_short(business_date, open_price)
-                trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-            elif high >= p.order.price:
-                p.close_short(business_date, p.order.price)
-                trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_SHORT)
-            else:
-                p.order.fail_order()
+                trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
             set_order_info(execution_order_info, p.order)
         #注文は1日だけ有効
         p.clear_order()
@@ -539,14 +547,24 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
                 p.create_order_stop_market_short(business_date, t[0], t[1])
                 set_order_info(order_info, p.order)
         elif current_position == PositionType.LONG:
-            if butler.check_close_long(p.pos_price, quotes, idx):
-                price = butler.create_order_stop_market_close_long(quotes, idx)
-                p.create_order_stop_market_close_long(business_date, price, p.pos_vol)
+            close_order_type = butler.check_close_long(p.pos_price, quotes, idx)
+            if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG:
+                price = butler.create_order_close_stop_market_long(quotes, idx)
+                p.create_order_close_stop_market_long(business_date, price, p.pos_vol)
+                set_order_info(order_info, p.order)
+            elif close_order_type == OrderType.CLOSE_MARKET_LONG:
+                price = butler.create_order_close_market_long(quotes, idx)
+                p.create_order_close_market_long(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
         elif current_position == PositionType.SHORT:
-            if butler.check_close_short(p.pos_price, quotes, idx):
-                price = butler.create_order_stop_market_close_short(quotes, idx)
-                p.create_order_stop_market_close_short(business_date, price, p.pos_vol)
+            close_order_type = butler.check_close_short(p.pos_price, quotes, idx)
+            if close_order_type == OrderType.CLOSE_STOP_MARKET_SHORT:
+                price = butler.create_order_close_stop_market_short(quotes, idx)
+                p.create_order_close_stop_market_short(business_date, price, p.pos_vol)
+                set_order_info(order_info, p.order)
+            if close_order_type == OrderType.CLOSE_MARKET_SHORT:
+                price = butler.create_order_close_market_short(quotes, idx)
+                p.create_order_close_market_short(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
         #1日の結果を出力
         close = 0
@@ -676,7 +694,7 @@ def backtest(symbol_txt, start_date, end_date):
         diff_price = 0.0001 #決済する差額
         ev_sigma_ratio = 3.0 #トレンドを判定するsigmaの倍率
         thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 3, diff_price, 1.0)))
-        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
+        #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bol_ma+1):
         #        backtest_bollingerband(symbols_work, start_date, end_date, bol_m, diff_price, ev_s)
@@ -696,7 +714,7 @@ def backtest(symbol_txt, start_date, end_date):
         ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
         vol_ma = 14 #出来高移動平均の日数
         vol_ev_sigma_ratio = 2.0 #出来高sigmaの判定倍率
-        thread_pool.append(threading.Thread(target=backtest_bollingerband_and_volume_bollingerband, args=(symbols_work, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
+        #thread_pool.append(threading.Thread(target=backtest_bollingerband_and_volume_bollingerband, args=(symbols_work, start_date, end_date, bol_ma, diff_price, ev_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #for ev_s in np.arange(1.0, vol_ev_sigma_ratio+0.1, 0.1):
             #for m in range(2, vol_ma+1):
                 #backtest_bollingerband_and_volume_bollingerband(symbols_work, start_date, end_date, 3, diff_price, 1, m, ev_s)
@@ -713,7 +731,7 @@ def backtest(symbol_txt, start_date, end_date):
         nv_ma = 4 #移動平均の日数
         new_value_duration = 1 #新値の日数
         vol_ma = 20 #出来高移動平均の日数
-        thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average_and_volume_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
+        #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average_and_volume_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
         #for vol_m in range(2, vol_ma+1):
         #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
 
