@@ -1,4 +1,5 @@
-﻿
+﻿-- SQLite
+
 -- strategy summary
 SELECT
  count(symbol) as 件数
@@ -6,6 +7,8 @@ SELECT
 ,start_date
 ,end_date
 ,avg(rate_of_return) as 平均騰落率
+,max(rate_of_return) as 最高騰落率
+,min(rate_of_return) as 最低騰落率
 ,avg(win_rate) as 平均勝率
 ,avg(trading_period) as 平均取引日数
 ,avg(expected_rate) as 平均期待損益率
@@ -18,11 +21,13 @@ SELECT
 ,avg(win_count+loss_count) as 平均取引数
 from backtest_result
 where 0 = 0
-and start_date = '2004-08-14'
-and end_date = '2019-08-13'
-and regist_date = '2019-08-14'
+and end_date = '2019-08-14'
+and regist_date = '2019-08-15'
+and rate_of_return > -110
 group by strategy, start_date, end_date
-order by 6 desc
+order by 平均騰落率 desc
+;
+
 
 
 --銘柄抽出

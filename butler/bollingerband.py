@@ -18,15 +18,37 @@ class Butler():
         self.diff_price = diff_price 
         self.tick = tick
         self.only_stop_market_order = only_stop_market_order
+    
+    def _check_quotes(self, q, idx):
+        if (
+            q.quotes['open'][idx] is None 
+                or q.quotes['high'][idx] is None 
+                or q.quotes['low'][idx] is None 
+                or q.quotes['close'][idx] is None 
+                or q.upper_ev_sigma[idx] is None 
+                or q.lower_ev_sigma[idx] is None
+                or q.upper_ev2_sigma[idx] is None 
+                or q.lower_ev2_sigma[idx] is None
+                or numpy.isnan(q.quotes['open'][idx])
+                or numpy.isnan(q.quotes['high'][idx])
+                or numpy.isnan(q.quotes['low'][idx])
+                or numpy.isnan(q.quotes['close'][idx])
+                or numpy.isnan(q.upper_ev_sigma[idx])
+                or numpy.isnan(q.lower_ev_sigma[idx])
+                or numpy.isnan(q.upper_ev2_sigma[idx])
+                or numpy.isnan(q.lower_ev2_sigma[idx])
+                or q.quotes['open'][idx] == 0
+                or q.quotes['high'][idx] == 0
+                or q.quotes['low'][idx] == 0
+                or q.quotes['close'][idx] == 0
+                ):
+            return False
+        else:
+            return True
 
     def check_open_long(self, q, idx):
         #当日高値がevσ以上
-        if (q.quotes['high'][idx] is None 
-                or q.upper_ev_sigma[idx] is None 
-                or q.quotes['low'][idx] is None 
-                or q.lower_ev_sigma[idx] is None
-                or numpy.isnan(q.upper_ev_sigma[idx])
-                or numpy.isnan(q.lower_ev_sigma[idx])):
+        if not self._check_quotes(q, idx):
             return OrderType.NONE_ORDER
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
@@ -37,12 +59,7 @@ class Butler():
 
     def check_open_short(self, q, idx):
         #当日安値がevσ以下
-        if (q.quotes['high'][idx] is None 
-                or q.upper_ev_sigma[idx] is None 
-                or q.quotes['low'][idx] is None 
-                or q.lower_ev_sigma[idx] is None
-                or numpy.isnan(q.upper_ev_sigma[idx])
-                or numpy.isnan(q.lower_ev_sigma[idx])):
+        if not self._check_quotes(q, idx):
             return OrderType.NONE_ORDER
         long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
@@ -52,8 +69,7 @@ class Butler():
             return OrderType.NONE_ORDER
 
     def check_close_long(self, pos_price, q, idx):
-        if (q.quotes['close'][idx] is None
-                or numpy.isnan(q.quotes['close'][idx])):
+        if not self._check_quotes(q, idx):
             return OrderType.NONE_ORDER
         stop_market_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         if self.only_stop_market_order:
@@ -63,11 +79,11 @@ class Butler():
         elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_MARKET_LONG
         else:
+            #高値が上シグマを抜けていない場合は、成り行きでクローズ
             return OrderType.NONE_ORDER
 
     def check_close_short(self, pos_price, q, idx):
-        if (q.quotes['close'][idx] is None
-                or numpy.isnan(q.quotes['close'][idx])):
+        if not self._check_quotes(q, idx):
             return OrderType.NONE_ORDER
         stop_market_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if self.only_stop_market_order:
@@ -77,59 +93,56 @@ class Butler():
         elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_MARKET_SHORT
         else:
+            #安値が下シグマを抜けていない場合は、成り行きでクローズ
             return OrderType.NONE_ORDER
 
     def create_order_stop_market_long_for_all_cash(self, cash, q, idx):
-        if (q.quotes['high'][idx] is None 
-                or numpy.isnan(q.quotes['high'][idx])
-                or cash <= 0):
+        if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = self.create_order_stop_market_long(q, idx)
         vol = math.floor(cash / price)
         return (price, vol)
 
-    def create_order_stop_market_long(self, q, idx):
-        if (q.quotes['high'][idx] is None
-                or numpy.isnan(q.quotes['high'][idx])):
-            return -1
-        price = q.quotes['high'][idx] + self.tick
-        return price
-
     def create_order_stop_market_short_for_all_cash(self, cash, q, idx):
-        if (q.quotes['low'][idx] is None 
-                or numpy.isnan(q.quotes['low'][idx])
-                or cash <= 0):
+        if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = self.create_order_stop_market_short(q, idx)
         vol = math.floor((cash / price) * -1)
         return (price, vol)
 
+    def create_order_stop_market_long(self, q, idx):
+        if not self._check_quotes(q, idx):
+            return -1
+        price = q.quotes['high'][idx] + self.tick
+        #price = q.upper_ev2_sigma[idx]
+        return price
+
     def create_order_stop_market_short(self, q, idx):
-        if (q.quotes['low'][idx] is None
-                or numpy.isnan(q.quotes['low'][idx])):
+        if not self._check_quotes(q, idx):
             return -1
         price = q.quotes['low'][idx] - self.tick
+        #price = q.lower_ev2_sigma[idx]
         return price
 
     def create_order_close_stop_market_long(self, q, idx):
-        if (q.quotes['low'][idx] is None
-                or numpy.isnan(q.quotes['low'][idx])):
+        if not self._check_quotes(q, idx):
             return 0.00
         price = q.quotes['low'][idx] - self.tick
+        #price = q.sma[idx]
+        #price = q.lower_ev_sigma[idx]
         return price
 
     def create_order_close_stop_market_short(self, q, idx):
-        if (q.quotes['high'][idx] is None
-                or numpy.isnan(q.quotes['high'][idx])):
+        if not self._check_quotes(q, idx):
             return 0.00
         price = q.quotes['high'][idx] + self.tick
+        #price = q.sma[idx]
+        #price = q.upper_ev_sigma[idx]
         return price
 
     def create_order_close_market_long(self, q, idx):
-        #高値が上シグマを抜けていない場合は、成り行きでクローズ
         return 0.00
 
     def create_order_close_market_short(self, q, idx):
-        #安値が下シグマを抜けていない場合は、成り行きでクローズ
         return 0.00
 

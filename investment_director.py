@@ -9,9 +9,7 @@ import common
 import my_logger
 import quotes
 from butler import bollingerband
-from butler import bollingerband_and_volume_bollingerband
-from butler import bollingerband_and_volume_moving_average
-from butler import new_value_and_moving_average_and_volume_moving_average
+from butler import new_value_and_moving_average
 import tick
 from position import Position
 from positiontype import PositionType
@@ -157,23 +155,19 @@ def direct_open_order(dbfile):
     start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
     symbols = _get_symbols(dbfile, max_regist_date, today, end_date)
-    #TODO:成り行きに対応
     #ポジション無し
     for s in symbols:
         symbol = s[0]
         strategy = s[1]
         t = tick.get_tick(symbol)
         if strategy == '新値1日_移動平均4日_出来高移動平均20日':
-            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
-            butler = new_value_and_moving_average_and_volume_moving_average.Butler(t, 1)
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 2, 3, 20, 1)
+            butler = new_value_and_moving_average.Butler(t, 1)
         elif strategy == '超短期ボリンジャー5日_1.20倍_決済差額0.00':
-            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2, 3, 20, 1)
             butler = bollingerband.Butler(t, 1, 0.0001, False)
-        elif strategy == '超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍':
-            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 14, 2.0)
-            butler = bollingerband_and_volume_bollingerband.Butler(t, 1, 0.0001)
         elif strategy == '超短期ボリンジャー3日_1.00倍_決済差額0.00':
-            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0)
+            q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 3, 20, 1)
             butler = bollingerband.Butler(t, 1, 0.0001, False)
         else:
             continue
@@ -236,7 +230,6 @@ def direct_open_order(dbfile):
                         p.order.fail_order()
                 elif p.order.order_type == OrderType.CLOSE_MARKET_LONG: #成行買い返済
                     p.close_long(business_date, open_price)
-                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
             elif current_position == PositionType.SHORT and p.order != None:
                 #約定判定
                 if p.order.order_type == OrderType.CLOSE_STOP_MARKET_SHORT: #逆指値成行売り返済
@@ -255,46 +248,71 @@ def direct_open_order(dbfile):
             max_business_date = max(q.quotes['business_date'])
             current_position = p.get_position()
             if current_position == PositionType.NOTHING:
-                if butler.check_open_long(q, idx):
-                    #create long order
+                long_order_type = butler.check_open_long(q, idx)
+                short_order_type = butler.check_open_short(q, idx)
+                if long_order_type == OrderType.STOP_MARKET_LONG:
+                    #create stop market long
                     t = butler.create_order_stop_market_long_for_all_cash(p.cash, q, idx)
                     p.create_order_stop_market_long(business_date, t[0], t[1])
                     if business_date == max_business_date:
                         price = butler.create_order_stop_market_long(q, idx)
                         logger.info("[%s]に逆指値でlong(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
-                elif butler.check_open_short(q, idx):
-                    #create short order
+                elif short_order_type == OrderType.STOP_MARKET_SHORT:
+                    #create stop market short
                     t = butler.create_order_stop_market_short_for_all_cash(p.cash, q, idx)
                     p.create_order_stop_market_short(business_date, t[0], t[1])
                     if business_date == max_business_date:
                         price = butler.create_order_stop_market_short(q, idx)
                         logger.info("[%s]に逆指値でshort(最終営業日%s) 逆指値:[%f] (%s)" % (symbol, business_date, price, strategy))
+                else:
+                    logger.info("[%s]不明なOrderType(最終営業日%s) (%s)" % (symbol, business_date, strategy))
             elif current_position == PositionType.LONG:
-                if butler.check_close_long(p.pos_price, q, idx):
-                    price = butler.create_order_stop_market_close_long(q, idx)
-                    p.create_order_stop_market_close_long(business_date, price, p.pos_vol)
+                close_order_type = butler.check_close_long(p.pos_price, q, idx)
+                if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG: #逆指値成行買い返済
+                    price = butler.create_order_close_stop_market_long(q, idx)
+                    p.create_order_close_stop_market_long(business_date, price, p.pos_vol)
+                elif close_order_type == OrderType.CLOSE_MARKET_LONG: #成行買い返済
+                    price = butler.create_order_stop_market_long(q, idx)
+                    p.create_order_close_market_long(business_date, price, p.pos_vol)
+                else:
+                    pass #注文なし
             elif current_position == PositionType.SHORT:
-                if butler.check_close_short(p.pos_price, q, idx):
-                    price = butler.create_order_stop_market_close_short(q, idx)
-                    p.create_order_stop_market_close_short(business_date, price, p.pos_vol)
+                close_order_type = butler.check_close_short(p.pos_price, q, idx)
+                if close_order_type == OrderType.CLOSE_STOP_MARKET_SHORT:
+                    price = butler.create_order_close_stop_market_short(q, idx)
+                    p.create_order_close_stop_market_short(business_date, price, p.pos_vol)
+                elif close_order_type == OrderType.CLOSE_MARKET_SHORT:
+                    price = butler.create_order_close_market_short(q, idx)
+                    p.create_order_close_market_short(business_date, price, p.pos_vol)
 
-
-def _check_close_order(butler, q, position_price, symbol, strategy):
+def _check_close_order(butler, q, position, position_price, symbol, strategy):
     for idx, close_price in enumerate(q.quotes['close']):
         business_date = q.quotes['business_date'][idx]
         if business_date == max(q.quotes['business_date']):
-            if butler.check_close_long(position_price, q, idx):
-                close_long_price = butler.create_order_stop_market_close_long(q, idx)
-                logger.info("[%s][%s] 逆指値[%f]でclose_long position:[%f]" % (symbol, strategy, close_long_price, position_price))
-            else:
-                logger.info("[%s][%s] longはまだcloseの注文をしません position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
-            if butler.check_close_short(position_price, q, idx):
-                close_short_price = butler.create_order_stop_market_close_short(q, idx)
-                logger.info("[%s][%s] 逆指値[%f]でclose_short position:[%f]" % (symbol, strategy, close_short_price, position_price))
-            else:
-                logger.info("[%s][%s] shortはまだcloseの注文をしません position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
+            if position == 'long':
+                close_order_type = butler.check_close_long(position_price, q, idx)
+                if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG:
+                    close_long_price = butler.create_order_stop_market_close_long(q, idx)
+                    logger.info("[%s][%s] 逆指値[%f]でclose_long position:[%f]" % (symbol, strategy, close_long_price, position_price))
+                elif close_order_type == OrderType.CLOSE_MARKET_LONG:
+                    logger.info("[%s][%s] 成行でclose_long position:[%f]" % (symbol, strategy, position_price))
+                elif close_order_type == OrderType.NONE_ORDER:
+                    logger.info("[%s][%s] longはまだcloseの注文をしません position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
+                else:
+                    logger.warning("[%s][%s] 不明なOrderType position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
+            if position == 'short':
+                close_order_type = butler.check_close_short(position_price, q, idx)
+                if close_order_type == OrderType.CLOSE_STOP_MARKET_SHORT:
+                    close_short_price = butler.create_order_stop_market_close_short(q, idx)
+                    logger.info("[%s][%s] 逆指値[%f]でclose_short position:[%f]" % (symbol, strategy, close_short_price, position_price))
+                elif close_order_type == OrderType.CLOSE_MARKET_SHORT:
+                    logger.info("[%s][%s] 成行でclose_short position:[%f]" % (symbol, strategy, position_price))
+                elif close_order_type == OrderType.NONE_ORDER:
+                    logger.info("[%s][%s] shortはまだcloseの注文をしません position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
+                else:
+                    logger.warning("[%s][%s] 不明なOrderType position:[%f] close:[%f]" % (symbol, strategy, position_price, close_price))
 
-def direct_close_order(dbfile, symbol, position_price):
+def direct_close_order(dbfile, symbol, position, position_price):
     conf = common.read_conf()
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
@@ -307,22 +325,17 @@ def direct_close_order(dbfile, symbol, position_price):
     #ポジションあり
     #'新値1日_移動平均4日_出来高移動平均20日':
     strategy = '新値1日_移動平均4日_出来高移動平均20日'
-    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
-    butler = new_value_and_moving_average_and_volume_moving_average.Butler(t, 1)
-    _check_close_order(butler, q, position_price, symbol, strategy)
+    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 2, 3, 20, 1)
+    butler = new_value_and_moving_average.Butler(t, 1)
+    _check_close_order(butler, q, position, position_price, symbol, strategy)
     #'超短期ボリンジャー5日_1.20倍_決済差額0.00':
     strategy = '超短期ボリンジャー5日_1.20倍_決済差額0.00'
-    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
+    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2, 3)
     butler = bollingerband.Butler(t, 1, 0.0001, False)
-    _check_close_order(butler, q, position_price, symbol, strategy)
-    #'超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍':
-    strategy = '超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍'
-    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 14, 2.0)
-    butler = bollingerband_and_volume_bollingerband.Butler(t, 1, 0.0001)
-    _check_close_order(butler, q, position_price, symbol, strategy)
+    _check_close_order(butler, q, position, position_price, symbol, strategy)
     #'超短期ボリンジャー3日_1.00倍_決済差額0.00':
     strategy = '超短期ボリンジャー3日_1.00倍_決済差額0.00'
-    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0)
+    q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 3)
     butler = bollingerband.Butler(t, 1, 0.0001, False)
-    _check_close_order(butler, q, position_price, symbol, strategy)
+    _check_close_order(butler, q, position, position_price, symbol, strategy)
 
