@@ -4,6 +4,7 @@ import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import numpy
 import common
 import my_logger
 import quotes
@@ -156,24 +157,24 @@ def direct_open_order(dbfile):
     start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
     symbols = _get_symbols(dbfile, max_regist_date, today, end_date)
+    #TODO:成り行きに対応
     #ポジション無し
     for s in symbols:
         symbol = s[0]
         strategy = s[1]
-        regist_date = s[2]
         t = tick.get_tick(symbol)
         if strategy == '新値1日_移動平均4日_出来高移動平均20日':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 4, 1, 20, 1)
             butler = new_value_and_moving_average_and_volume_moving_average.Butler(t, 1)
         elif strategy == '超短期ボリンジャー5日_1.20倍_決済差額0.00':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
-            butler = bollingerband.Butler(t, 1, 0.0001)
+            butler = bollingerband.Butler(t, 1, 0.0001, False)
         elif strategy == '超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0, 14, 2.0)
             butler = bollingerband_and_volume_bollingerband.Butler(t, 1, 0.0001)
         elif strategy == '超短期ボリンジャー3日_1.00倍_決済差額0.00':
             q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0)
-            butler = bollingerband.Butler(t, 1, 0.0001)
+            butler = bollingerband.Butler(t, 1, 0.0001, False)
         else:
             continue
         p = Position(1000000, 0.1, 1)
@@ -184,6 +185,12 @@ def direct_open_order(dbfile):
             low = q.quotes['low'][idx]
             open_price = q.quotes['open'][idx]
             business_date = q.quotes['business_date'][idx]
+            if (numpy.isnan(open_price) 
+                or numpy.isnan(low) 
+                or numpy.isnan(high)):
+                logger.warning('[%s][%d] ohlc is nan' % (symbol, idx))
+                continue
+
             # 開場 
             # 注文を呼び出す
             if p.order != None:
@@ -220,24 +227,27 @@ def direct_open_order(dbfile):
                         p.order.fail_order()
             elif current_position == PositionType.LONG and p.order != None:
                 #約定判定
-                if low <= p.order.price and open_price <= p.order.price:
+                if p.order.order_type == OrderType.CLOSE_STOP_MARKET_LONG: #逆指値成行買い返済
+                    if low <= p.order.price and open_price <= p.order.price:
+                        p.close_long(business_date, open_price)
+                    elif low <= p.order.price:
+                        p.close_long(business_date, p.order.price)
+                    else:
+                        p.order.fail_order()
+                elif p.order.order_type == OrderType.CLOSE_MARKET_LONG: #成行買い返済
                     p.close_long(business_date, open_price)
-                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-                elif low <= p.order.price:
-                    p.close_long(business_date, p.order.price)
-                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-                else:
-                    p.order.fail_order()
+                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
             elif current_position == PositionType.SHORT and p.order != None:
                 #約定判定
-                if high >= p.order.price and open_price >= p.order.price:
+                if p.order.order_type == OrderType.CLOSE_STOP_MARKET_SHORT: #逆指値成行売り返済
+                    if high >= p.order.price and open_price >= p.order.price:
+                        p.close_short(business_date, open_price)
+                    elif high >= p.order.price:
+                        p.close_short(business_date, p.order.price)
+                    else:
+                        p.order.fail_order()
+                elif p.order.order_type == OrderType.CLOSE_MARKET_SHORT: #成行売り返済
                     p.close_short(business_date, open_price)
-                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_LONG)
-                elif high >= p.order.price:
-                    p.close_short(business_date, p.order.price)
-                    trade_perfomance = p.save_trade_perfomance(OrderType.STOP_MARKET_SHORT)
-                else:
-                    p.order.fail_order()
             #注文は1日だけ有効
             p.clear_order()
             # 引け後、翌日の注文作成
@@ -303,7 +313,7 @@ def direct_close_order(dbfile, symbol, position_price):
     #'超短期ボリンジャー5日_1.20倍_決済差額0.00':
     strategy = '超短期ボリンジャー5日_1.20倍_決済差額0.00'
     q = quotes.Quotes(dbfile, symbol, start_date, end_date, 5, 1.2)
-    butler = bollingerband.Butler(t, 1, 0.0001)
+    butler = bollingerband.Butler(t, 1, 0.0001, False)
     _check_close_order(butler, q, position_price, symbol, strategy)
     #'超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍':
     strategy = '超短期ボリンジャー3日_1.00倍_0.00_出来高ボリンジャー14日_2.00倍'
@@ -313,6 +323,6 @@ def direct_close_order(dbfile, symbol, position_price):
     #'超短期ボリンジャー3日_1.00倍_決済差額0.00':
     strategy = '超短期ボリンジャー3日_1.00倍_決済差額0.00'
     q = quotes.Quotes(dbfile, symbol, start_date, end_date, 3, 1.0)
-    butler = bollingerband.Butler(t, 1, 0.0001)
+    butler = bollingerband.Butler(t, 1, 0.0001, False)
     _check_close_order(butler, q, position_price, symbol, strategy)
 

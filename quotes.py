@@ -4,13 +4,14 @@ import pandas as pd
 import my_lock
 
 class Quotes():
-    def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, vol_ma_duration=15, vol_ev_sigma_ratio=1):
+    def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=15, vol_ev_sigma_ratio=1):
         self.dbfile = dbfile
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
         self.ma_duration = ma_duration
         self.ev_sigma_ratio = ev_sigma_ratio 
+        self.ev2_sigma_ratio = ev2_sigma_ratio 
         self.vol_ma_duration = vol_ma_duration
         self.vol_ev_sigma_ratio = vol_ev_sigma_ratio
         self.get_history()
@@ -62,6 +63,8 @@ class Quotes():
         #self.lower3_sigma = self.sma - self.sigma * 3
         self.upper_ev_sigma = self.sma + self.sigma * self.ev_sigma_ratio
         self.lower_ev_sigma = self.sma - self.sigma * self.ev_sigma_ratio
+        self.upper_ev2_sigma = self.sma + self.sigma * self.ev2_sigma_ratio
+        self.lower_ev2_sigma = self.sma - self.sigma * self.ev2_sigma_ratio
         #出来高の移動平均を算出
         v = pd.Series(self.quotes['volume'])
         self.vol_ma = v.rolling(window=self.vol_ma_duration).mean()

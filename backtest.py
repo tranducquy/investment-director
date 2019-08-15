@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 import sqlite3
 import numpy as np
 import threading
+import numpy
 import common
 import my_logger 
 from position import Position
@@ -440,6 +441,7 @@ def save_simulate_result(
     except Exception as err:
         if conn: 
             conn.rollback()
+            logger.error(err)
     finally:
         if conn: 
             conn.commit()
@@ -462,6 +464,11 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
         call_order_info = { 'create_date':'' ,'order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
         execution_order_info = { 'close_order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
         trade_perfomance = { 'profit_value': 0.00, 'profit_rate': 0.00 }
+        if (numpy.isnan(open_price) 
+                or numpy.isnan(low) 
+                or numpy.isnan(high)):
+            logger.warning('[%s][%d] ohlc is nan' % (symbol, idx))
+            continue
 
         # 開場 
         # 注文を呼び出す
@@ -549,23 +556,31 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
         elif current_position == PositionType.LONG:
             close_order_type = butler.check_close_long(p.pos_price, quotes, idx)
             if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG:
+                #逆指値成行買い返済注文
                 price = butler.create_order_close_stop_market_long(quotes, idx)
                 p.create_order_close_stop_market_long(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
             elif close_order_type == OrderType.CLOSE_MARKET_LONG:
+                #成行買い返済注文
                 price = butler.create_order_close_market_long(quotes, idx)
                 p.create_order_close_market_long(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
+            else:
+                pass #注文無し
         elif current_position == PositionType.SHORT:
             close_order_type = butler.check_close_short(p.pos_price, quotes, idx)
             if close_order_type == OrderType.CLOSE_STOP_MARKET_SHORT:
+                #逆指値成行売り返済注文
                 price = butler.create_order_close_stop_market_short(quotes, idx)
                 p.create_order_close_stop_market_short(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
             if close_order_type == OrderType.CLOSE_MARKET_SHORT:
+                #成行売り返済注文
                 price = butler.create_order_close_market_short(quotes, idx)
                 p.create_order_close_market_short(business_date, price, p.pos_vol)
                 set_order_info(order_info, p.order)
+            else:
+                pass #注文無し
         #1日の結果を出力
         close = 0
         if quotes.quotes['close'][idx] is None:
@@ -601,7 +616,7 @@ def backtest_bollingerband(symbols, start_date, end_date, ma, diff, ev_sigma):
     for symbol in symbols:
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma)
         t = tick.get_tick(symbol)
-        bollinger_butler = bollingerband.Butler(t, ma, diff)
+        bollinger_butler = bollingerband.Butler(t, ma, diff, True)
         title = "超短期ボリンジャー%d日_%s倍_決済差額%s" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
         simulator_run(title, q, bollinger_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
@@ -612,7 +627,7 @@ def backtest_bollingerband_and_volume_ma(symbols, start_date, end_date, ma, diff
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma)
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, 3, vol_ma)
         t = tick.get_tick(symbol)
         butler = bollingerband_and_volume_moving_average.Butler(t, ma, diff)
         title = "超短期ボリンジャー%d日_%s倍_%s_出来高移動平均%d日" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma)
@@ -625,7 +640,7 @@ def backtest_bollingerband_and_volume_bollingerband(symbols, start_date, end_dat
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, vol_ma, vol_ev_sigma_ratio)
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, 3, vol_ma, vol_ev_sigma_ratio)
         t = tick.get_tick(symbol)
         butler = bollingerband_and_volume_moving_average.Butler(t, ma, diff)
         title = "超短期ボリンジャー%d日_%s倍_%s_出来高ボリンジャー%d日_%s倍" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff), vol_ma, '{:.2f}'.format(vol_ev_sigma_ratio))
@@ -651,7 +666,7 @@ def backtest_new_value_and_moving_average_and_volume_moving_average(symbols, sta
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, 3, vol_ma_duration)
         t = tick.get_tick(symbol)
         butler = new_value_and_moving_average_and_volume_moving_average.Butler(t, new_value)
         title = "新値%d日_移動平均%d日_出来高移動平均%d日" % (new_value, ma, vol_ma_duration)
@@ -664,7 +679,7 @@ def backtest_new_value_and_moving_average_and_volume_bollingerband(symbols, star
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, vol_ma_duration)
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, 3, vol_ma_duration)
         t = tick.get_tick(symbol)
         butler = new_value_and_moving_average_and_volume_bollingerband.Butler(t, new_value)
         title = "新値%d日_移動平均%d日_出来高ボリンジャー%d日_%s倍" % (new_value, ma, vol_ma_duration, '{:.2f}'.format(vol_ev_sigma_ratio))

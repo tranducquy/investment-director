@@ -13,10 +13,11 @@ class Butler():
      3. 転換価格をσの何倍にするか決める
      4. 翌日場が開く前にその転換価格±１ティックの価格(買いは上、売りは下)で逆指値注文を入れる
     '''
-    def __init__(self, tick, bollinger_duration, diff_price):
+    def __init__(self, tick, bollinger_duration, diff_price, only_stop_market_order):
         self.duration = bollinger_duration
         self.diff_price = diff_price 
         self.tick = tick
+        self.only_stop_market_order = only_stop_market_order
 
     def check_open_long(self, q, idx):
         #当日高値がevσ以上
@@ -54,10 +55,12 @@ class Butler():
         if (q.quotes['close'][idx] is None
                 or numpy.isnan(q.quotes['close'][idx])):
             return OrderType.NONE_ORDER
-        long_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
-        if long_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        stop_market_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
+        if self.only_stop_market_order:
+            stop_market_flg = True
+        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_STOP_MARKET_LONG
-        elif not long_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_MARKET_LONG
         else:
             return OrderType.NONE_ORDER
@@ -66,10 +69,12 @@ class Butler():
         if (q.quotes['close'][idx] is None
                 or numpy.isnan(q.quotes['close'][idx])):
             return OrderType.NONE_ORDER
-        short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
-        if short_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        stop_market_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
+        if self.only_stop_market_order:
+            stop_market_flg = True
+        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_STOP_MARKET_SHORT
-        elif not short_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
             return OrderType.CLOSE_MARKET_SHORT
         else:
             return OrderType.NONE_ORDER
@@ -79,7 +84,6 @@ class Butler():
                 or numpy.isnan(q.quotes['high'][idx])
                 or cash <= 0):
             return (-1, -1)
-        #TODO:cashがnanになる
         price = self.create_order_stop_market_long(q, idx)
         vol = math.floor(cash / price)
         return (price, vol)
