@@ -229,7 +229,8 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
         msg += ",勝率(%%):%f" % win_rate
         msg += ",ペイオフレシオ:%f" % payoffratio
         msg += ",1トレードあたりの期待利益率(%%):%f" % expected_rate
-        msg += ",トレード1日あたりの期待利益率(%%):%f" % expected_rate_per_1day
+        msg += ",1トレードあたりの期待利益率long(%%):%f" % long_expected_rate
+        msg += ",1トレードあたりの期待利益率short(%%):%f" % short_expected_rate
         #DBに結果を保存してしまう
         save_simulate_result(
              symbol
@@ -673,7 +674,6 @@ def backtest(symbol_txt, start_date, end_date):
         #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
         #for vol_m in range(2, vol_ma+1):
         #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
-
     thread_join_cnt = 0
     thread_pool_cnt = len(thread_pool)
     for t in thread_pool:
