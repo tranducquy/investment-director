@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     if argc == 1: #ポジション無し
         investment_director.direct_open_order(dbfile)
-    elif argc == 3: #ポジション有り
+    elif argc == 4: #ポジション有り
         symbol = args[1]
         position = args[2] # long or short
         position_price = float(args[3])
