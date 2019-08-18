@@ -25,23 +25,24 @@ class Butler(bollingerband.Butler):
         self.upper_bandwalk[idx] = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         #self.upper_bandwalk[idx] = q.quotes['close'][idx] >= q.upper_ev_sigma[idx]
         try:
-            if self.upper_hbandwalk[idx-1] and self.upper_bandwalk[idx]:
-                return OrderType.STOP_MARKET_LONG
-            else:
-                return OrderType.NONE_ORDER
+            for i in range(self.bandwalk_duration+1):
+                if not self.upper_bandwalk[idx-i]:
+                    return OrderType.NONE_ORDER
+            #return OrderType.STOP_MARKET_LONG
+            return OrderType.MARKET_LONG
         except:
-                return OrderType.NONE_ORDER
+            return OrderType.NONE_ORDER
 
     def check_open_short(self, q, idx):
-        #当日安値がevσ以下
         if not self._check_quotes(q, idx):
             return OrderType.NONE_ORDER
         self.lower_bandwalk[idx] = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         #self.lower_bandwalk[idx] = q.quotes['close'][idx] <= q.lower_ev_sigma[idx]
         try:
-            if self.lower_bandwalk[idx-1] and self.lower_bandwalk[idx]:
-                return OrderType.STOP_MARKET_SHORT
-            else:
-                return OrderType.NONE_ORDER
+            for i in range(self.bandwalk_duration+1):
+                if not self.lower_bandwalk[idx-i]:
+                    return OrderType.NONE_ORDER
+            #return OrderType.STOP_MARKET_SHORT
+            return OrderType.MARKET_SHORT
         except:
             return OrderType.NONE_ORDER

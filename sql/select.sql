@@ -21,13 +21,14 @@ SELECT
 ,avg(win_count+loss_count) as 平均取引数
 from backtest_result
 where 0 = 0
-and end_date = '2019-08-15'
-and regist_date = '2019-08-16'
+and end_date = '2019-08-18'
+and regist_date = '2019-08-19'
 and rate_of_return > -110
 group by strategy, start_date, end_date
 order by 平均騰落率 desc
 ;
 
+--delete from backtest_result;
 
 
 --銘柄抽出

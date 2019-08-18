@@ -156,3 +156,16 @@ class Butler():
     def create_order_close_market_short(self, q, idx):
         return 0.00
 
+    def create_order_market_long_for_all_cash(self, cash, q, idx):
+        if not self._check_quotes(q, idx) or cash <= 0:
+            return (-1, -1)
+        price = q.quotes['close'][idx]
+        vol = math.floor((cash / price) * -1)
+        return (price, vol)
+
+    def create_order_market_short_for_all_cash(self, cash, q, idx):
+        if not self._check_quotes(q, idx) or cash <= 0:
+            return (-1, -1)
+        price = q.quotes['close'][idx]
+        vol = math.floor((cash / price) * -1)
+        return (price, vol)

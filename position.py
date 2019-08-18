@@ -52,7 +52,15 @@ class Position():
     def create_order_stop_market_short(self, create_date, price, vol):
         self.order = order.Order()
         self.order.set_order(create_date, OrderType.STOP_MARKET_SHORT, price, vol)
+
+    def create_order_market_long(self, create_date, price, vol):
+        self.order = order.Order()
+        self.order.set_order(create_date, OrderType.MARKET_LONG, price, vol)
     
+    def create_order_market_short(self, create_date, price, vol):
+        self.order = order.Order()
+        self.order.set_order(create_date, OrderType.MARKET_SHORT, price, vol)
+
     def create_order_close_stop_market_long(self, create_date, price, vol):
         self.order = order.Order()
         self.order.set_order(create_date, OrderType.CLOSE_STOP_MARKET_LONG, price, vol)
@@ -79,7 +87,8 @@ class Position():
         self.position = PositionType.LONG
         self.order.price = order_price
         self.pos_price = self.order.price
-        self.pos_vol = self.order.vol
+        #self.pos_vol = self.order.vol
+        self.pos_vol = math.floor(self.cash / order_price)
         self.before_cash = self.cash
         self.cash = round(self.cash - self.pos_vol * self.pos_price, 2)
         self.order.execution_order(business_date)
@@ -89,7 +98,8 @@ class Position():
         self.position = PositionType.SHORT
         self.order.price = order_price
         self.pos_price = self.order.price
-        self.pos_vol = self.order.vol
+        #self.pos_vol = self.order.vol
+        self.pos_vol = math.floor((self.cash / order_price) * -1)
         self.before_cash = self.cash
         self.cash = round(self.cash + (self.pos_vol*-1) * self.pos_price, 2)
         self.order.execution_order(business_date)

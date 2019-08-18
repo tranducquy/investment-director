@@ -11,3 +11,5 @@ class OrderType(Enum):
     CLOSE_STOP_MARKET_SHORT = 6 #逆指値売り返済
     CLOSE_MARKET_LONG = 7 #成行買い返済
     CLOSE_MARKET_SHORT = 8 #成行売り返済
+    MARKET_LONG = 9 #成行買い
+    MARKET_SHORT = 10 #成行売り
