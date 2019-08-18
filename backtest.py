@@ -697,7 +697,7 @@ def backtest(symbol_txt, start_date, end_date):
         ev2_sigma_ratio = 1.1 #トレンドを判定するsigma2の倍率
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
-        #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
+        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bolllinger_ma+1):
@@ -719,10 +719,10 @@ def backtest(symbol_txt, start_date, end_date):
         vol_ev_sigma_ratio = 1.0
         walk_duration = 5
         #thread_pool.append(threading.Thread(target=backtest_bandwalk, args=(symbols_work, start_date, end_date, 10, diff_price, 1.5, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, walk_duration)))
-        for w in range(1, walk_duration+1):
-            for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
-                for bol_m in range(2, bollinger_ma+1):
-                    backtest_bandwalk(symbols_work, start_date, end_date, bol_m, diff_price, ev_s, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, w)
+        #for w in range(1, walk_duration+1):
+        #    for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
+        #        for bol_m in range(2, bollinger_ma+1):
+        #            backtest_bandwalk(symbols_work, start_date, end_date, bol_m, diff_price, ev_s, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, w)
 
     thread_join_cnt = 0
     thread_pool_cnt = len(thread_pool)
@@ -760,8 +760,8 @@ if __name__ == '__main__':
         backtest(symbol_txt, start_date, end_date)
         #3年
         start_date = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
-        #backtest(symbol_txt, start_date, end_date)
+        backtest(symbol_txt, start_date, end_date)
         #15年
         start_date = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
-        #backtest(symbol_txt, start_date, end_date)
+        backtest(symbol_txt, start_date, end_date)
 
