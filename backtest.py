@@ -20,6 +20,7 @@ from ordertype import OrderType
 import my_lock
 from butler import bollingerband
 from butler import new_value_and_moving_average
+from butler import bandwalk 
 import tick
 
 s = my_logger.Logger()
@@ -637,6 +638,19 @@ def backtest_new_value_and_moving_average(symbols, start_date, end_date, ma, new
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
+def backtest_bandwalk(symbols, start_date, end_date, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma, walk):
+    symbol_cnt = len(symbols)
+    fin_cnt = 0
+    for symbol in symbols:
+        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
+        t = tick.get_tick(symbol)
+        butler = bandwalk.Butler(t, ma, diff, walk)
+        title = "バンドウォーク移動平均%d日_%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
+        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_walk%d.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), walk)
+        simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
+        fin_cnt = 1 + fin_cnt
+        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
+
 def backtest(symbol_txt, start_date, end_date):
     with open(symbol_txt, "r") as f:
         symbols = [v.rstrip() for v in f.readlines()]
@@ -661,7 +675,7 @@ def backtest(symbol_txt, start_date, end_date):
         ev2_sigma_ratio = 1.1 #トレンドを判定するsigma2の倍率
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
-        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
+        #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bol_ma+1):
@@ -674,6 +688,10 @@ def backtest(symbol_txt, start_date, end_date):
         #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
         #for vol_m in range(2, vol_ma+1):
         #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
+
+        #ボリンジャーバンドのバンドウォーク
+        walk_duration = 1
+        thread_pool.append(threading.Thread(target=backtest_bandwalk, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, walk_duration)))
     thread_join_cnt = 0
     thread_pool_cnt = len(thread_pool)
     for t in thread_pool:
@@ -710,8 +728,8 @@ if __name__ == '__main__':
         backtest(symbol_txt, start_date, end_date)
         #3年
         start_date = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
-        backtest(symbol_txt, start_date, end_date)
+        #backtest(symbol_txt, start_date, end_date)
         #15年
         start_date = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
-        backtest(symbol_txt, start_date, end_date)
+        #backtest(symbol_txt, start_date, end_date)
 

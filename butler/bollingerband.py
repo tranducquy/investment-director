@@ -13,7 +13,7 @@ class Butler():
      3. 転換価格をσの何倍にするか決める
      4. 翌日場が開く前にその転換価格±１ティックの価格(買いは上、売りは下)で逆指値注文を入れる
     '''
-    def __init__(self, tick, bollinger_duration, diff_price, only_stop_market_order):
+    def __init__(self, tick, bollinger_duration, diff_price, only_stop_market_order=True):
         self.duration = bollinger_duration
         self.diff_price = diff_price 
         self.tick = tick
