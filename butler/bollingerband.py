@@ -54,6 +54,11 @@ class Butler():
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if long_flg == True and short_flg == False:
             return OrderType.STOP_MARKET_LONG
+        #elif long_flg == True and short_flg == True:
+        #    long_diff = q.quotes['high'][idx] - q.upper_ev_sigma[idx]
+        #    short_diff = q.quotes['low'][idx] - q.lower_ev_sigma[idx]
+        #    if abs(long_diff) > abs(short_diff):
+        #        return OrderType.STOP_MARKET_LONG
         else:
             return OrderType.NONE_ORDER
 
@@ -65,6 +70,11 @@ class Butler():
         short_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if long_flg == False and short_flg == True:
             return OrderType.STOP_MARKET_SHORT
+        #elif long_flg == True and short_flg == True:
+        #    long_diff = q.quotes['high'][idx] - q.upper_ev_sigma[idx]
+        #    short_diff = q.quotes['low'][idx] - q.lower_ev_sigma[idx]
+        #    if abs(short_diff) > abs(long_diff):
+        #        return OrderType.STOP_MARKET_SHORT
         else:
             return OrderType.NONE_ORDER
 
