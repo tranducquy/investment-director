@@ -22,6 +22,7 @@ from butler import bollingerband
 from butler import new_value_and_moving_average
 from butler import bandwalk 
 import tick
+import investment_director
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -667,7 +668,7 @@ def backtest_bandwalk(symbols, start_date, end_date, ma, diff, ev_sigma, ev2_sig
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
         t = tick.get_tick(symbol)
         butler = bandwalk.Butler(t, ma, diff, walk)
-        title = "成行バンドウォーク移動平均%d日_%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
+        title = "バンドウォーク移動平均%d日_%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
         backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_walk%d.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), walk)
         simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
@@ -746,7 +747,7 @@ if __name__ == '__main__':
     args = len(sys.argv)
     today = datetime.today()
     start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
-    end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+    end_date = investment_director.get_last_backtestdate(dbfile)
     if args == 3:
         start_date = sys.argv[1]
         end_date = sys.argv[2]

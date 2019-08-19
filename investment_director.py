@@ -18,7 +18,7 @@ from ordertype import OrderType
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def _get_last_backtestdate(db):
+def get_last_backtestdate(db):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     #バックテストの最終登録日を取得
@@ -150,7 +150,7 @@ def direct_open_order(dbfile):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_open_order.')
-    max_regist_date = _get_last_backtestdate(dbfile)
+    max_regist_date = get_last_backtestdate(dbfile)
     today = datetime.strptime(max_regist_date, "%Y-%m-%d")
     start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
