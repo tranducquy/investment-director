@@ -126,12 +126,12 @@ def _get_symbols(db, regist_date, today, end_date):
    where m3.start_date = '%s'
    and m3.end_date = '%s'
    and m3.rate_of_return > 0
-   and 
-   (
+   --and 
+   --(
        --(m3.rate_of_return < y1.rate_of_return and y1.rate_of_return < y3.rate_of_return and y3.rate_of_return < y15.rate_of_return)
        --or 
-       (y1.rate_of_return > 15 and y3.rate_of_return > 45 and y15.rate_of_return > 225)
-   )
+       --(y1.rate_of_return > 15 and y3.rate_of_return > 45 and y15.rate_of_return > 225)
+   --)
    order by m3.rate_of_return desc
        """ % (
              start_date_1year, end_date

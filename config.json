@@ -2,8 +2,8 @@
 {
   "logger": "test",
   "dbfile": "market-history.db",
-  "symbol": "./symbol/symbol.txt",
+  "symbol": "./symbol/minkabu_fx.txt",
   "initial_cash": "1000000",
-  "default_period": "-14",
+  "default_period": "1000",
   "backtest_result": "./backtest_result/"
 }

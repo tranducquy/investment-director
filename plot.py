@@ -33,5 +33,5 @@ def plot(output_filename, db, symbol, start_date, end_date, sma_duration=15, ban
 
 if __name__ == '__main__':
     #test
-    plot('candle_stick.png', 'market-history.db', '8848.T', '2019-05-16', '2019-08-15', 3, 1.0, 3.0)
+    plot('candle_stick.png', 'market-history.db', 'GBPJPY=X', '2019-05-16', '2019-08-19', 5, 1.0, 3.0)
 
