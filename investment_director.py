@@ -319,7 +319,7 @@ def direct_close_order(dbfile, symbol, position, position_price):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_close_order.')
-    max_regist_date = _get_last_backtestdate(dbfile)
+    max_regist_date = get_last_backtestdate(dbfile)
     today = datetime.strptime(max_regist_date, "%Y-%m-%d")
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
