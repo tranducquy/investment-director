@@ -2,33 +2,32 @@
 
 -- strategy summary
 SELECT
- count(symbol) as 件数
+ symbol
 ,strategy
 ,start_date
 ,end_date
-,avg(rate_of_return) as 平均騰落率
-,max(rate_of_return) as 最高騰落率
-,min(rate_of_return) as 最低騰落率
-,avg(win_rate) as 平均勝率
-,avg(trading_period) as 平均取引日数
-,avg(expected_rate) as 平均期待損益率
-,avg(expected_rate_per_1day) as 一日当たりの期待損益率平均
-,avg(long_expected_rate) as 平均期待損益率long
-,avg(long_expected_rate_per_1day) as 一日当たりの期待損益率平均long
-,avg(short_expected_rate) as 平均期待損益率short
-,avg(short_expected_rate_per_1day) as 一日当たりの期待損益率平均short
-,avg(average_period_per_trade) as 取引当たりの平均日数
-,avg(win_count+loss_count) as 平均取引数
+,avg(rate_of_return) as 騰落率
+,avg(win_rate) as 勝率
+,avg(trading_period) as 取引日数
+,avg(expected_rate) as 期待損益率
+,avg(expected_rate_per_1day) as 一日当たりの期待損益率
+,avg(long_expected_rate) as 期待損益率long
+,avg(long_expected_rate_per_1day) as 一日当たりの期待損益率long
+,avg(short_expected_rate) as 期待損益率short
+,avg(short_expected_rate_per_1day) as 一日当たりの期待損益率short
+,avg(average_period_per_trade) as 取引当たりの日数
+,avg(win_count+loss_count) as 取引数
 from backtest_result
 where 0 = 0
 and end_date = '2019-08-18'
 and regist_date = '2019-08-19'
 and rate_of_return > -110
-group by strategy, start_date, end_date
-order by 平均騰落率 desc
+group by symbol, strategy, start_date, end_date
+order by symbol, start_date, 騰落率 desc
 ;
 
 --delete from backtest_result;
+--delete from ohlc;
 
 
 --銘柄抽出
@@ -127,17 +126,4 @@ order by 平均騰落率 desc
    order by m3.rate_of_return desc
    ;
 
-
-SELECT 
-symbol
-,strategy
-,start_date
-,end_date
-,backtest_period
-,rate_of_return
- from backtest_result 
- where 0 = 0
- and symbol = '5406.T' 
- and regist_date = '2019-08-16'
- order by regist_date desc
 

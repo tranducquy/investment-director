@@ -691,17 +691,19 @@ def backtest(symbol_txt, start_date, end_date):
             break
 
         #超短期ボリンジャーバンド
-        bollinger_ma = 3 #移動平均の日数
+        #2019.08.20 bitmex XBTUSD 8日 1.2倍
+        #2019.08.20 bitmex ETHUSD 2日 1.6倍
+        bollinger_ma = 8 #移動平均の日数
         diff_price = 0.0001 #決済する差額
-        ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
-        ev2_sigma_ratio = 1.1 #トレンドを判定するsigma2の倍率
+        ev_sigma_ratio = 1.2 #トレンドを判定するsigmaの倍率
+        ev2_sigma_ratio = 2.0 #トレンドを判定するsigma2の倍率
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
         thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
-        #    for bol_m in range(2, bolllinger_ma+1):
-        #        backtest_bollingerband(symbols_work, start_date, end_date, bol_m, diff_price, ev_s)
+        #    for bol_m in range(2, bollinger_ma+1):
+        #        backtest_bollingerband(symbols_work, start_date, end_date, bol_m, diff_price, ev_s, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)
 
         #新値＋移動平均+出来高移動平均
         nv_ma = 4 #移動平均の日数
@@ -761,7 +763,7 @@ if __name__ == '__main__':
         #3年
         start_date = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
         backtest(symbol_txt, start_date, end_date)
-        #15年
-        start_date = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
+        #5年
+        start_date = (today - relativedelta(years=5)).strftime("%Y-%m-%d")
         backtest(symbol_txt, start_date, end_date)
 

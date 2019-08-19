@@ -2,8 +2,8 @@
 {
   "logger": "test",
   "dbfile": "market-history.db",
-  "symbol": "./symbol/symbol.txt",
+  "symbol": "./symbol/bitmex_cc.txt",
   "initial_cash": "1000000",
-  "default_period": "-14",
+  "default_period": "100",
   "backtest_result": "./backtest_result/"
 }
