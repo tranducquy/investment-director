@@ -139,10 +139,9 @@ def direct_open_order(dbfile):
     logger = s.myLogger(conf['logger'])
     logger.info('direct_open_order.')
     max_businessdate = get_max_businessdate(dbfile)
-    today = datetime.strptime(max_businessdate, "%Y-%m-%d")
+    today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
     start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
-    #end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
-    end_date = (today).strftime("%Y-%m-%d")
+    end_date = max_businessdate
     symbols = _get_symbols(dbfile, today, end_date)
     #ポジション無し
     for s in symbols:
@@ -309,7 +308,7 @@ def direct_close_order(dbfile, symbol, position, position_price):
     logger = s.myLogger(conf['logger'])
     logger.info('direct_close_order.')
     max_businessdate = get_max_businessdate(dbfile)
-    today = datetime.strptime(max_businessdate, "%Y-%m-%d")
+    today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")
     t = tick.get_tick(symbol)

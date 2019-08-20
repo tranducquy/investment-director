@@ -745,9 +745,9 @@ if __name__ == '__main__':
     backtest_summary_filename = backtest_result_path + '/summary.csv'
     symbol_txt = conf['symbol']
     args = len(sys.argv)
-    today = datetime.today()
-    start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
-    end_date = investment_director.get_max_businessdate(dbfile)
+    max_businessdate = investment_director.get_max_businessdate(dbfile)
+    today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
+    end_date = max_businessdate
     if args == 3:
         start_date = sys.argv[1]
         end_date = sys.argv[2]
