@@ -52,7 +52,7 @@ create table backtest_result
     short_expected_rate decimal(10,5),
     short_expected_rate_per_1day decimal(10,5),
     regist_date text,
-    primary key(symbol, strategy, start_date, end_date)
+    primary key(symbol, strategy_id)
 )
 ;
 
@@ -63,7 +63,6 @@ create table m_strategy
     primary key(id)
 )
 ;
-
 insert into m_strategy (id, name) values (1, 'ボリンジャーバンドSMA3SD1.0新値'); --株式(Nikkei225,TOPIX)
 
 create table backtest_history

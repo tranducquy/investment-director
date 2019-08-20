@@ -35,6 +35,15 @@ def set_order_info(info, order):
     info['vol'] = order.vol
     info['price'] = order.price
 
+def check_float(num):
+    if (
+        num is None 
+            or numpy.isnan(num)
+    ):
+        return 0.00
+    else:
+        return float(num)
+
 def make_history(
               symbol
             , strategy_id
@@ -58,39 +67,39 @@ def make_history(
           symbol
         , strategy_id
         , business_date
-        , quotes.quotes['open'][idx]
-        , quotes.quotes['high'][idx]
-        , quotes.quotes['low'][idx]
-        , quotes.quotes['close'][idx]
+        , check_float(quotes.quotes['open'][idx])
+        , check_float(quotes.quotes['high'][idx])
+        , check_float(quotes.quotes['low'][idx])
+        , check_float(quotes.quotes['close'][idx])
         , vol
-        , quotes.sma[idx]
-        , quotes.upper_ev_sigma[idx]
-        , quotes.lower_ev_sigma[idx]
-        , quotes.upper_ev2_sigma[idx]
-        , quotes.lower_ev2_sigma[idx]
-        , quotes.vol_ma[idx]
-        , quotes.vol_upper_ev_sigma[idx]
-        , quotes.vol_lower_ev_sigma[idx]
+        , check_float(quotes.sma[idx])
+        , check_float(quotes.upper_ev_sigma[idx])
+        , check_float(quotes.lower_ev_sigma[idx])
+        , check_float(quotes.upper_ev2_sigma[idx])
+        , check_float(quotes.lower_ev2_sigma[idx])
+        , check_float(quotes.vol_ma[idx])
+        , check_float(quotes.vol_upper_ev_sigma[idx])
+        , check_float(quotes.vol_lower_ev_sigma[idx])
         , order_info['create_date']
         , order_info['order_type']
-        , order_info['vol']
-        , order_info['price']
+        , check_float(order_info['vol'])
+        , check_float(order_info['price'])
         , call_order_info['order_date']
         , call_order_info['order_type']
-        , call_order_info['vol']
-        , call_order_info['price']
+        , check_float(call_order_info['vol'])
+        , check_float(call_order_info['price'])
         , execution_order_info['close_order_date']
         , execution_order_info['order_type']
         , execution_order_info['order_status']
-        , execution_order_info['vol']
-        , execution_order_info['price']
+        , check_float(execution_order_info['vol'])
+        , check_float(execution_order_info['price'])
         , position
-        , cash
-        , pos_vol
-        , pos_price
-        , total_value
-        , trade_perfomance['profit_value']
-        , trade_perfomance['profit_rate']
+        , check_float(cash)
+        , check_float(pos_vol)
+        , check_float(pos_price)
+        , check_float(total_value)
+        , check_float(trade_perfomance['profit_value'])
+        , check_float(trade_perfomance['profit_rate'])
     )
     return t
 
@@ -509,10 +518,18 @@ def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trad
         call_order_info = { 'create_date':'' ,'order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
         execution_order_info = { 'close_order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
         trade_perfomance = { 'profit_value': 0.00, 'profit_rate': 0.00 }
-        if (numpy.isnan(open_price) 
+        try:
+            if (open_price is None
+                or low is None
+                or high is None
+                or numpy.isnan(open_price) 
                 or numpy.isnan(low) 
-                or numpy.isnan(high)):
-            logger.warning('[%s][%d] ohlc is nan' % (symbol, idx))
+                or numpy.isnan(high
+                ):
+                logger.warning('[%s][%d] ohlc is None or nan' % (symbol, idx))
+                continue
+        except Exception as err:
+            logger.error('[%s][%d] ohlc is exception value:[%s]' % (symbol, idx, err))
             continue
 
         # 開場 
@@ -717,7 +734,7 @@ def backtest_bandwalk(symbols, start_date, end_date, strategy_id, ma, diff, ev_s
 def backtest(symbol_txt, start_date, end_date):
     with open(symbol_txt, "r") as f:
         symbols = [v.rstrip() for v in f.readlines()]
-    work_size = 5
+    work_size = 20
     thread_pool = list()
     while True:
         symbols_work = list()

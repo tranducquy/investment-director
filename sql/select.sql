@@ -21,9 +21,10 @@ SELECT
 ,avg(win_count+loss_count) as 平均取引数
 from backtest_result
 where 0 = 0
-and end_date = '2019-08-18'
-and regist_date = '2019-08-19'
+and end_date = '2019-08-19'
+and regist_date = '2019-08-20'
 and rate_of_return > -110
+and symbol = '7003.T'
 group by strategy, start_date, end_date
 order by 平均騰落率 desc
 ;
@@ -128,12 +129,91 @@ order by 平均騰落率 desc
    order by m3.rate_of_return desc
    ;
 
-
-SELECT 
- * 
+-- 投資シグナル
+SELECT
+ symbol
+,order_create_date
+,order_type
+,order_vol
+,order_price
+,position
+,total_value
 from backtest_history
 where 0 = 0
-and symbol = '5232.T'
-order by business_date
+and business_date = 
+(select max(business_date) from backtest_history)
+and order_type in (1, 2)
+and order_price > 0
+and order_vol > 0
+order by total_value desc
 ;
+
+--銘柄抽出2
+    select
+     r.symbol
+    ,r.strategy
+    ,r.end_date
+    ,m3.profit_rate_sum as 期待利益率3か月
+    ,y1.profit_rate_sum as 期待利益率1年
+    ,y3.profit_rate_sum as 期待利益率3年
+    ,y15.profit_rate_sum as 期待利益率15年
+    ,r.average_period_per_trade as 平均取引期間
+    ,r.win_rate as 勝率
+    ,r.long_expected_rate as 期待利益率long
+    ,r.long_win_count+r.long_loss_count as 取引数long
+    ,r.short_expected_rate as 期待利益率short
+    ,r.short_win_count+r.short_loss_count as 取引数short
+    ,r.win_count+r.loss_count as 取引数
+   from backtest_result r
+   left outer join (
+   select
+     symbol
+    ,strategy_id
+    ,sum(profit_rate) as profit_rate_sum
+    ,count(business_date) as count
+   from backtest_history
+   where business_date between '2019-05-20' and '2019-08-19'
+   group by symbol, strategy_id
+   HAVING count(business_date) > 45
+   ) m3
+   on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id
+   left outer join (
+   select
+     symbol
+    ,strategy_id
+    ,sum(profit_rate) as profit_rate_sum
+   from backtest_history
+   where business_date between '2018-08-20' and '2019-08-19'
+   group by symbol, strategy_id
+   HAVING count(business_date) > 183
+   ) y1
+   on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id
+   left outer join (
+   select
+     symbol
+    ,strategy_id
+    ,sum(profit_rate) as profit_rate_sum
+   from backtest_history
+   where business_date between '2013-08-20' and '2019-08-19'
+   group by symbol, strategy_id
+   HAVING count(business_date) > 548
+   ) y3
+   on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id
+   left outer join (
+   select
+     symbol
+    ,strategy_id
+    ,sum(profit_rate) as profit_rate_sum
+   from backtest_history
+   where business_date between '2004-08-20' and '2019-08-19'
+   group by symbol, strategy_id
+   HAVING count(business_date) > 2738
+   ) y15
+   on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id
+   where r.start_date = '2001-01-01'
+   and r.end_date = '2019-08-19'
+   and r.rate_of_return > 0
+   and (m3.profit_rate_sum > 3 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
+   order by m3.profit_rate_sum desc
+   ;
 
