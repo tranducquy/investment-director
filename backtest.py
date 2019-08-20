@@ -819,16 +819,10 @@ if __name__ == '__main__':
         start_date = conf['backtest_startdate']
     else:
         start_date = args.start_date
-    if args.start_date is None:
+    if args.end_date is None:
         max_businessdate = investment_director.get_max_businessdate(dbfile)
-        today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
         end_date = max_businessdate
     else:
         end_date = args.end_date
-    if args == 3:
-        start_date = sys.argv[1]
-        end_date = sys.argv[2]
-        backtest(symbol_txt, start_date, end_date)
-    else:
-        backtest(symbol_txt, start_date, end_date)
+    backtest(symbol_txt, start_date, end_date)
 
