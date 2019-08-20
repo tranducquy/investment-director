@@ -10,6 +10,7 @@ import sqlite3
 import numpy as np
 import threading
 import numpy
+from argparse import ArgumentParser
 import common
 import my_logger 
 from position import Position
@@ -25,6 +26,14 @@ import investment_director
 
 s = my_logger.Logger()
 logger = s.myLogger()
+
+def get_option():
+    argparser = ArgumentParser()
+    argparser.add_argument('--symbol', type=str, help='Absolute/relative path to input file')
+    argparser.add_argument('--start_date', type=str, help='Date of backtest start')
+    argparser.add_argument('--end_date', type=str, help='Date of backtest end')
+    args = argparser.parse_args()
+    return args
 
 def set_order_info(info, order):
     info['create_date'] = order.create_date
@@ -524,7 +533,7 @@ def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trad
                 or high is None
                 or numpy.isnan(open_price) 
                 or numpy.isnan(low) 
-                or numpy.isnan(high
+                or numpy.isnan(high)
                 ):
                 logger.warning('[%s][%d] ohlc is None or nan' % (symbol, idx))
                 continue
@@ -801,17 +810,25 @@ if __name__ == '__main__':
     s = my_logger.Logger()
     dbfile = conf['dbfile']
     initial_cash = int(conf['initial_cash'])
-    symbol_txt = conf['symbol']
-    args = len(sys.argv)
-    max_businessdate = investment_director.get_max_businessdate(dbfile)
-    today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
-    end_date = max_businessdate
+    args = get_option()
+    if args.symbol is None:
+        symbol_txt = conf['symbol']
+    else:
+        symbol_txt = args.symbol
+    if args.start_date is None:
+        start_date = conf['backtest_startdate']
+    else:
+        start_date = args.start_date
+    if args.start_date is None:
+        max_businessdate = investment_director.get_max_businessdate(dbfile)
+        today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
+        end_date = max_businessdate
+    else:
+        end_date = args.end_date
     if args == 3:
         start_date = sys.argv[1]
         end_date = sys.argv[2]
         backtest(symbol_txt, start_date, end_date)
     else:
-        #2001年1月1日からテスト
-        start_date = '2001-01-01'
         backtest(symbol_txt, start_date, end_date)
 
