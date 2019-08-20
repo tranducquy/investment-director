@@ -29,7 +29,8 @@ order by 平均騰落率 desc
 ;
 
 --delete from backtest_result;
-
+--delete from backtest_history;
+--delete from backtest_ohlc;
 
 --銘柄抽出
     select
@@ -129,15 +130,10 @@ order by 平均騰落率 desc
 
 
 SELECT 
-symbol
-,strategy
-,start_date
-,end_date
-,backtest_period
-,rate_of_return
- from backtest_result 
- where 0 = 0
- and symbol = '5406.T' 
- and regist_date = '2019-08-16'
- order by regist_date desc
+ * 
+from backtest_history
+where 0 = 0
+and symbol = '5232.T'
+order by business_date
+;
 

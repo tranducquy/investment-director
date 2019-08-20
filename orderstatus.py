@@ -1,7 +1,7 @@
 
-from enum import Enum
+from enum import IntEnum
 
-class OrderStatus(Enum):
+class OrderStatus(IntEnum):
     BEFORE_ORDER = 0 #注文前
     ORDERING = 1 #注文中
     FAIL = 2 #未済

@@ -15,6 +15,7 @@ create table ohlc
 create table backtest_result 
 (
     symbol text,
+    strategy_id integer,
     strategy text,
     start_date text,
     end_date text,
@@ -58,10 +59,12 @@ create table backtest_result
 create table m_strategy
 (
     id integer,
-    name text
+    name text,
+    primary key(id)
 )
 ;
-insert into m_strategy (id, name) values (1, 'ボリンジャーバンドSMA3SD1.0新値'); -- 株式(Nikkei225,TOPIX)
+
+insert into m_strategy (id, name) values (1, 'ボリンジャーバンドSMA3SD1.0新値'); --株式(Nikkei225,TOPIX)
 
 create table backtest_history
 (
@@ -90,17 +93,17 @@ create table backtest_history
     call_order_vol decimal(10, 5),
     call_order_price decimal(10, 5),
     execution_order_date text,
-    execution_order_type text,
+    execution_order_type integer,
     execution_order_status text,
-    execution_order_vol decimal(10, 5)
-    execution_order_price decimal(10. 5),
+    execution_order_vol decimal(10, 5),
+    execution_order_price decimal(10, 5),
     position integer,
     cash decimal(10, 5),
     pos_vol decimal(10, 5),
     pos_price decimal(10, 5),
     total_value decimal(10, 5),
     profit_value decimal(10, 5),
-    profit_rate decimal(10, 5)
+    profit_rate decimal(10, 5),
     primary key(symbol, strategy_id, business_date)
 )
 ;

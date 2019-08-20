@@ -1,7 +1,7 @@
 
-from enum import Enum
+from enum import IntEnum
 
-class PositionType(Enum):
+class PositionType(IntEnum):
     NOTHING = 0
     LONG = 1
     SHORT = 2

@@ -1,7 +1,7 @@
 
-from enum import Enum
+from enum import IntEnum
 
-class OrderType(Enum):
+class OrderType(IntEnum):
     NONE_ORDER = 0 
     STOP_MARKET_LONG = 1 #逆指値成行買い
     STOP_MARKET_SHORT = 2 #逆指値成行売り

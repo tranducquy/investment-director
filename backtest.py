@@ -4,7 +4,6 @@
 import os
 import sys
 from quotes import Quotes
-import csv
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import sqlite3
@@ -27,7 +26,6 @@ import investment_director
 s = my_logger.Logger()
 logger = s.myLogger()
 
-
 def set_order_info(info, order):
     info['create_date'] = order.create_date
     info['order_date'] = order.order_date
@@ -38,7 +36,9 @@ def set_order_info(info, order):
     info['price'] = order.price
 
 def make_history(
-              business_date
+              symbol
+            , strategy_id
+            , business_date
             , quotes
             , idx
             , order_info
@@ -51,11 +51,13 @@ def make_history(
             , total_value
             , trade_perfomance):
     if 'volume' in quotes.quotes:
-        vol = quotes.quotes['volume'][idx]
+        vol = float(quotes.quotes['volume'][idx])
     else:
         vol = 0.00
     t = (
-          business_date
+          symbol
+        , strategy_id
+        , business_date
         , quotes.quotes['open'][idx]
         , quotes.quotes['high'][idx]
         , quotes.quotes['low'][idx]
@@ -90,16 +92,18 @@ def make_history(
         , trade_perfomance['profit_value']
         , trade_perfomance['profit_rate']
     )
+    return t
 
+def save_history(backtest_history):
     try:
         my_lock.lock.acquire()
         conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
         c = conn.cursor()
-        c.execute("""
+        c.executemany("""
                     insert or replace into backtest_history
                     (
                         symbol,
-                        strategy_idinteger,
+                        strategy_id,
                         business_date,
                         open,
                         high,
@@ -111,30 +115,29 @@ def make_history(
                         lower_sigma1,
                         upper_sigma2,
                         lower_sigma2,
-                        vol_sma decimal,
+                        vol_sma,
                         vol_upper_sigma1,
                         vol_lower_sigma1,
                         order_create_date,
                         order_type,
-                        order_vo, 
+                        order_vol, 
                         order_price,
-                        call_order_date text,
-                        call_order_type integer,
-                        call_order_vol decimal(10, 5),
-                        call_order_price decimal(10, 5),
-                        execution_order_date text,
-                        execution_order_type text,
-                        execution_order_status text,
-                        execution_order_vol decimal(10, 5)
-                        execution_order_price decimal(10. 5),
-                        position integer,
-                        cash decimal(10, 5),
-                        pos_vol decimal(10, 5),
-                        pos_price decimal(10, 5),
-                        total_value decimal(10, 5),
-                        profit_value decimal(10, 5),
-                        profit_rate decimal(10, 5)
-                        primary key(symbol, strategy_id, business_date)
+                        call_order_date,
+                        call_order_type,
+                        call_order_vol,
+                        call_order_price,
+                        execution_order_date,
+                        execution_order_type,
+                        execution_order_status,
+                        execution_order_vol,
+                        execution_order_price,
+                        position,
+                        cash,
+                        pos_vol,
+                        pos_price,
+                        total_value,
+                        profit_value,
+                        profit_rate
                     )
                     values
                     ( 
@@ -174,48 +177,10 @@ def make_history(
                         ,?
                         ,?
                         ,?
-                        ,?
                     )
                 """,
-        (
-         symbol
-        ,strategy
-        ,start_date
-        ,end_date
-        ,market_start_date
-        ,market_end_date
-        ,backtest_period
-        ,trading_period
-        ,average_period_per_trade
-        ,initial_assets
-        ,last_assets
-        ,rate_of_return
-        ,win_count
-        ,loss_count
-        ,win_value
-        ,loss_value
-        ,win_rate
-        ,payoffratio
-        ,expected_rate
-        ,expected_rate_per_1day
-        ,long_win_count
-        ,long_loss_count
-        ,long_win_value
-        ,long_loss_value
-        ,long_win_rate
-        ,long_payoffratio
-        ,long_expected_rate
-        ,long_expected_rate_per_1day
-        ,short_win_count
-        ,short_loss_count
-        ,short_win_value
-        ,short_loss_value
-        ,short_win_rate
-        ,short_payoffratio
-        ,short_expected_rate
-        ,short_expected_rate_per_1day
-        ,regist_date
-        ))
+                backtest_history
+        )
     except Exception as err:
         if conn: 
             conn.rollback()
@@ -226,32 +191,7 @@ def make_history(
             conn.close
         my_lock.lock.release()
 
-
-    return t
-
-def get_summary_msgheader():
-    msg  = "シンボル"
-    msg += ",ストラテジ"
-    msg += ",バックテスト開始日"
-    msg += ",バックテスト終了日"
-    msg += ",取引開始日"
-    msg += ",取引終了日"
-    msg += ",バックテスト日数"
-    msg += ",トレード保有日数"
-    msg += ",1トレードあたりの平均日数"
-    msg += ",初期資産"
-    msg += ",最終資産"
-    msg += ",全体騰落率(%%)"
-    msg += ",勝ちトレード数"
-    msg += ",負けトレード数"
-    msg += ",勝ち額"
-    msg += ",負け額"
-    msg += ",勝率(%%)"
-    msg += ",ペイオフレシオ"
-    msg += ",1トレードあたりの期待利益率(%%)\n"
-    return msg
-
-def make_summary_msg(symbol, title, summary, quotes, for_csv):
+def make_summary_msg(symbol, strategy_id, title, summary, quotes):
     if quotes.quotes.index.size == 0:
         return "\n"
     if summary['WinCount'] == 0 and summary['LoseCount'] == 0:
@@ -315,105 +255,71 @@ def make_summary_msg(symbol, title, summary, quotes, for_csv):
     market_start_date = quotes.get_headdate()
     market_end_date =quotes.get_taildate()
     regist_date = datetime.today().strftime("%Y-%m-%d")
-    msg = ""
-    if for_csv:
-        msg  = "%s" % symbol
-        msg += ",%s" % title
-        msg += ",%s" % (start_date)
-        msg += ",%s" % (end_date)
-        msg += ",%s" % (market_start_date)
-        msg += ",%s" % (market_end_date)
-        msg += ",%d" % (datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
-        msg += ",%d" % (summary['PositionHavingDays'])
-        msg += ",%d" % position_having_days_per_trade
-        msg += ",%f" % (summary['InitValue'])
-        msg += ",%f" % (summary['LastValue'])
-        msg += ",%f" % rate_of_return
-        msg += ",%d" % (summary['WinCount'])
-        msg += ",%d" % (summary['LoseCount'])
-        msg += ",%f" % (summary['WinValue'])
-        msg += ",%f" % (summary['LoseValue'])
-        msg += ",%f" % win_rate
-        msg += ",%f" % payoffratio
-        msg += ",%f" % expected_rate
-        msg += ",%f" % expected_rate_per_1day
-        msg += ",%f" % (summary['LongWinValue'])
-        msg += ",%f" % (summary['LongLoseValue'])
-        msg += ",%f" % long_win_rate
-        msg += ",%f" % long_payoffratio
-        msg += ",%f" % long_expected_rate
-        msg += ",%f" % long_expected_rate_per_1day
-        msg += ",%f" % (summary['ShortWinValue'])
-        msg += ",%f" % (summary['ShortLoseValue'])
-        msg += ",%f" % short_win_rate
-        msg += ",%f" % short_payoffratio
-        msg += ",%f" % short_expected_rate
-        msg += ",%f" % short_expected_rate_per_1day
-        msg += ",%s\n" % regist_date
-    else:
-        msg  = "%s" % symbol
-        msg += ",%s" % title
-        msg += ",バックテスト開始日:%s" % (start_date)
-        msg += ",バックテスト終了日:%s" % (end_date)
-        msg += ",取引開始日:%s" % (market_start_date)
-        msg += ",取引終了日:%s" % (market_end_date)
-        msg += ",日数：%d" % (datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
-        msg += ",トレード保有日数:%d" % (summary['PositionHavingDays'])
-        msg += ",1トレードあたりの平均日数:%d" % position_having_days_per_trade
-        msg += ",初期資産:%f" % (summary['InitValue'])
-        msg += ",最終資産:%f" % (summary['LastValue'])
-        msg += ",全体騰落率(%%):%f" % rate_of_return
-        msg += ",勝ちトレード数:%d" % (summary['WinCount'])
-        msg += ",負けトレード数:%d" % (summary['LoseCount'])
-        msg += ",勝率(%%):%f" % win_rate
-        msg += ",ペイオフレシオ:%f" % payoffratio
-        msg += ",1トレードあたりの期待利益率(%%):%f" % expected_rate
-        msg += ",1トレードあたりの期待利益率long(%%):%f" % long_expected_rate
-        msg += ",1トレードあたりの期待利益率short(%%):%f" % short_expected_rate
-        #DBに結果を保存してしまう
-        save_simulate_result(
-             symbol
-            ,title
-            ,start_date
-            ,end_date
-            ,market_start_date
-            ,market_end_date
-            ,(datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
-            ,summary['PositionHavingDays']
-            ,round(position_having_days_per_trade, 2)
-            ,summary['InitValue']
-            ,summary['LastValue']
-            ,rate_of_return
-            ,summary['WinCount']
-            ,summary['LoseCount']
-            ,summary['WinValue']
-            ,summary['LoseValue']
-            ,win_rate
-            ,payoffratio
-            ,expected_rate
-            ,expected_rate_per_1day
-            ,summary['LongWinCount']
-            ,summary['LongLoseCount']
-            ,summary['LongWinValue']
-            ,summary['LongLoseValue']
-            ,long_win_rate
-            ,long_payoffratio
-            ,long_expected_rate
-            ,long_expected_rate_per_1day
-            ,summary['ShortWinCount']
-            ,summary['ShortLoseCount']
-            ,summary['ShortWinValue']
-            ,summary['ShortLoseValue']
-            ,short_win_rate
-            ,short_payoffratio
-            ,short_expected_rate
-            ,short_expected_rate_per_1day
-            ,regist_date
-        )
+    msg  = "%s" % symbol
+    msg += ",%s" % title
+    msg += ",バックテスト開始日:%s" % (start_date)
+    msg += ",バックテスト終了日:%s" % (end_date)
+    msg += ",取引開始日:%s" % (market_start_date)
+    msg += ",取引終了日:%s" % (market_end_date)
+    msg += ",日数：%d" % (datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
+    msg += ",トレード保有日数:%d" % (summary['PositionHavingDays'])
+    msg += ",1トレードあたりの平均日数:%d" % position_having_days_per_trade
+    msg += ",初期資産:%f" % (summary['InitValue'])
+    msg += ",最終資産:%f" % (summary['LastValue'])
+    msg += ",全体騰落率(%%):%f" % rate_of_return
+    msg += ",勝ちトレード数:%d" % (summary['WinCount'])
+    msg += ",負けトレード数:%d" % (summary['LoseCount'])
+    msg += ",勝率(%%):%f" % win_rate
+    msg += ",ペイオフレシオ:%f" % payoffratio
+    msg += ",1トレードあたりの期待利益率(%%):%f" % expected_rate
+    msg += ",1トレードあたりの期待利益率long(%%):%f" % long_expected_rate
+    msg += ",1トレードあたりの期待利益率short(%%):%f" % short_expected_rate
+    #DBに保存
+    save_simulate_result(
+         symbol
+        ,strategy_id
+        ,title
+        ,start_date
+        ,end_date
+        ,market_start_date
+        ,market_end_date
+        ,(datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
+        ,summary['PositionHavingDays']
+        ,round(position_having_days_per_trade, 2)
+        ,summary['InitValue']
+        ,summary['LastValue']
+        ,rate_of_return
+        ,summary['WinCount']
+        ,summary['LoseCount']
+        ,summary['WinValue']
+        ,summary['LoseValue']
+        ,win_rate
+        ,payoffratio
+        ,expected_rate
+        ,expected_rate_per_1day
+        ,summary['LongWinCount']
+        ,summary['LongLoseCount']
+        ,summary['LongWinValue']
+        ,summary['LongLoseValue']
+        ,long_win_rate
+        ,long_payoffratio
+        ,long_expected_rate
+        ,long_expected_rate_per_1day
+        ,summary['ShortWinCount']
+        ,summary['ShortLoseCount']
+        ,summary['ShortWinValue']
+        ,summary['ShortLoseValue']
+        ,short_win_rate
+        ,short_payoffratio
+        ,short_expected_rate
+        ,short_expected_rate_per_1day
+        ,regist_date
+    )
     return msg
 
 def save_simulate_result(
                      symbol
+                    ,strategy_id
                     ,strategy
                     ,start_date
                     ,end_date
@@ -459,6 +365,7 @@ def save_simulate_result(
                     insert or replace into backtest_result 
                     (
                      symbol
+                    ,strategy_id
                     ,strategy
                     ,start_date
                     ,end_date
@@ -535,10 +442,12 @@ def save_simulate_result(
                         ,?
                         ,?
                         ,?
+                        ,?
                     )
                 """,
         (
          symbol
+        ,strategy_id
         ,strategy
         ,start_date
         ,end_date
@@ -586,11 +495,9 @@ def save_simulate_result(
             conn.close
         my_lock.lock.release()
 
-def simulator_run(title, quotes, butler, symbol, output_summary_filename, output_history_filename, initial_cash, trade_fee, tick):
+def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trade_fee, tick):
     p = Position(initial_cash, trade_fee, tick)
-    output_history = open(output_history_filename, 'w', encoding='utf-8', newline='\n')
-    output_summary = open(output_summary_filename, 'a', encoding='utf-8', newline='\n')
-    output_history_writer = csv.writer(output_history)
+    backtest_history = list()
     for idx, high in enumerate(quotes.quotes['high']):
         if idx < quotes.ma_duration:
             continue
@@ -750,7 +657,9 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
         else:
             close = quotes.quotes['close'][idx]
         history = make_history(
-              business_date
+              symbol
+            , strategy_id
+            , business_date
             , quotes
             , idx
             , order_info
@@ -763,29 +672,25 @@ def simulator_run(title, quotes, butler, symbol, output_summary_filename, output
             , round(p.cash + p.pos_vol * close, 2)
             , trade_perfomance
             )
-        output_history_writer.writerow(history)
+        backtest_history.append(history)
     #シミュレーション結果を出力
-    summary_msg_log = make_summary_msg(symbol, title, p.summary, quotes, False)
-    summary_msg_csv = make_summary_msg(symbol, title, p.summary, quotes, True)
+    summary_msg_log = make_summary_msg(symbol, strategy_id, title, p.summary, quotes)
+    save_history(backtest_history)
     logger.info(summary_msg_log)
-    output_summary.write(summary_msg_csv)
-    output_history.close()
-    output_summary.close()
 
-def backtest_bollingerband(symbols, start_date, end_date, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
+def backtest_bollingerband(symbols, start_date, end_date, strategy_id, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
         t = tick.get_tick(symbol)
         bollinger_butler = bollingerband.Butler(t, ma, diff, True)
-        title = "超短期ボリンジャー%d日_%s倍_決済差額%s" % (ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
-        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_diff%s.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), '{:.2f}'.format(diff))
-        simulator_run(title, q, bollinger_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
+        title = "ボリンジャーバンド新値_移動平均%d日標準偏差%s倍" % (ma, '{:.2f}'.format(ev_sigma))
+        simulator_run(title, strategy_id, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
-def backtest_new_value_and_moving_average(symbols, start_date, end_date, ma, new_value, vol_ma):
+def backtest_new_value_and_moving_average(symbols, start_date, end_date, strategy_id, ma, new_value, vol_ma):
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
@@ -793,28 +698,26 @@ def backtest_new_value_and_moving_average(symbols, start_date, end_date, ma, new
         t = tick.get_tick(symbol)
         nv_ma_butler = new_value_and_moving_average.Butler(t, new_value)
         title = "新値%d日_移動平均%d日_出来高移動平均%d日" % (new_value, ma, vol_ma)
-        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_nv%d_ma%d.csv' % (start_date, end_date, new_value, ma)
-        simulator_run(title, q, nv_ma_butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
+        simulator_run(title, strategy_id, q, nv_ma_butler, symbol, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
-def backtest_bandwalk(symbols, start_date, end_date, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma, walk):
+def backtest_bandwalk(symbols, start_date, end_date, strategy_id, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma, walk):
     symbol_cnt = len(symbols)
     fin_cnt = 0
     for symbol in symbols:
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
         t = tick.get_tick(symbol)
         butler = bandwalk.Butler(t, ma, diff, walk)
-        title = "バンドウォーク移動平均%d日_%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
-        backtest_history_filename = backtest_result_path + symbol + '_%s-%s_b%d_s%s_walk%d.csv' % (start_date, end_date, ma, '{:.2f}'.format(ev_sigma), walk)
-        simulator_run(title, q, butler, symbol, backtest_summary_filename, backtest_history_filename, initial_cash, trade_fee, t) 
+        title = "バンドウォーク移動平均%d日標準偏差%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
+        simulator_run(title, strategy_id, q, butler, symbol, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
 def backtest(symbol_txt, start_date, end_date):
     with open(symbol_txt, "r") as f:
         symbols = [v.rstrip() for v in f.readlines()]
-    work_size = 20
+    work_size = 5
     thread_pool = list()
     while True:
         symbols_work = list()
@@ -828,14 +731,15 @@ def backtest(symbol_txt, start_date, end_date):
         else:
             break
 
-        #超短期ボリンジャーバンド
+        #ボリンジャーバンド+新値
         bollinger_ma = 3 #移動平均の日数
         diff_price = 0.0001 #決済する差額
         ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
         ev2_sigma_ratio = 1.1 #トレンドを判定するsigma2の倍率
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
-        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
+        strategy_id = 1
+        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, strategy_id, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
         #    for bol_m in range(2, bolllinger_ma+1):
@@ -845,6 +749,7 @@ def backtest(symbol_txt, start_date, end_date):
         nv_ma = 4 #移動平均の日数
         new_value_duration = 1 #新値の日数
         vol_ma = 20 #出来高移動平均の日数
+        strategy_id = 200
         #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
         #for vol_m in range(2, vol_ma+1):
         #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
@@ -856,6 +761,7 @@ def backtest(symbol_txt, start_date, end_date):
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
         walk_duration = 5
+        strategy_id = 100
         #thread_pool.append(threading.Thread(target=backtest_bandwalk, args=(symbols_work, start_date, end_date, 10, diff_price, 1.5, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, walk_duration)))
         #for w in range(1, walk_duration+1):
         #    for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
@@ -878,8 +784,6 @@ if __name__ == '__main__':
     s = my_logger.Logger()
     dbfile = conf['dbfile']
     initial_cash = int(conf['initial_cash'])
-    backtest_result_path = conf['backtest_result']
-    backtest_summary_filename = backtest_result_path + '/summary.csv'
     symbol_txt = conf['symbol']
     args = len(sys.argv)
     max_businessdate = investment_director.get_max_businessdate(dbfile)
@@ -890,16 +794,7 @@ if __name__ == '__main__':
         end_date = sys.argv[2]
         backtest(symbol_txt, start_date, end_date)
     else:
-        #3ヶ月
-        start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
-        backtest(symbol_txt, start_date, end_date)
-        #1年
-        start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
-        backtest(symbol_txt, start_date, end_date)
-        #3年
-        start_date = (today - relativedelta(years=3)).strftime("%Y-%m-%d")
-        backtest(symbol_txt, start_date, end_date)
-        #15年
-        start_date = (today - relativedelta(years=15)).strftime("%Y-%m-%d")
+        #2001年1月1日からテスト
+        start_date = '2001-01-01'
         backtest(symbol_txt, start_date, end_date)
 
