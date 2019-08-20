@@ -747,7 +747,7 @@ if __name__ == '__main__':
     args = len(sys.argv)
     today = datetime.today()
     start_date = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
-    end_date = investment_director.get_last_backtestdate(dbfile)
+    end_date = investment_director.get_max_businessdate(dbfile)
     if args == 3:
         start_date = sys.argv[1]
         end_date = sys.argv[2]

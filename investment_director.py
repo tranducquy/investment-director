@@ -18,19 +18,19 @@ from ordertype import OrderType
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def get_last_backtestdate(db):
+def get_max_businessdate(db):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     #バックテストの最終登録日を取得
     c.execute("""
     select
-    max(regist_date)
-    from backtest_result""")
+    max(business_date)
+    from ohlc""")
     max_date = c.fetchone()
     conn.close()
     return max_date[0]
 
-def _get_symbols(db, regist_date, today, end_date):
+def _get_symbols(db, today, end_date):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
     start_date_3month = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     start_date_1year = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
@@ -48,18 +48,18 @@ def _get_symbols(db, regist_date, today, end_date):
     ,y1.rate_of_return as 騰落率1年
     ,y3.rate_of_return as 騰落率3年
     ,y15.rate_of_return as 騰落率15年
-    ,m3.expected_rate as トレード当たりの期待値3か月
-    ,y1.expected_rate as トレード当たりの期待値1年
-    ,y3.expected_rate as トレード当たりの期待値3年
-    ,y15.expected_rate as トレード当たりの期待値15年
-    ,m3.expected_rate_per_1day as トレード1日当たりの期待値3か月
-    ,y1.expected_rate_per_1day as トレード1日当たりの期待値1年
-    ,y3.expected_rate_per_1day as トレード1日当たりの期待値3年
-    ,y15.expected_rate_per_1day as トレード1日当たりの期待値15年
+    ,m3.expected_rate as トレード当たりの期待利益率3か月
+    ,y1.expected_rate as トレード当たりの期待利益率1年
+    ,y3.expected_rate as トレード当たりの期待利益率3年
+    ,y15.expected_rate as トレード当たりの期待利益率15年
     ,m3.average_period_per_trade as 平均取引期間3か月
     ,y1.average_period_per_trade as 平均取引期間1年
     ,y3.average_period_per_trade as 平均取引期間3年
     ,y15.average_period_per_trade as 平均取引期間15年
+    ,m3.win_count+m3.loss_count as 取引数3か月
+    ,y1.win_count+y1.loss_count as 取引数1年
+    ,y3.win_count+y3.loss_count as 取引数3年
+    ,y15.win_count+y15.loss_count as 取引数15年
     ,m3.win_rate as 勝率3か月
     ,y1.win_rate as 勝率1年
     ,y3.win_rate as 勝率3年
@@ -68,30 +68,18 @@ def _get_symbols(db, regist_date, today, end_date):
     ,y1.long_expected_rate as 期待利益率long1年
     ,y3.long_expected_rate as 期待利益率long3年
     ,y15.long_expected_rate as 期待利益率long15年
-    ,m3.long_expected_rate_per_1day as 一日当たりの期待利益率long3か月
-    ,y1.long_expected_rate_per_1day as 一日当たりの期待利益率long1年
-    ,y3.long_expected_rate_per_1day as 一日当たりの期待利益率long3年
-    ,y15.long_expected_rate_per_1day as 一日当たりの期待利益率long15年
-    ,m3.long_win_count+m3.long_loss_count as 取引数long3か月
-    ,y1.long_win_count+y1.long_loss_count as 取引数long1年
-    ,y3.long_win_count+y3.long_loss_count as 取引数long3年
-    ,y15.long_win_count+y15.long_loss_count as 取引数long15年
     ,m3.short_expected_rate as 期待利益率short3か月
     ,y1.short_expected_rate as 期待利益率short1年
     ,y3.short_expected_rate as 期待利益率short3年
     ,y15.short_expected_rate as 期待利益率short15年
-    ,m3.short_expected_rate_per_1day as 一日当たりの期待利益率short3か月
-    ,y1.short_expected_rate_per_1day as 一日当たりの期待利益率short1年
-    ,y3.short_expected_rate_per_1day as 一日当たりの期待利益率short3年
-    ,y15.short_expected_rate_per_1day as 一日当たりの期待利益率short15年
+    ,m3.long_win_count+m3.long_loss_count as 取引数long3か月
+    ,y1.long_win_count+y1.long_loss_count as 取引数long1年
+    ,y3.long_win_count+y3.long_loss_count as 取引数long3年
+    ,y15.long_win_count+y15.long_loss_count as 取引数long15年
     ,m3.short_win_count+m3.short_loss_count as 取引数short3か月
     ,y1.short_win_count+y1.short_loss_count as 取引数short1年
     ,y3.short_win_count+y3.short_loss_count as 取引数short3年
     ,y15.short_win_count+y15.short_loss_count as 取引数short15年
-    ,m3.win_count+m3.loss_count as 取引数3か月
-    ,y1.win_count+y1.loss_count as 取引数1年
-    ,y3.win_count+y3.loss_count as 取引数3年
-    ,y15.win_count+y15.loss_count as 取引数15年
    from backtest_result m3
    left outer join (
    select
@@ -150,11 +138,12 @@ def direct_open_order(dbfile):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_open_order.')
-    max_regist_date = get_last_backtestdate(dbfile)
-    today = datetime.strptime(max_regist_date, "%Y-%m-%d")
+    max_businessdate = get_max_businessdate(dbfile)
+    today = datetime.strptime(max_businessdate, "%Y-%m-%d")
     start_date = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
-    end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
-    symbols = _get_symbols(dbfile, max_regist_date, today, end_date)
+    #end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+    end_date = (today).strftime("%Y-%m-%d")
+    symbols = _get_symbols(dbfile, today, end_date)
     #ポジション無し
     for s in symbols:
         symbol = s[0]
@@ -319,10 +308,10 @@ def direct_close_order(dbfile, symbol, position, position_price):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_close_order.')
-    max_regist_date = get_last_backtestdate(dbfile)
-    today = datetime.strptime(max_regist_date, "%Y-%m-%d")
+    max_businessdate = get_max_businessdate(dbfile)
+    today = datetime.strptime(max_businessdate, "%Y-%m-%d")
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
-    end_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
+    end_date = today.strftime("%Y-%m-%d")
     t = tick.get_tick(symbol)
     #ポジションあり
     #'新値1日_移動平均4日_出来高移動平均20日':
