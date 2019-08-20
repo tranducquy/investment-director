@@ -63,7 +63,7 @@ create table m_strategy
     primary key(id)
 )
 ;
-insert into m_strategy (id, name) values (1, 'ボリンジャーバンドSMA3SD1.0新値'); --株式(Nikkei225,TOPIX)
+insert into m_strategy (id, name) values (1, 'ボリンジャーバンド新値SMA3SD1.0'); --株式(Nikkei225,TOPIX)
 
 create table backtest_history
 (

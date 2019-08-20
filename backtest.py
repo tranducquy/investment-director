@@ -702,7 +702,7 @@ def backtest_bollingerband(symbols, start_date, end_date, strategy_id, ma, diff,
         q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
         t = tick.get_tick(symbol)
         bollinger_butler = bollingerband.Butler(t, ma, diff, True)
-        title = "ボリンジャーバンド新値_移動平均%d日標準偏差%s倍" % (ma, '{:.2f}'.format(ev_sigma))
+        title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
         simulator_run(title, strategy_id, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
