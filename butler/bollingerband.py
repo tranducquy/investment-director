@@ -84,9 +84,9 @@ class Butler():
         stop_market_flg = q.quotes['high'][idx] >= q.upper_ev_sigma[idx]
         if self.only_stop_market_order:
             stop_market_flg = True
-        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) >= self.diff_price:
             return OrderType.CLOSE_STOP_MARKET_LONG
-        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) >= self.diff_price:
             return OrderType.CLOSE_MARKET_LONG
         else:
             #高値が上シグマを抜けていない場合は、成り行きでクローズ
@@ -98,9 +98,9 @@ class Butler():
         stop_market_flg = q.quotes['low'][idx] <= q.lower_ev_sigma[idx]
         if self.only_stop_market_order:
             stop_market_flg = True
-        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        if stop_market_flg and abs(pos_price - q.quotes['close'][idx]) >= self.diff_price:
             return OrderType.CLOSE_STOP_MARKET_SHORT
-        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) > self.diff_price:
+        elif not stop_market_flg and abs(pos_price - q.quotes['close'][idx]) >= self.diff_price:
             return OrderType.CLOSE_MARKET_SHORT
         else:
             #安値が下シグマを抜けていない場合は、成り行きでクローズ
