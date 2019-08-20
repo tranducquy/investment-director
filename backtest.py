@@ -90,6 +90,143 @@ def make_history(
         , trade_perfomance['profit_value']
         , trade_perfomance['profit_rate']
     )
+
+    try:
+        my_lock.lock.acquire()
+        conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
+        c = conn.cursor()
+        c.execute("""
+                    insert or replace into backtest_history
+                    (
+                        symbol,
+                        strategy_idinteger,
+                        business_date,
+                        open,
+                        high,
+                        low,
+                        close,
+                        volume,
+                        sma,
+                        upper_sigma1,
+                        lower_sigma1,
+                        upper_sigma2,
+                        lower_sigma2,
+                        vol_sma decimal,
+                        vol_upper_sigma1,
+                        vol_lower_sigma1,
+                        order_create_date,
+                        order_type,
+                        order_vo, 
+                        order_price,
+                        call_order_date text,
+                        call_order_type integer,
+                        call_order_vol decimal(10, 5),
+                        call_order_price decimal(10, 5),
+                        execution_order_date text,
+                        execution_order_type text,
+                        execution_order_status text,
+                        execution_order_vol decimal(10, 5)
+                        execution_order_price decimal(10. 5),
+                        position integer,
+                        cash decimal(10, 5),
+                        pos_vol decimal(10, 5),
+                        pos_price decimal(10, 5),
+                        total_value decimal(10, 5),
+                        profit_value decimal(10, 5),
+                        profit_rate decimal(10, 5)
+                        primary key(symbol, strategy_id, business_date)
+                    )
+                    values
+                    ( 
+                         ?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                        ,?
+                    )
+                """,
+        (
+         symbol
+        ,strategy
+        ,start_date
+        ,end_date
+        ,market_start_date
+        ,market_end_date
+        ,backtest_period
+        ,trading_period
+        ,average_period_per_trade
+        ,initial_assets
+        ,last_assets
+        ,rate_of_return
+        ,win_count
+        ,loss_count
+        ,win_value
+        ,loss_value
+        ,win_rate
+        ,payoffratio
+        ,expected_rate
+        ,expected_rate_per_1day
+        ,long_win_count
+        ,long_loss_count
+        ,long_win_value
+        ,long_loss_value
+        ,long_win_rate
+        ,long_payoffratio
+        ,long_expected_rate
+        ,long_expected_rate_per_1day
+        ,short_win_count
+        ,short_loss_count
+        ,short_win_value
+        ,short_loss_value
+        ,short_win_rate
+        ,short_payoffratio
+        ,short_expected_rate
+        ,short_expected_rate_per_1day
+        ,regist_date
+        ))
+    except Exception as err:
+        if conn: 
+            conn.rollback()
+            logger.error(err)
+    finally:
+        if conn: 
+            conn.commit()
+            conn.close
+        my_lock.lock.release()
+
+
     return t
 
 def get_summary_msgheader():
