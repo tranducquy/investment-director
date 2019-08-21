@@ -7,17 +7,16 @@ import sqlite3
 import pandas as pd
 import common
 import my_logger
+import backtest
+import crawler
 
 s = my_logger.Logger()
 logger = s.myLogger()
 
 def bitmex_download(symbol, seconds):
-    # 現在時刻のUTC
     now = datetime.datetime.utcnow()
     unixtime = calendar.timegm(now.utctimetuple())
-    # 取得開始のUnixTime
     since = unixtime - seconds
-    # APIリクエスト(1時間前から現在までの1日足OHLCVデータを取得)
     param = {"symbol": symbol, "period": 1440, "from": since, "to": unixtime}
     url = "https://www.bitmex.com/api/udf/history?symbol={symbol}&resolution={period}&from={from}&to={to}".format(**param)
     res = requests.get(url)
@@ -25,7 +24,7 @@ def bitmex_download(symbol, seconds):
     business_dates = list()
     for t in data["t"]:
         business_dates.append(datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d'))
-    # レスポンスのjsonデータからOHLCVのDataFrameを作成
+    #DataFrame生成
     df = pd.DataFrame({
             "BusinessDate": business_dates,
             "Open":      data["o"],
@@ -36,37 +35,27 @@ def bitmex_download(symbol, seconds):
         }, columns = ["BusinessDate","Open","High","Low","Close","Volume"])
     return df
 
-def insert_history(quotes):
-    dbfile = conf['dbfile']
-    try:
-        conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
-        c = conn.cursor()
-        c.executemany('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', quotes)
-    except Exception as err:
-        logger.error('error dayo. {0}'.format(err))
-        if conn: conn.rollback()
-    finally:
-        if conn: 
-            conn.commit()
-            conn.close
-
 if __name__ == '__main__':
     args = sys.argv
     conf = common.read_conf()
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
-    logger.info('crawler.')
-    #設定ファイルから対象期間を取得
-    if len(args) == 1:
+    logger.info('bitmex crawler.')
+    args = backtest.get_option()
+    if args.period is None:
         default_period = int(conf['default_period'])
     else:
-        sys.exit()
-    symbol_txt = conf['symbol']
+        default_period = int(args.period)
+    if args.symbol is None:
+        symbol_txt = conf['symbol']
+    else:
+        symbol_txt = args.symbol
+    dbfile = conf['dbfile']
     symbols = open(symbol_txt, "r")
     for symbol in symbols:
         symbol = symbol.strip()
         #data = yf.download(symbol, start=start_date, end=end_date)
-        data = bitmex_download(symbol, 60 * 60 * 24 * default_period)
+        data = bitmex_download(symbol, 60 * 60 * 24 * abs(default_period))
         idx = len(data['BusinessDate'])
         max_date = ''
         min_date = ''
@@ -87,6 +76,6 @@ if __name__ == '__main__':
                 min_date = business_date
             elif business_date < min_date:
                 min_date = business_date
-        insert_history(quotes)
+        crawler.insert_history(dbfile, quotes)
         logger.info("downloaded:[%s][%s-%s]" % (symbol, min_date, max_date))
 

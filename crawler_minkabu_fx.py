@@ -5,6 +5,8 @@ import requests
 import datetime
 import common
 import my_logger
+import backtest
+import crawler
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -27,32 +29,22 @@ def minkabu_fx_download(symbol, leg='daily', count=30):
         data['Close'].append(r[4])
     return data
 
-def insert_history(quotes):
-    dbfile = conf['dbfile']
-    try:
-        conn = sqlite3.connect(dbfile, isolation_level='EXCLUSIVE')
-        c = conn.cursor()
-        c.executemany('INSERT OR REPLACE INTO ohlc(symbol, business_date, open, high, low, close, volume) VALUES(?,?,?,?,?,?,?)', quotes)
-    except Exception as err:
-        logger.error('error dayo. {0}'.format(err))
-        if conn: conn.rollback()
-    finally:
-        if conn: 
-            conn.commit()
-            conn.close
-
 if __name__ == '__main__':
     args = sys.argv
     conf = common.read_conf()
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('minkabu crawler.')
-    #設定ファイルから対象期間を取得
-    if len(args) == 1:
+    args = backtest.get_option()
+    if args.period is None:
         default_period = int(conf['default_period'])
     else:
-        sys.exit()
-    symbol_txt = conf['symbol']
+        default_period = int(args.period)
+    if args.symbol is None:
+        symbol_txt = conf['symbol']
+    else:
+        symbol_txt = args.symbol
+    dbfile = conf['dbfile']
     symbols = open(symbol_txt, "r")
     for symbol in symbols:
         symbol = symbol.strip()
@@ -77,6 +69,6 @@ if __name__ == '__main__':
                 min_date = business_date
             elif business_date < min_date:
                 min_date = business_date
-        insert_history(quotes)
+        crawler.insert_history(dbfile, quotes)
         logger.info("downloaded:[%s][%s-%s]" % (symbol, min_date, max_date))
 
