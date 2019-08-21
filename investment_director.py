@@ -63,13 +63,15 @@ def _get_symbols(db, today, start_date, end_date):
     ,y1.profit_rate_sum as 期待利益率1年
     ,y3.profit_rate_sum as 期待利益率3年
     ,y15.profit_rate_sum as 期待利益率15年
-    ,r.average_period_per_trade as 平均取引期間
+    ,r.expected_rate as 全期間期待利益率
+    ,r.long_expected_rate as 全期間期待利益率long
+    ,r.short_expected_rate as 全期間期待利益率short
     ,r.win_rate as 勝率
-    ,r.long_expected_rate as 期待利益率long
-    ,r.long_win_count+r.long_loss_count as 取引数long
-    ,r.short_expected_rate as 期待利益率short
-    ,r.short_win_count+r.short_loss_count as 取引数short
+    ,r.average_period_per_trade as 平均取引期間
     ,r.win_count+r.loss_count as 取引数
+    ,r.long_win_count+r.long_loss_count as 取引数long
+    ,r.short_win_count+r.short_loss_count as 取引数short
+    ,r.payoffratio as ペイオフレシオ
    from backtest_result r
    left outer join (
    select
@@ -158,9 +160,30 @@ def direct_open_order(dbfile):
     start_date = conf['backtest_startdate']
     end_date = max_businessdate
     symbols = _get_symbols(dbfile, today, start_date, end_date)
+    header = "営業日,シンボル,ストラテジー,注文方法,注文価格,期待利益率3か月,期待利益率1年,期待利益率3年,期待利益率15年,全期間期待利益率,全期間期待利益率long,全期間期待利益率short,勝率,平均取引期間,全期間取引数,全期間取引数long,全期間取引数short,ペイオフレシオ"
+    logger.info(header)
     for s in symbols:
         order_type = OrderType(s[2])
-        msg = "[{symbol}][{strategy}] [注文方法:{ordertype}][価格:{order_price}]".format(symbol=s[0], strategy=s[1], ordertype=order_type.name, order_price = s[3])
+        msg = "{end_date},{symbol},{strategy},{order_type},{order_price},{m3_profit_rate_sum},{y1_profit_rate_sum},{y3_profit_rate_sum},{y15_profit_rate_sum},{expected_rate},{long_expected_rate},{short_expected_rate},{win_rate},{average_period_per_trade},{trade_count},{long_trade_count},{short_trade_count},{payoffratio}".format( 
+                    symbol = s[0]
+                    ,strategy = s[1]
+                    ,order_type = order_type.name
+                    ,order_price = s[3]
+                    ,end_date = s[4]
+                    ,m3_profit_rate_sum = s[5]
+                    ,y1_profit_rate_sum = s[6]
+                    ,y3_profit_rate_sum = s[7]
+                    ,y15_profit_rate_sum = s[8]
+                    ,expected_rate = s[9]
+                    ,long_expected_rate = s[10]
+                    ,short_expected_rate = s[11]
+                    ,win_rate = s[12]
+                    ,average_period_per_trade = s[13]
+                    ,trade_count = s[14]
+                    ,long_trade_count = s[15]
+                    ,short_trade_count = s[16]
+                    ,payoffratio = s[17]
+        )
         logger.info(msg)
 
 def _check_close_order(butler, q, position, position_price, symbol, strategy):
