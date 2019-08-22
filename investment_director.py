@@ -14,18 +14,34 @@ import tick
 from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
+import symbol
 
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def get_max_businessdate(db):
+def get_max_businessdate_from_ohlc(db, symbols):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     #ohlcの最終登録日を取得
     c.execute("""
     select
     max(business_date)
-    from ohlc""")
+    from ohlc 
+    where symbol in ({0})""".format(', '.join('?' for _ in symbols)), symbols)
+    max_date = c.fetchone()
+    conn.close()
+    return max_date[0]
+
+def get_max_businessdate_from_backtest_history(db, symbols):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    #backtest_historyの最終登録日を取得
+    sql = """
+    select
+    max(business_date)
+    from backtest_history
+    where symbol in ({0})""".format(', '.join('?' for _ in symbols))
+    c.execute(sql, symbols)
     max_date = c.fetchone()
     conn.close()
     return max_date[0]
@@ -43,7 +59,7 @@ def get_strategy_name(db, strategy_id):
     conn.close()
     return name[0]
 
-def _get_symbols(db, today, start_date, end_date):
+def _get_open_signal(db, today, start_date, end_date, symbols):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
     start_date_3month = (today - relativedelta(months=3)).strftime("%Y-%m-%d")
     start_date_1year = (today - relativedelta(years=1)).strftime("%Y-%m-%d")
@@ -136,6 +152,7 @@ def _get_symbols(db, today, start_date, end_date):
    and r.end_date = '%s'
    and r.rate_of_return > 0
    and (m3.profit_rate_sum > 3 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
+   and r.symbol in ({0})
    order by m3.profit_rate_sum desc
        """ % (
              start_date_3month, end_date
@@ -144,25 +161,27 @@ def _get_symbols(db, today, start_date, end_date):
            , start_date_15year, end_date
            , start_date, end_date
            )
+    sql = sql.format(', '.join('?' for _ in symbols))
     logger.info(sql)
-    c.execute(sql)
+    c.execute(sql, symbols)
     symbols = c.fetchall()
     conn.close()
     return symbols
 
-def direct_open_order(dbfile):
+def direct_open_order(dbfile, symbol_txt):
     conf = common.read_conf()
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_open_order.')
-    max_businessdate = get_max_businessdate(dbfile)
+    symbols = symbol.get_symbols(symbol_txt)
+    max_businessdate = get_max_businessdate_from_backtest_history(dbfile, symbols)
     today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
     start_date = conf['backtest_startdate']
     end_date = max_businessdate
-    symbols = _get_symbols(dbfile, today, start_date, end_date)
+    result = _get_open_signal(dbfile, today, start_date, end_date, symbols)
     header = "営業日,シンボル,ストラテジー,注文方法,注文価格,期待利益率3か月,期待利益率1年,期待利益率3年,期待利益率15年,全期間期待利益率,全期間期待利益率long,全期間期待利益率short,勝率,平均取引期間,全期間取引数,全期間取引数long,全期間取引数short,ペイオフレシオ"
     logger.info(header)
-    for s in symbols:
+    for s in result:
         order_type = OrderType(s[2])
         msg = "{end_date},{symbol},{strategy},{order_type},{order_price},{m3_profit_rate_sum},{y1_profit_rate_sum},{y3_profit_rate_sum},{y15_profit_rate_sum},{expected_rate},{long_expected_rate},{short_expected_rate},{win_rate},{average_period_per_trade},{trade_count},{long_trade_count},{short_trade_count},{payoffratio}".format( 
                     symbol = s[0]
@@ -218,7 +237,7 @@ def direct_close_order(dbfile, symbol, position, position_price):
     s = my_logger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('direct_close_order.')
-    max_businessdate = get_max_businessdate(dbfile)
+    max_businessdate = get_max_businessdate_from_backtest_history(dbfile, [symbol])
     today = (datetime.strptime(max_businessdate, "%Y-%m-%d") + timedelta(days=1)) 
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date = today.strftime("%Y-%m-%d")

@@ -23,6 +23,7 @@ from butler import new_value_and_moving_average
 from butler import bandwalk 
 import tick
 import investment_director
+import symbol
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -741,9 +742,7 @@ def backtest_bandwalk(symbols, start_date, end_date, strategy_id, ma, diff, ev_s
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
-def backtest(symbol_txt, start_date, end_date):
-    with open(symbol_txt, "r") as f:
-        symbols = [v.rstrip() for v in f.readlines()]
+def backtest(symbols, start_date, end_date):
     work_size = 20
     thread_pool = list()
     while True:
@@ -825,14 +824,15 @@ if __name__ == '__main__':
         symbol_txt = conf['symbol']
     else:
         symbol_txt = args.symbol
+    ss = symbol.get_symbols(symbol_txt)
     if args.start_date is None:
         start_date = conf['backtest_startdate']
     else:
         start_date = args.start_date
     if args.end_date is None:
-        max_businessdate = investment_director.get_max_businessdate(dbfile)
+        max_businessdate = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
         end_date = max_businessdate
     else:
         end_date = args.end_date
-    backtest(symbol_txt, start_date, end_date)
+    backtest(ss, start_date, end_date)
 
