@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, g
 import sqlite3
+import invest_signal
 
 app = Flask(__name__)
 
@@ -69,10 +70,13 @@ def index():
 def index2():
     return render_template('index.html')
 
-@app.route('/signal')
-def signal():
-    content_title = "Investment Signal"
-    return render_template('signal.html', content_title=content_title)
+@app.route('/open_signal')
+def open_signal():
+    symbol_txt = "" #TODO:
+    business_date = "" #TODO:
+    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, business_date)
+    content_title = "Investment Open Signal"
+    return render_template('open_signal.html', content_title=content_title, open_list=open_signals)
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():
