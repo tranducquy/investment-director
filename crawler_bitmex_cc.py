@@ -9,6 +9,7 @@ import common
 import my_logger
 import backtest
 import crawler
+import symbol as sym
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -51,9 +52,8 @@ if __name__ == '__main__':
     else:
         symbol_txt = args.symbol
     dbfile = conf['dbfile']
-    symbols = open(symbol_txt, "r")
+    symbols = sym.get_symbols(symbol_txt)
     for symbol in symbols:
-        symbol = symbol.strip()
         #data = yf.download(symbol, start=start_date, end=end_date)
         data = bitmex_download(symbol, 60 * 60 * 24 * abs(default_period))
         idx = len(data['BusinessDate'])

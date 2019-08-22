@@ -23,6 +23,7 @@ from butler import new_value_and_moving_average
 from butler import bandwalk 
 import tick
 import investment_director
+import symbol
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -741,9 +742,7 @@ def backtest_bandwalk(symbols, start_date, end_date, strategy_id, ma, diff, ev_s
         fin_cnt = 1 + fin_cnt
         logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
 
-def backtest(symbol_txt, start_date, end_date):
-    with open(symbol_txt, "r") as f:
-        symbols = [v.rstrip() for v in f.readlines()]
+def backtest(symbols, start_date, end_date):
     work_size = 20
     thread_pool = list()
     while True:
@@ -766,15 +765,15 @@ def backtest(symbol_txt, start_date, end_date):
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
         strategy_id = 1
-        if 'bitmex_xbtusd.txt' in symbol_txt:
+        if ('bitmex_xbtusd.txt' in symbol_txt 
+            or 'minkabu_fx.txt' in symbol_txt):
             bollinger_ma = 8
             ev_sigma_ratio = 1.2
+            strategy_id = 2
         elif 'bitmex_ethusd.txt' in symbol_txt:
             bollinger_ma = 2 
             ev_sigma_ratio = 1.6
-        elif 'minkabu_fx.txt' in symbol_txt:
-            bollinger_ma = 8 
-            ev_sigma_ratio = 1.2
+            strategy_id = 3
         thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, strategy_id, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
         #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
@@ -825,14 +824,15 @@ if __name__ == '__main__':
         symbol_txt = conf['symbol']
     else:
         symbol_txt = args.symbol
+    ss = symbol.get_symbols(symbol_txt)
     if args.start_date is None:
         start_date = conf['backtest_startdate']
     else:
         start_date = args.start_date
     if args.end_date is None:
-        max_businessdate = investment_director.get_max_businessdate(dbfile)
+        max_businessdate = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
         end_date = max_businessdate
     else:
         end_date = args.end_date
-    backtest(symbol_txt, start_date, end_date)
+    backtest(ss, start_date, end_date)
 

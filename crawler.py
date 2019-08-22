@@ -6,6 +6,7 @@ import yfinance as yf
 import common
 import my_logger
 import backtest
+import symbol as sym
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -44,9 +45,8 @@ if __name__ == '__main__':
         symbol_txt = conf['symbol']
     else:
         symbol_txt = args.symbol
-    symbols = open(symbol_txt, "r")
+    symbols = sym.get_symbols(symbol_txt)
     for symbol in symbols:
-        symbol = symbol.strip()
         data = yf.download(symbol, start=start_date, end=end_date)
         idx = data.index.size
         max_date = ''

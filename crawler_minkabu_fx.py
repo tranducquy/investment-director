@@ -7,6 +7,7 @@ import common
 import my_logger
 import backtest
 import crawler
+import symbol as sym
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -45,9 +46,8 @@ if __name__ == '__main__':
     else:
         symbol_txt = args.symbol
     dbfile = conf['dbfile']
-    symbols = open(symbol_txt, "r")
+    symbols = sym.get_symbols(symbol_txt)
     for symbol in symbols:
-        symbol = symbol.strip()
         data = minkabu_fx_download(symbol, count=default_period)
         idx = len(data['BusinessDate'])
         max_date = ''
