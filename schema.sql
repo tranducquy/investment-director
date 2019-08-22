@@ -64,6 +64,8 @@ create table m_strategy
 )
 ;
 insert into m_strategy (id, name) values (1, 'ボリンジャーバンド新値SMA3SD1.0'); --株式(Nikkei225,TOPIX)
+insert into m_strategy (id, name) values (2, 'ボリンジャーバンド新値SMA8SD1.2'); --暗号通貨(bitmex XBTUSD), FX(minkabu GBPJPY)
+insert into m_strategy (id, name) values (3, 'ボリンジャーバンド新値SMA2SD1.6'); --暗号通貨(bitmex ETHUSD)
 
 create table backtest_history
 (
