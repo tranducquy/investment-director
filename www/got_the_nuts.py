@@ -71,7 +71,8 @@ def index2():
 
 @app.route('/signal')
 def signal():
-    return 'Investment Signal'
+    content_title = "Investment Signal"
+    return render_template('signal.html', content_title=content_title)
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():

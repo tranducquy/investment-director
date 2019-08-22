@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+
+        {% block content %}
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][1] }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>business_date</th>
+                      <th>open</th>
+                      <th>high</th>
+                      <th>low</th>
+                      <th>close</th>
+                      <th>volume</th>
+                      <th>sma</th>
+                      <th>upper_sigma1</th>
+                      <th>lower_sigma1</th>
+                      <th>upper_sigma2</th>
+                      <th>lower_sigma2</th>
+                      <th>vol_sma</th>
+                      <th>vol_upper_sigma1</th>
+                      <th>vol_lower_sigma1</th>
+                      <th>order_create_date</th>
+                      <th>order_type</th>
+                      <th>order_vol</th>
+                      <th>order_price</th>
+                      <th>call_order_date</th>
+                      <th>call_order_type</th>
+                      <th>call_order_vol</th>
+                      <th>call_order_price</th>
+                      <th>execution_order_date</th>
+                      <th>execution_order_type</th>
+                      <th>execution_order_status</th>
+                      <th>execution_order_vol</th>
+                      <th>execution_order_price</th>
+                      <th>position</th>
+                      <th>cash</th>
+                      <th>pos_vol</th>
+                      <th>pos_price</th>
+                      <th>total_value</th>
+                      <th>profit_value</th>
+                      <th>profit_rate</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                      <th>business_date</th>
+                      <th>open </th>
+                      <th>high </th>
+                      <th>low </th>
+                      <th>close</th>
+                      <th>volume</th>
+                      <th>sma </th>
+                      <th>upper_sigma1</th>
+                      <th>lower_sigma1</th>
+                      <th>upper_sigma2</th>
+                      <th>lower_sigma2</th>
+                      <th>vol_sma</th>
+                      <th>vol_upper_sigma1</th>
+                      <th>vol_lower_sigma1</th>
+                      <th>order_create_date</th>
+                      <th>order_type</th>
+                      <th>order_vol</th>
+                      <th>order_price</th>
+                      <th>call_order_date</th>
+                      <th>call_order_type</th>
+                      <th>call_order_vol</th>
+                      <th>call_order_price</th>
+                      <th>execution_order_date</th>
+                      <th>execution_order_type</th>
+                      <th>execution_order_status</th>
+                      <th>execution_order_vol</th>
+                      <th>execution_order_price</th>
+                      <th>position</th>
+                      <th>cash</th>
+                      <th>pos_vol</th>
+                      <th>pos_price</th>
+                      <th>total_value</th>
+                      <th>profit_value</th>
+                      <th>profit_rate</th>
+                    </tr>
+                  </tfoot>
+                  <tbody>
+                  {% for r in rv %}
+                    <tr>
+                      <th>{{ r[2] }}</th>
+                      <th>{{ r[3] }}</th>
+                      <th>{{ r[4] }}</th>
+                      <th>{{ r[5] }}</th>
+                      <th>{{ r[6] }}</th>
+                      <th>{{ r[7] }}</th>
+                      <th>{{ r[8] }}</th>
+                      <th>{{ r[9] }}</th>
+                      <th>{{ r[10] }}</th>
+                      <th>{{ r[11] }}</th>
+                      <th>{{ r[12] }}</th>
+                      <th>{{ r[13] }}</th>
+                      <th>{{ r[14] }}</th>
+                      <th>{{ r[15] }}</th>
+                      <th>{{ r[16] }}</th>
+                      <th>{{ r[17] }}</th>
+                      <th>{{ r[18] }}</th>
+                      <th>{{ r[19] }}</th>
+                      <th>{{ r[20] }}</th>
+                      <th>{{ r[21] }}</th>
+                      <th>{{ r[22] }}</th>
+                      <th>{{ r[23] }}</th>
+                      <th>{{ r[24] }}</th>
+                      <th>{{ r[25] }}</th>
+                      <th>{{ r[26] }}</th>
+                      <th>{{ r[27] }}</th>
+                      <th>{{ r[28] }}</th>
+                      <th>{{ r[29] }}</th>
+                      <th>{{ r[30] }}</th>
+                      <th>{{ r[31] }}</th>
+                      <th>{{ r[32] }}</th>
+                      <th>{{ r[33] }}</th>
+                      <th>{{ r[34] }}</th>
+                      <th>{{ r[35] }}</th>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        {% endblock %}
