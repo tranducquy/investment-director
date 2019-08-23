@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -100,7 +101,7 @@ def bitmex_ethusd():
 @app.route('/minkabu_fx_gbpjpy')
 def minkabu_fx_gbpjpy():
     rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol='GBPJPY'))
-    content_title = "みん株FX GBPJPY Backtest Data"
+    content_title = u"みん株FX GBPJPY Backtest Data"
     return render_template('backtest_history_table.html', content_title=content_title, rv=rv)
 
 @app.route('/nikkei_topix')

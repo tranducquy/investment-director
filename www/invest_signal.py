@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import sqlite3
 from datetime import datetime, timedelta
@@ -116,6 +117,7 @@ def direct_open_order(db, symbol_txt, start_date, end_date):
     start_date = start_date
     end_date = end_date
     result = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
+    msg = ""
     for s in result:
         msg = "{end_date},{symbol},{strategy},{order_type},{order_price},{m3_profit_rate_sum},{y1_profit_rate_sum},{y3_profit_rate_sum},{y15_profit_rate_sum},{expected_rate},{long_expected_rate},{short_expected_rate},{win_rate},{average_period_per_trade},{trade_count},{long_trade_count},{short_trade_count},{payoffratio}".format( 
                     symbol = s[0]
