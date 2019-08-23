@@ -1,11 +1,16 @@
 
-from flask import Flask, render_template, g
+import os
+import sys
+from datetime import datetime
+from datetime import timedelta 
+from flask import Flask, render_template, g, request
 import sqlite3
 import invest_signal
 
 app = Flask(__name__)
 
 DATABASE = '/usr/local/investment-director/market-history.db'
+SYMBOL_DIR = '/usr/local/investment-director/symbol/'
 BACKTEST_HISTORY_QUERY = """
                     select 
                      bh.symbol
@@ -70,13 +75,15 @@ def index():
 def index2():
     return render_template('index.html')
 
-@app.route('/open_signal')
+@app.route('/open_signal', methods=['GET'])
 def open_signal():
-    symbol_txt = "" #TODO:
-    business_date = "" #TODO:
-    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, business_date)
-    content_title = "Investment Open Signal"
-    return render_template('open_signal.html', content_title=content_title, open_list=open_signals)
+    symbol_txt = os.path.join(SYMBOL_DIR, request.args.get("symbol", "symbol.txt"))
+    start_date = request.args.get("start_date", "2001-01-01")
+    today = datetime.now()
+    end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
+    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, start_date, end_date)
+    content_title = "Open Signal"
+    return render_template('open_signal.html', content_title=content_title, open_signals=open_signals)
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():
