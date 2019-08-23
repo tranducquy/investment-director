@@ -14,117 +14,69 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>business_date</th>
-                      <th>open</th>
-                      <th>high</th>
-                      <th>low</th>
-                      <th>close</th>
-                      <th>volume</th>
-                      <th>sma</th>
-                      <th>upper_sigma1</th>
-                      <th>lower_sigma1</th>
-                      <th>upper_sigma2</th>
-                      <th>lower_sigma2</th>
-                      <th>vol_sma</th>
-                      <th>vol_upper_sigma1</th>
-                      <th>vol_lower_sigma1</th>
-                      <th>order_create_date</th>
+                      <th>end_date</th>
+                      <th>symbol</th>
+                      <th>strategy</th>
                       <th>order_type</th>
-                      <th>order_vol</th>
                       <th>order_price</th>
-                      <th>call_order_date</th>
-                      <th>call_order_type</th>
-                      <th>call_order_vol</th>
-                      <th>call_order_price</th>
-                      <th>execution_order_date</th>
-                      <th>execution_order_type</th>
-                      <th>execution_order_status</th>
-                      <th>execution_order_vol</th>
-                      <th>execution_order_price</th>
-                      <th>position</th>
-                      <th>cash</th>
-                      <th>pos_vol</th>
-                      <th>pos_price</th>
-                      <th>total_value</th>
-                      <th>profit_value</th>
-                      <th>profit_rate</th>
+                      <th>m3_profit_rate_sum</th>
+                      <th>y1_profit_rate_sum</th>
+                      <th>y3_profit_rate_sum</th>
+                      <th>y15_profit_rate_sum</th>
+                      <th>expected_rate</th>
+                      <th>long_expected_rate</th>
+                      <th>short_expected_rate</th>
+                      <th>win_rate</th>
+                      <th>average_period_per_trade</th>
+                      <th>trade_count</th>
+                      <th>long_trade_count</th>
+                      <th>short_trade_count</th>
+                      <th>payoffratio</th>
                     </tr>
                   </thead>
                   <tfoot>
                     <tr>
-                      <th>business_date</th>
-                      <th>open </th>
-                      <th>high </th>
-                      <th>low </th>
-                      <th>close</th>
-                      <th>volume</th>
-                      <th>sma </th>
-                      <th>upper_sigma1</th>
-                      <th>lower_sigma1</th>
-                      <th>upper_sigma2</th>
-                      <th>lower_sigma2</th>
-                      <th>vol_sma</th>
-                      <th>vol_upper_sigma1</th>
-                      <th>vol_lower_sigma1</th>
-                      <th>order_create_date</th>
+                      <th>end_date</th>
+                      <th>symbol</th>
+                      <th>strategy</th>
                       <th>order_type</th>
-                      <th>order_vol</th>
                       <th>order_price</th>
-                      <th>call_order_date</th>
-                      <th>call_order_type</th>
-                      <th>call_order_vol</th>
-                      <th>call_order_price</th>
-                      <th>execution_order_date</th>
-                      <th>execution_order_type</th>
-                      <th>execution_order_status</th>
-                      <th>execution_order_vol</th>
-                      <th>execution_order_price</th>
-                      <th>position</th>
-                      <th>cash</th>
-                      <th>pos_vol</th>
-                      <th>pos_price</th>
-                      <th>total_value</th>
-                      <th>profit_value</th>
-                      <th>profit_rate</th>
+                      <th>m3_profit_rate_sum</th>
+                      <th>y1_profit_rate_sum</th>
+                      <th>y3_profit_rate_sum</th>
+                      <th>y15_profit_rate_sum</th>
+                      <th>expected_rate</th>
+                      <th>long_expected_rate</th>
+                      <th>short_expected_rate</th>
+                      <th>win_rate</th>
+                      <th>average_period_per_trade</th>
+                      <th>trade_count</th>
+                      <th>long_trade_count</th>
+                      <th>short_trade_count</th>
+                      <th>payoffratio</th>
                     </tr>
                   </tfoot>
                   <tbody>
-                  {% for r in rv %}
+                  {% for r in open_signals %}
                     <tr>
-                      <th>{{ r[2] }}</th>
-                      <th>{{ r[3] }}</th>
-                      <th>{{ r[4] }}</th>
-                      <th>{{ r[5] }}</th>
-                      <th>{{ r[6] }}</th>
-                      <th>{{ r[7] }}</th>
-                      <th>{{ r[8] }}</th>
-                      <th>{{ r[9] }}</th>
-                      <th>{{ r[10] }}</th>
-                      <th>{{ r[11] }}</th>
-                      <th>{{ r[12] }}</th>
-                      <th>{{ r[13] }}</th>
-                      <th>{{ r[14] }}</th>
-                      <th>{{ r[15] }}</th>
-                      <th>{{ r[16] }}</th>
-                      <th>{{ r[17] }}</th>
-                      <th>{{ r[18] }}</th>
-                      <th>{{ r[19] }}</th>
-                      <th>{{ r[20] }}</th>
-                      <th>{{ r[21] }}</th>
-                      <th>{{ r[22] }}</th>
-                      <th>{{ r[23] }}</th>
-                      <th>{{ r[24] }}</th>
-                      <th>{{ r[25] }}</th>
-                      <th>{{ r[26] }}</th>
-                      <th>{{ r[27] }}</th>
-                      <th>{{ r[28] }}</th>
-                      <th>{{ r[29] }}</th>
-                      <th>{{ r[30] }}</th>
-                      <th>{{ r[31] }}</th>
-                      <th>{{ r[32] }}</th>
-                      <th>{{ r[33] }}</th>
-                      <th>{{ r[34] }}</th>
-                      <th>{{ r[35] }}</th>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[0] }}</td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[5] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
+                      <td>{{ r[17] }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -132,5 +84,4 @@
               </div>
             </div>
           </div>
-
         {% endblock %}
