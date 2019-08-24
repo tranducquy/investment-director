@@ -17,7 +17,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     select
      r.symbol
     ,r.strategy
-    ,order_table.order_type
+    ,order_table.order_name
     ,order_table.order_price
     ,r.end_date
     ,m3.profit_rate_sum as 期待利益率3か月
@@ -81,16 +81,18 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id
    inner join (
         select
-         symbol
-        ,order_create_date
-        ,order_type
-        ,order_vol
-        ,order_price
-        from backtest_history
-        where business_date = (select max(business_date) from backtest_history)
-        and order_type in (1, 2)
-        and order_price > 0
-        and order_vol > 0
+         bh.symbol
+        ,bh.order_create_date
+        ,mo.ordertype_name as order_name
+        ,bh.order_vol
+        ,bh.order_price
+        from backtest_history as bh
+        inner join m_ordertype as mo
+         on bh.order_type = mo.ordertype_id
+        where bh.business_date = (select max(business_date) from backtest_history)
+        and bh.order_type in (1, 2)
+        and bh.order_price > 0
+        and bh.order_vol > 0
    ) as order_table
    on r.symbol = order_table.symbol
    where r.start_date = '%s'
@@ -118,31 +120,6 @@ def direct_open_order(db, symbol_txt, start_date, end_date):
     end_date = end_date
     result = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
     return result
-    """
-    msg = ""
-    for s in result:
-        msg = "{end_date},{symbol},{strategy},{order_type},{order_price},{m3_profit_rate_sum},{y1_profit_rate_sum},{y3_profit_rate_sum},{y15_profit_rate_sum},{expected_rate},{long_expected_rate},{short_expected_rate},{win_rate},{average_period_per_trade},{trade_count},{long_trade_count},{short_trade_count},{payoffratio}".format( 
-                     end_date = s[4]
-                    ,symbol = s[0]
-                    ,strategy = s[1]
-                    ,order_type = s[2]
-                    ,order_price = s[3]
-                    ,m3_profit_rate_sum = s[5]
-                    ,y1_profit_rate_sum = s[6]
-                    ,y3_profit_rate_sum = s[7]
-                    ,y15_profit_rate_sum = s[8]
-                    ,expected_rate = s[9]
-                    ,long_expected_rate = s[10]
-                    ,short_expected_rate = s[11]
-                    ,win_rate = s[12]
-                    ,average_period_per_trade = s[13]
-                    ,trade_count = s[14]
-                    ,long_trade_count = s[15]
-                    ,short_trade_count = s[16]
-                    ,payoffratio = s[17]
-        )
-    return msg
-    """
 
 def _check_close_order(butler, q, position, position_price, symbol, strategy):
     pass

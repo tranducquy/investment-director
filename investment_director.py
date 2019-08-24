@@ -52,9 +52,9 @@ def get_strategy_name(db, strategy_id):
     c = conn.cursor()
     c.execute("""
     select
-    name
+    strategy_name
     from m_strategy
-    where id = {sid}
+    where strategy_id = {sid}
     """.format(sid=strategy_id))
     name = c.fetchone()
     conn.close()
