@@ -9,7 +9,7 @@
           <!-- Content Row -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">ポジションを入力して下さい。前日までの値幅を参照したクローズ価格を表示します。</h6>
+              <h6 class="m-0 font-weight-bold text-primary">ポジションを入力して下さい。前日までの値幅を参照したクローズシグナルを表示します。</h6>
             </div>
             <div class="card-body">
               <form method="POST" action="/close_signal">
@@ -53,7 +53,7 @@
                   <span class="icon text-white-50">
                     <i class="fas fa-flag"></i>
                   </span>
-                  <span class="text">クローズ価格を確認する</span>
+                  <span class="text">クローズシグナルを確認する</span>
                 </button>
               </form>
             </div>
@@ -69,18 +69,20 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Username</th>
+                            <th>Symbol</th>
+                            <th>Order</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
                     <tbody>
+                      {% if close_order_price != 0 %}
                         <tr>
                             <th>1</th>
-                            <td>Hanako</td>
-                            <td>Qiita</td>
-                            <td>@Hanaq</td>
+                            <td>{{ symbol }}</td>
+                            <td>{{ close_order_type }}</td>
+                            <td>{{ close_order_price }}</td>
                         </tr>
+                      {% endif %}
                     </tbody>
                 </table>
             </div>

@@ -100,13 +100,20 @@ def close_signal():
         position = request.form.get("position", "")
         open_price = request.form.get("open_price", "")
         bitmex_flg = request.form.get("checkbox_bitmex", "")
-        close_order_price = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
+        close_order = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
+        if close_order.get('ordertype') is not None:
+            close_order_type = close_order['ordertype']
+            close_order_price = close_order['orderprice']
+        else:
+            close_order_type = ""
+            close_order_price = 0
         return render_template('close_signal.html'
                         , content_title=content_title
                         , symbol=symbol
                         , position=position
                         , open_price=open_price
                         , bitmex_flg=bitmex_flg
+                        , close_order_type=close_order_type
                         , close_order_price=close_order_price)
     else:
         return render_template('close_signal.html'

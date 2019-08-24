@@ -138,18 +138,48 @@ def _get_max_businessdate(db, symbol):
     c.close()
     business_date = ""
     if r:
-        business_date = r[0]
+        business_date = r[0][0]
     return business_date
 
-def direct_close_order(db, symbol, position, open_price, bitmex_flg):
-    close_order_price = 0
-    if symbol == "":
-        return close_order_price
-    #TODO:現在は新値のみなので、最終営業日の高値または安値を基準に1ティック差の価格を返す。ストラテジによって調整要
-    #TODO:前日日付作成(最終営業日)
-    business_date = _get_max_businessdate(db, symbol)
-    #TODO:前日日付作成(BitMEXの場合、最終営業日の1日前)
-    #TODO:高値、安値取得
-    #TODO:前日日付の高値、安値より１ティック上または下を返す
-    return close_order_price
+def _get_quotes(db, symbol, business_date):
+    sql = u"""
+    select
+     symbol
+    ,business_date
+    ,open
+    ,high
+    ,low
+    ,close
+    from ohlc
+    where symbol = ?
+    and business_date = ?
+    """
+    c = db.cursor()
+    c.execute(sql, [symbol, business_date])
+    r = c.fetchall()
+    quotes = None
+    if r:
+        quotes = r[0]
+    return quotes
 
+def direct_close_order(db, symbol, position, open_price, bitmex_flg):
+    """現在は新値のみなので、すべての場合最終営業日の高値または安値を基準に1ティック差の価格を返す。ストラテジによって調整要"""
+    close_order = dict()
+    if symbol == "":
+        return close_order
+    #最終営業日取得
+    business_date = _get_max_businessdate(db, symbol)
+    #前日日付作成(BitMEXの場合、最終営業日の1日前)
+    if bitmex_flg:
+        business_date = (datetime.strftime(business_date, '%Y-%m-%d') - timedelta(days=1)).strptime('%Y-%m-%d')
+    #高値、安値取得
+    q = _get_quotes(db, symbol, business_date)
+    #前日日付の高値、安値より１ティック上または下を返す
+    if q:
+        if position == "long":
+            close_order['ordertype'] = "逆指値成行買い返済"
+            close_order['orderprice']= q[4] - 1
+        elif position == "short":
+            close_order['ordertype'] = "逆指値成行売り返済"
+            close_order['orderprice'] = q[3] + 1
+    return close_order
