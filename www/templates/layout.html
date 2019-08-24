@@ -54,9 +54,16 @@
 
       <!-- Nav Item - Signal -->
       <li class="nav-item">
-        <a class="nav-link" href="./open_signal">
-          <i class="fas fa-fw fa-signal"></i>
-          <span>Signal</span></a>
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSignal" aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-signal"></i>
+            <span>Signal</span>
+          </a>
+          <div id="collapseSignal" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="./open_signal">Open</a>
+              <a class="collapse-item" href="./close_signal">Close</a>
+            </div>
+          </div>
       </li>
 
       <!-- Nav Item - Position Collapse Menu -->

@@ -15,7 +15,7 @@ SYMBOL_DIR = '/usr/local/investment-director/symbol/'
 BACKTEST_HISTORY_QUERY = """
                     select 
                      bh.symbol
-                    ,ms.name
+                    ,ms.strategy_name
                     ,bh.business_date
                     ,bh.open
                     ,bh.high
@@ -52,7 +52,7 @@ BACKTEST_HISTORY_QUERY = """
                     ,bh.profit_rate
                     from backtest_history as bh
                     left outer join m_strategy as ms
-                     on bh.strategy_id = ms.id
+                     on bh.strategy_id = ms.strategy_id
                     where bh.symbol = '{symbol}'
                     order by business_date"""
 
@@ -78,13 +78,36 @@ def index2():
 
 @app.route('/open_signal', methods=['GET'])
 def open_signal():
-    symbol_txt = os.path.join(SYMBOL_DIR, request.args.get("symbol", "symbol.txt"))
+    symbol = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
+    symbol_txt = os.path.join(SYMBOL_DIR, symbol)
     start_date = request.args.get("start_date", "2001-01-01")
     today = datetime.now()
     end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
     open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, start_date, end_date)
     content_title = "Open Signal"
-    return render_template('open_signal.html', content_title=content_title, open_signals=open_signals)
+    return render_template('open_signal.html'
+                        , content_title=content_title
+                        , start_date=start_date
+                        , end_date=end_date
+                        , symbol=symbol
+                        , open_signals=open_signals)
+
+@app.route('/close_signal', methods=['GET', 'POST'])
+def close_signal():
+    symbol = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
+    symbol_txt = os.path.join(SYMBOL_DIR, symbol)
+    start_date = request.args.get("start_date", "2001-01-01")
+    today = datetime.now()
+    end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
+    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, start_date, end_date)
+    content_title = "Close Signal"
+    #TODO:POSTを受けたときの表示
+    return render_template('close_signal.html'
+                        , content_title=content_title
+                        , start_date=start_date
+                        , end_date=end_date
+                        , symbol=symbol
+                        , open_signals=open_signals)
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():
@@ -104,9 +127,18 @@ def minkabu_fx_gbpjpy():
     content_title = u"みん株FX GBPJPY Backtest Data"
     return render_template('backtest_history_table.html', content_title=content_title, rv=rv)
 
-@app.route('/nikkei_topix')
+@app.route('/nikkei225_topix500')
 def nikkei_topix():
-    return 'nikkei_topix'
+    #TODO:
+    return 'nikkei225_topix500'
 
+@app.route('/backtest_history')
+def backtest_history():
+    #TODO:
+    return 'backtest_history'
 
+@app.route('/ohlcv_daily')
+def ohlcv_daily():
+    #TODO:
+    return 'ohlcv daily'
 

@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+        {% block content %}
+
+          <!-- Page Heading -->
+          <h1 class="h3 mb-1 text-gray-800">{{ content_title }}</h1>
+          <p class="mb-4"></p>
+
+          <!-- Content Row -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ポジションを入力して下さい。前日までの値幅を参照したクローズ価格を表示します。</h6>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="./close_signal">
+                <div class="form-group">
+                  <label class="control-label">シンボル</label>
+                  <input class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                  <label class="control-label">現在保有しているポジション</label>
+                  <div class="radio">
+                    <label><input type="radio" name="radio">Long</label>
+                    <label><input type="radio" name="radio">Short</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">現在保有しているポジションをオープンした価格</label>
+                  <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">$</span>
+                    </div>
+                    <input type="text" class="form-control" aria-label="Amount (現在保有しているポジションのオープン価格)">
+                  </div>
+                </div>
+                <button class="btn btn-primary btn-icon-split" type="submit">
+                  <span class="icon text-white-50">
+                    <i class="fas fa-flag"></i>
+                  </span>
+                  <span class="text">クローズ価格を確認する</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+
+
+
+
+        {% endblock %}
