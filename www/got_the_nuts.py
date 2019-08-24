@@ -164,7 +164,7 @@ def backtest_history():
     end_date = datetime.today().strftime('%Y-%m-%d')
     start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
-        symbol = request.form.get['symbol']
+        symbol = request.form.get("symbol", "XBTUSD")
     else:
         symbol = request.args.get("symbol", "XBTUSD")
     content_title = u"{symbol} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
@@ -181,7 +181,7 @@ def ohlcv_daily():
     end_date = datetime.today().strftime('%Y-%m-%d')
     start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
-        symbol = request.form.get['symbol']
+        symbol = request.form.get("symbol", "XBTUSD")
     else:
         symbol = request.args.get("symbol", "XBTUSD")
     content_title = u"OHLCV Daily".format(symbol=symbol)
@@ -192,3 +192,6 @@ def ohlcv_daily():
                         , start_date=start_date
                         , end_date=end_date
                         , rv=rv)
+
+if __name__ == "__main__":
+     app.run()
