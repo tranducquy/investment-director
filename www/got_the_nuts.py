@@ -56,9 +56,9 @@ BACKTEST_HISTORY_QUERY = """
                      on bh.strategy_id = ms.strategy_id
                     where bh.symbol = '{symbol}'
                     and bh.business_date between '{start_date}' and '{end_date}'
-                    order by business_date"""
+                    order by bh.business_date"""
 
-OHLC_QUERY = """
+OHLCV_DAILY_QUERY = """
                     select 
                      symbol
                     ,business_date
@@ -71,6 +71,75 @@ OHLC_QUERY = """
                     where symbol = '{symbol}'
                     and business_date between '{start_date}' and '{end_date}'
                     order by business_date
+                    """
+
+BACKTEST_SUMMARY_QUERY = """
+                    select
+                     r.symbol
+                    ,ms.strategy_name
+                    ,r.end_date
+                    ,r.rate_of_return as 全期間騰落率_複利
+                    ,m3.profit_rate_sum as 期待利益率3か月
+                    ,y1.profit_rate_sum as 期待利益率1年
+                    ,y3.profit_rate_sum as 期待利益率3年
+                    ,y15.profit_rate_sum as 期待利益率15年
+                    ,r.expected_rate as 全期間期待利益率
+                    ,r.long_expected_rate as 全期間期待利益率long
+                    ,r.short_expected_rate as 全期間期待利益率short
+                    ,r.win_rate as 勝率
+                    ,r.average_period_per_trade as 平均取引期間
+                    ,r.win_count+r.loss_count as 取引数
+                    ,r.long_win_count+r.long_loss_count as 取引数long
+                    ,r.short_win_count+r.short_loss_count as 取引数short
+                    ,r.payoffratio as ペイオフレシオ
+                    from backtest_result as r
+                    inner join m_strategy as ms 
+                     on r.strategy_id = ms.strategy_id
+                    left outer join (
+                        select
+                         symbol
+                        ,strategy_id
+                        ,sum(profit_rate) as profit_rate_sum
+                        ,count(business_date) as count
+                        from backtest_history
+                        where business_date between '{start_date_3month}' and '{end_date}'
+                        group by symbol, strategy_id
+                    ) m3
+                    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id
+                    left outer join (
+                        select
+                         symbol
+                        ,strategy_id
+                        ,sum(profit_rate) as profit_rate_sum
+                        from backtest_history
+                        where business_date between '{start_date_1year}' and '{end_date}'
+                        group by symbol, strategy_id
+                    ) y1
+                    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id
+                    left outer join (
+                        select
+                        symbol
+                        ,strategy_id
+                        ,sum(profit_rate) as profit_rate_sum
+                        from backtest_history
+                        where business_date between '{start_date_3year}' and '{end_date}'
+                        group by symbol, strategy_id
+                    ) y3
+                    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id
+                    left outer join (
+                        select
+                        symbol
+                        ,strategy_id
+                        ,sum(profit_rate) as profit_rate_sum
+                        from backtest_history
+                        where business_date between '{start_date_15year}' and '{end_date}'
+                        group by symbol, strategy_id
+                    ) y15
+                    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id
+                    where 0 = 0 
+                    and r.regist_date = '{regist_date}'
+                    --and r.end_date = '{end_date}'
+                    order by m3.profit_rate_sum desc
                     """
 
 def get_db():
@@ -138,60 +207,155 @@ def close_signal():
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():
-    rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol='XBTUSD'))
-    content_title = "BitMEX XBTUSD Backtest Data"
-    return render_template('backtest_history_table.html', content_title=content_title, rv=rv)
-
-@app.route('/bitmex_ethusd')
-def bitmex_ethusd():
-    rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol='ETHUSD'))
-    content_title = "BitMEX ETHUSD Backtest Data"
-    return render_template('backtest_history_table.html', content_title=content_title, rv=rv)
-
-@app.route('/minkabu_fx_gbpjpy')
-def minkabu_fx_gbpjpy():
-    rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol='GBPJPY'))
-    content_title = u"みん株FX GBPJPY Backtest Data"
-    return render_template('backtest_history_table.html', content_title=content_title, rv=rv)
-
-@app.route('/nikkei225_topix500')
-def nikkei_topix():
-    #TODO:
-    return 'nikkei225_topix500'
-
-@app.route('/backtest_history', methods=['GET', 'POST'])
-def backtest_history():
-    end_date = datetime.today().strftime('%Y-%m-%d')
-    start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    default_end_date = datetime.today().strftime('%Y-%m-%d')
+    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
         symbol = request.form.get("symbol", "XBTUSD")
+        start_date = request.form.get("start_date", default_start_date)
+        end_date = request.form.get("end_date", default_end_date)
     else:
         symbol = request.args.get("symbol", "XBTUSD")
-    content_title = u"{symbol} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
-    rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol=symbol))
+        start_date = request.args.get("start_date", default_start_date)
+        end_date = request.args.get("end_date", default_end_date)
+    query = BACKTEST_HISTORY_QUERY.format(symbol='XBTUSD', start_date=start_date, end_date=end_date)
+    rv = query_db(query)
+    content_title = "BitMEX XBTUSD Backtest Data"
     return render_template('backtest_history_table.html'
                         , content_title=content_title
                         , symbol=symbol
                         , start_date=start_date
                         , end_date=end_date
-                        , rv=rv)
+                        , rv=rv
+                        , query=query)
+
+@app.route('/bitmex_ethusd')
+def bitmex_ethusd():
+    default_end_date = datetime.today().strftime('%Y-%m-%d')
+    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    if request.method == 'POST':
+        symbol = request.form.get("symbol", "ETHUSD")
+        start_date = request.form.get("start_date", default_start_date)
+        end_date = request.form.get("end_date", default_end_date)
+    else:
+        symbol = request.args.get("symbol", "ETHUSD")
+        start_date = request.args.get("start_date", default_start_date)
+        end_date = request.args.get("end_date", default_end_date)
+    query = BACKTEST_HISTORY_QUERY.format(symbol='ETHUSD', start_date=start_date, end_date=end_date)
+    rv = query_db(query)
+    content_title = "BitMEX ETHUSD Backtest Data"
+    return render_template('backtest_history_table.html'
+                        , content_title=content_title
+                        , symbol=symbol
+                        , start_date=start_date
+                        , end_date=end_date
+                        , rv=rv
+                        , query=query)
+
+@app.route('/minkabu_fx_gbpjpy')
+def minkabu_fx_gbpjpy():
+    default_end_date = datetime.today().strftime('%Y-%m-%d')
+    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    if request.method == 'POST':
+        symbol = request.form.get("symbol", "GBPJPY")
+        start_date = request.form.get("start_date", default_start_date)
+        end_date = request.form.get("end_date", default_end_date)
+    else:
+        symbol = request.args.get("symbol", "GBPJPY")
+        start_date = request.args.get("start_date", default_start_date)
+        end_date = request.args.get("end_date", default_end_date)
+    query = BACKTEST_HISTORY_QUERY.format(symbol='GBPJPY', start_date=start_date, end_date=end_date)
+    rv = query_db(query)
+    content_title = u"みん株FX GBPJPY Backtest Data"
+    return render_template('backtest_history_table.html'
+                        , content_title=content_title
+                        , symbol=symbol
+                        , start_date=start_date
+                        , end_date=end_date
+                        , rv=rv
+                        , query=query)
+
+@app.route('/backtest_history', methods=['GET', 'POST'])
+def backtest_history():
+    default_end_date = datetime.today().strftime('%Y-%m-%d')
+    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    if request.method == 'POST':
+        symbol = request.form.get("symbol", "8473.T")
+        start_date = request.form.get("start_date", default_start_date)
+        end_date = request.form.get("end_date", default_end_date)
+    else:
+        symbol = request.args.get("symbol", "8473.T")
+        start_date = request.args.get("start_date", default_start_date)
+        end_date = request.args.get("end_date", default_end_date)
+    content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
+    query = BACKTEST_HISTORY_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date)
+    rv = query_db(query)
+    return render_template('backtest_history_table.html'
+                        , content_title=content_title
+                        , symbol=symbol
+                        , start_date=start_date
+                        , end_date=end_date
+                        , rv=rv
+                        , query=query)
 
 @app.route('/ohlcv_daily', methods=['GET', 'POST'])
 def ohlcv_daily():
-    end_date = datetime.today().strftime('%Y-%m-%d')
-    start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    default_end_date = datetime.today().strftime('%Y-%m-%d')
+    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
-        symbol = request.form.get("symbol", "XBTUSD")
+        symbol = request.form.get("symbol", "8473.T")
+        start_date = request.form.get("start_date", default_start_date)
+        end_date = request.form.get("end_date", default_end_date)
     else:
-        symbol = request.args.get("symbol", "XBTUSD")
+        symbol = request.args.get("symbol", "8473.T")
+        start_date = request.args.get("start_date", default_start_date)
+        end_date = request.args.get("end_date", default_end_date)
     content_title = u"OHLCV Daily".format(symbol=symbol)
-    rv = query_db(OHLC_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date))
+    query = OHLCV_DAILY_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date)
+    rv = query_db(query)
     return render_template('ohlcv_table.html'
                         , content_title=content_title
                         , symbol=symbol
                         , start_date=start_date
                         , end_date=end_date
-                        , rv=rv)
+                        , rv=rv
+                        , query=query)
+
+@app.route('/backtest_summary', methods=['GET', 'POST'])
+def backtest_summary():
+    default_regist_date = datetime.today().strftime('%Y-%m-%d') #今日
+    default_end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    if request.method == 'POST':
+        regist_date = request.form.get("regist_date", default_regist_date)
+        end_date = request.form.get("end_date", default_end_date)
+    else:
+        regist_date = request.args.get("regist_date", default_regist_date)
+        end_date = request.args.get("end_date", default_end_date)
+    start_date = '2001-01-01'
+    start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
+    start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
+    start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
+    start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
+    content_title = u"Backtest Summary"
+    query = BACKTEST_SUMMARY_QUERY.format(start_date=start_date
+                                        , start_date_3month=start_date_3month
+                                        , start_date_1year=start_date_1year
+                                        , start_date_3year=start_date_3year
+                                        , start_date_15year=start_date_15year
+                                        , regist_date=regist_date
+                                        , end_date=end_date)
+    rv = query_db(query)
+    return render_template('backtest_summary.html'
+                        , content_title=content_title
+                        , start_date=start_date
+                        , start_date_3month=start_date_3month
+                        , start_date_1year=start_date_1year
+                        , start_date_3year=start_date_3year
+                        , start_date_15year=start_date_15year
+                        , regist_date=regist_date
+                        , end_date=end_date
+                        , rv=rv
+                        , query=query
+                        )
 
 if __name__ == "__main__":
      app.run()

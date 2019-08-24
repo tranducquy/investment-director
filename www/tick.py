@@ -12,7 +12,7 @@ def get_tick(symbol):
     elif symbol.find('XBTUSD') >= 1: #bitmex xbtusd
         tick = 1
     elif symbol.find('ETHUSD') >= 1: #bitmex ethusd
-        tick = 0.01
+        tick = 0.5
     else: #未知
         tick = 0.01
     return tick

@@ -38,7 +38,7 @@
           <div class="card shadow mb-4">
             <div class="card-header py-3">
               {% if rv %}
-              <h6 class="m-0 font-weight-bold text-primary">{{ symbol }} : {{ start_date }} から {{ end_date }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">{{ symbol }} : {{ start_date }} から {{ end_date }}</h6>
               {% endif %}
             </div>
             <div class="card-body">
@@ -57,9 +57,9 @@
                   <tfoot>
                     <tr>
                       <th>business_date</th>
-                      <th>open </th>
-                      <th>high </th>
-                      <th>low </th>
+                      <th>open</th>
+                      <th>high</th>
+                      <th>low</th>
                       <th>close</th>
                       <th>volume</th>
                     </tr>
@@ -78,6 +78,15 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">DEBUG</h6>
+            </div>
+            <div class="card-body">
+              <p>{{ query }} </p>
             </div>
           </div>
 

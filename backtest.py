@@ -21,7 +21,7 @@ import my_lock
 from butler import bollingerband
 from butler import new_value_and_moving_average
 from butler import bandwalk 
-import tick
+from www import tick
 import investment_director
 import symbol
 

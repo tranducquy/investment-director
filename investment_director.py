@@ -11,7 +11,7 @@ import my_logger
 import quotes
 from butler import bollingerband
 from butler import new_value_and_moving_average
-import tick
+from www import tick
 from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
