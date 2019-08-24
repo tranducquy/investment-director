@@ -147,7 +147,7 @@ create table position
     close_price decimal(10,5),
     close_volume desimal(10,5),
     update_ts timestamp,
-    regit_ts timestamp
+    regit_ts timestamp,
     primary key(position_id)
 )
 ;

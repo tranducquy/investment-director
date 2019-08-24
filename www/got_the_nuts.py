@@ -94,20 +94,23 @@ def open_signal():
 
 @app.route('/close_signal', methods=['GET', 'POST'])
 def close_signal():
-    symbol = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
-    symbol_txt = os.path.join(SYMBOL_DIR, symbol)
-    start_date = request.args.get("start_date", "2001-01-01")
-    today = datetime.now()
-    end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
-    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, start_date, end_date)
-    content_title = "Close Signal"
-    #TODO:POSTを受けたときの表示
-    return render_template('close_signal.html'
+    content_title = 'Close Signal'
+    if request.method == "POST":
+        symbol = request.form["symbol"]
+        position = request.form["position"]
+        #open_price = request.form["open_price"]
+        #bitmex_flg = request.form["checkbox_bitmex"]
+        #close_order_price = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
+        return render_template('close_signal.html'
                         , content_title=content_title
-                        , start_date=start_date
-                        , end_date=end_date
-                        , symbol=symbol
-                        , open_signals=open_signals)
+                        , symbol=symbol)
+                        #, position=position
+                        #, open_price=open_price
+                        #, bitmex_flg=bitmex_flg
+                        #, close_order_price=close_order_price)
+    else:
+        return render_template('close_signal.html'
+                        , content_title=content_title)
 
 @app.route('/bitmex_xbtusd')
 def bitmex_xbtusd():
