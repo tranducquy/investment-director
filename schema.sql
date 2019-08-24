@@ -58,14 +58,35 @@ create table backtest_result
 
 create table m_strategy
 (
-    id integer,
-    name text,
-    primary key(id)
+    strategy_id integer,
+    strategy_name text,
+    primary key(strategy_id)
 )
 ;
-insert into m_strategy (id, name) values (1, 'ボリンジャーバンド新値SMA3SD1.0'); --株式(Nikkei225,TOPIX)
-insert into m_strategy (id, name) values (2, 'ボリンジャーバンド新値SMA8SD1.2'); --暗号通貨(bitmex XBTUSD), FX(minkabu GBPJPY)
-insert into m_strategy (id, name) values (3, 'ボリンジャーバンド新値SMA2SD1.6'); --暗号通貨(bitmex ETHUSD)
+insert into m_strategy (strategy_id, strategy_name) values (1, 'ボリンジャーバンド新値SMA3SD1.0'); --株式(Nikkei225,TOPIX)
+insert into m_strategy (strategy_id, strategy_name) values (2, 'ボリンジャーバンド新値SMA8SD1.2'); --暗号通貨(bitmex XBTUSD), FX(minkabu GBPJPY)
+insert into m_strategy (strategy_id, strategy_name) values (3, 'ボリンジャーバンド新値SMA2SD1.6'); --暗号通貨(bitmex ETHUSD)
+
+create table m_ordertype
+(
+    ordertype_id integer,
+    ordertype_name text,
+    primary key(ordertype_id)
+)
+;
+insert into m_ordertype (ordertype_id, ordertype_name) values (0, '注文なし');
+insert into m_ordertype (ordertype_id, ordertype_name) values (1, '逆指値成行買い');
+insert into m_ordertype (ordertype_id, ordertype_name) values (2, '逆指値成行売り');
+insert into m_ordertype (ordertype_id, ordertype_name) values (3, '指値買い');
+insert into m_ordertype (ordertype_id, ordertype_name) values (4, '指値売り');
+insert into m_ordertype (ordertype_id, ordertype_name) values (5, '逆指値成行買い返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (6, '逆指値成行売り返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (7, '成行買い返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (8, '成行売り返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (9, '成行買い');
+insert into m_ordertype (ordertype_id, ordertype_name) values (10, '成行売り');
+insert into m_ordertype (ordertype_id, ordertype_name) values (11, '指値買い返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (12, '指値売り返済');
 
 create table backtest_history
 (
@@ -108,3 +129,27 @@ create table backtest_history
     primary key(symbol, strategy_id, business_date)
 )
 ;
+
+create table position
+(
+    position_id integer,
+    symbol text,
+    position_type integer,
+    open_order_type integer,
+    open_order_status integer,
+    close_order_type integer,
+    close_order_status integer,
+    open_date text,
+    close_date text,
+    open_price decimal(10,5),
+    open_volume desimal(10,5),
+    position_volume desimal(10,5),
+    close_price decimal(10,5),
+    close_volume desimal(10,5),
+    update_ts timestamp,
+    regit_ts timestamp
+    primary key(position_id)
+)
+;
+
+

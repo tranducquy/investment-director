@@ -13,3 +13,5 @@ class OrderType(IntEnum):
     CLOSE_MARKET_SHORT = 8 #成行売り返済
     MARKET_LONG = 9 #成行買い
     MARKET_SHORT = 10 #成行売り
+    CLOSE_LIMIT_LONG = 11 #指値買い返済
+    CLOSE_LIMIT_SHORT = 12 #指値売り返済
