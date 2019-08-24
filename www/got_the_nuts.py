@@ -96,18 +96,18 @@ def open_signal():
 def close_signal():
     content_title = 'Close Signal'
     if request.method == "POST":
-        symbol = request.form["symbol"]
-        position = request.form["position"]
-        #open_price = request.form["open_price"]
-        #bitmex_flg = request.form["checkbox_bitmex"]
-        #close_order_price = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
+        symbol = request.form.get("symbol", "")
+        position = request.form.get("position", "")
+        open_price = request.form.get("open_price", "")
+        bitmex_flg = request.form.get("checkbox_bitmex", "")
+        close_order_price = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
         return render_template('close_signal.html'
                         , content_title=content_title
-                        , symbol=symbol)
-                        #, position=position
-                        #, open_price=open_price
-                        #, bitmex_flg=bitmex_flg
-                        #, close_order_price=close_order_price)
+                        , symbol=symbol
+                        , position=position
+                        , open_price=open_price
+                        , bitmex_flg=bitmex_flg
+                        , close_order_price=close_order_price)
     else:
         return render_template('close_signal.html'
                         , content_title=content_title)

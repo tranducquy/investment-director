@@ -3,7 +3,11 @@
 import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-import symbol
+
+def get_symbols(filename):
+    with open(filename, "r") as f:
+        symbols = [v.rstrip() for v in f.readlines()]
+    return symbols
 
 def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
@@ -13,7 +17,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
 
     c = db.cursor()
-    sql = """
+    sql = u"""
     select
      r.symbol
     ,r.strategy
@@ -115,16 +119,37 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     return symbols
 
 def direct_open_order(db, symbol_txt, start_date, end_date):
-    symbols = symbol.get_symbols(symbol_txt)
+    symbols = get_symbols(symbol_txt)
     start_date = start_date
     end_date = end_date
     result = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
     return result
 
-def _check_close_order(butler, q, position, position_price, symbol, strategy):
-    pass
+def _get_max_businessdate(db, symbol):
+    sql = """
+    select
+    max(business_date)
+    from backtest_history
+    where symbol = ?
+    """
+    c = db.cursor()
+    c.execute(sql, [symbol])
+    r = c.fetchall()
+    c.close()
+    business_date = ""
+    if r:
+        business_date = r[0]
+    return business_date
 
 def direct_close_order(db, symbol, position, open_price, bitmex_flg):
     close_order_price = 0
+    if symbol == "":
+        return close_order_price
+    #TODO:現在は新値のみなので、最終営業日の高値または安値を基準に1ティック差の価格を返す。ストラテジによって調整要
+    #TODO:前日日付作成(最終営業日)
+    business_date = _get_max_businessdate(db, symbol)
+    #TODO:前日日付作成(BitMEXの場合、最終営業日の1日前)
+    #TODO:高値、安値取得
+    #TODO:前日日付の高値、安値より１ティック上または下を返す
     return close_order_price
 
