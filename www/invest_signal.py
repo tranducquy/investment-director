@@ -3,6 +3,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import tick
 
 def get_symbols(filename):
     with open(filename, "r") as f:
@@ -175,11 +176,12 @@ def direct_close_order(db, symbol, position, open_price, bitmex_flg):
     #高値、安値取得
     q = _get_quotes(db, symbol, business_date)
     #前日日付の高値、安値より１ティック上または下を返す
+    t = tick.get_tick(symbol)
     if q:
         if position == "long":
             close_order['ordertype'] = "逆指値成行買い返済"
-            close_order['orderprice']= q[4] - 1
+            close_order['orderprice']= q[4] - t
         elif position == "short":
             close_order['ordertype'] = "逆指値成行売り返済"
-            close_order['orderprice'] = q[3] + 1
+            close_order['orderprice'] = q[3] + t
     return close_order

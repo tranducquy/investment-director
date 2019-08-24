@@ -4,6 +4,7 @@ import os
 import sys
 from datetime import datetime
 from datetime import timedelta 
+from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template, g, request
 import sqlite3
 import invest_signal
@@ -54,7 +55,23 @@ BACKTEST_HISTORY_QUERY = """
                     left outer join m_strategy as ms
                      on bh.strategy_id = ms.strategy_id
                     where bh.symbol = '{symbol}'
+                    and bh.business_date between '{start_date}' and '{end_date}'
                     order by business_date"""
+
+OHLC_QUERY = """
+                    select 
+                     symbol
+                    ,business_date
+                    ,open
+                    ,high
+                    ,low
+                    ,close
+                    ,volume
+                    from ohlc 
+                    where symbol = '{symbol}'
+                    and business_date between '{start_date}' and '{end_date}'
+                    order by business_date
+                    """
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -142,13 +159,36 @@ def nikkei_topix():
     #TODO:
     return 'nikkei225_topix500'
 
-@app.route('/backtest_history')
+@app.route('/backtest_history', methods=['GET', 'POST'])
 def backtest_history():
-    #TODO:
-    return 'backtest_history'
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    if request.method == 'POST':
+        symbol = request.form.get['symbol']
+    else:
+        symbol = request.args.get("symbol", "XBTUSD")
+    content_title = u"{symbol} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
+    rv = query_db(BACKTEST_HISTORY_QUERY.format(symbol=symbol))
+    return render_template('backtest_history_table.html'
+                        , content_title=content_title
+                        , symbol=symbol
+                        , start_date=start_date
+                        , end_date=end_date
+                        , rv=rv)
 
-@app.route('/ohlcv_daily')
+@app.route('/ohlcv_daily', methods=['GET', 'POST'])
 def ohlcv_daily():
-    #TODO:
-    return 'ohlcv daily'
-
+    end_date = datetime.today().strftime('%Y-%m-%d')
+    start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    if request.method == 'POST':
+        symbol = request.form.get['symbol']
+    else:
+        symbol = request.args.get("symbol", "XBTUSD")
+    content_title = u"OHLCV Daily".format(symbol=symbol)
+    rv = query_db(OHLC_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date))
+    return render_template('ohlcv_table.html'
+                        , content_title=content_title
+                        , symbol=symbol
+                        , start_date=start_date
+                        , end_date=end_date
+                        , rv=rv)

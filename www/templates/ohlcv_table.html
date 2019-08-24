@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+        {% block content %}
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
+
+          <!-- DataTales Example -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              {% if rv %}
+              <h6 class="m-0 font-weight-bold text-primary">{{ symbol }} : {{ start_date }} から {{ end_date }}</h6>
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>business_date</th>
+                      <th>open</th>
+                      <th>high</th>
+                      <th>low</th>
+                      <th>close</th>
+                      <th>volume</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                    <tr>
+                      <th>business_date</th>
+                      <th>open </th>
+                      <th>high </th>
+                      <th>low </th>
+                      <th>close</th>
+                      <th>volume</th>
+                    </tr>
+                  </tfoot>
+                  <tbody>
+                  {% for r in rv %}
+                    <tr>
+                      <th>{{ r[1] }}</th>
+                      <th>{{ r[2] }}</th>
+                      <th>{{ r[3] }}</th>
+                      <th>{{ r[4] }}</th>
+                      <th>{{ r[5] }}</th>
+                      <th>{{ r[6] }}</th>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        {% endblock %}
