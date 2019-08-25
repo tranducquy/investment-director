@@ -13,7 +13,7 @@
             <div class="card-body">
               <form method="POST" action="/backtest_summary">
                 <div class="form-group">
-                  <label class="control-label">バックテスト最終営業日</label>
+                  <label class="control-label">バックテスト登録日</label>
                   <input class="form-control" type="text" id="start_date" name="start_date" value="{{ regist_date }}">
                 </div>
                 <!--
@@ -36,7 +36,7 @@
           <div class="card shadow mb-4">
             <div class="card-header py-3">
               {% if rv %}
-              <h6 class="m-0 font-weight-bold text-primary">バックテスト最終営業日 : {{ regist_date }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">バックテスト登録日 : {{ regist_date }}</h6>
               {% endif %}
             </div>
             <div class="card-body">
@@ -44,9 +44,9 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                   <thead>
                     <tr>
-                      <th>symbol</th>
-                      <th>strategy_name</th>
-                      <th>end_date</th>
+                      <th>シンボル</th>
+                      <th>ストラテジ</th>
+                      <th>最終営業日</th>
                       <th>全期間騰落率(複利)</th>
                       <th>期待利益率3か月</th>
                       <th>期待利益率1年</th>
@@ -65,9 +65,9 @@
                   </thead>
                   <tfoot>
                     <tr>
-                      <th>symbol</th>
-                      <th>strategy_name</th>
-                      <th>end_date</th>
+                      <th>シンボル</th>
+                      <th>ストラテジ</th>
+                      <th>最終営業日</th>
                       <th>全期間騰落率(複利)</th>
                       <th>期待利益率3か月</th>
                       <th>期待利益率1年</th>

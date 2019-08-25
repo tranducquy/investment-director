@@ -2,8 +2,9 @@
 {
   "logger": "test",
   "dbfile": "market-history.db",
-  "symbol": "./symbol/Nikkei225_TOPIX100.txt",
+  "symbol": "./symbol/TOPIX100.txt",
   "initial_cash": "1000000",
   "default_period": "-14",
+  "default_unix_period": "5000",
   "backtest_startdate": "2001-01-01"
 }
