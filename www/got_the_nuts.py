@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 DATABASE = '/usr/local/investment-director/market-history.db'
 SYMBOL_DIR = '/usr/local/investment-director/symbol/'
-BACKTEST_HISTORY_QUERY = """
+BACKTEST_HISTORY_QUERY = u"""
                     select 
                      bh.symbol
                     ,ms.strategy_name
@@ -59,7 +59,7 @@ BACKTEST_HISTORY_QUERY = """
                     and bh.business_date between '{start_date}' and '{end_date}'
                     order by bh.business_date"""
 
-OHLCV_DAILY_QUERY = """
+OHLCV_DAILY_QUERY = u"""
                     select 
                      symbol
                     ,business_date
@@ -74,7 +74,7 @@ OHLCV_DAILY_QUERY = """
                     order by business_date
                     """
 
-BACKTEST_SUMMARY_QUERY = """
+BACKTEST_SUMMARY_QUERY = u"""
                     select
                      r.symbol
                     ,ms.strategy_name
@@ -177,10 +177,10 @@ def open_signal():
     today = datetime.now()
     end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
     db = get_db()
-    open_signals1 = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date)
-    open_signals2 = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
-    open_signals3 = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
-    open_signals4 = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
+    (open_signals1, query1) = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date)
+    (open_signals2, query2) = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
+    (open_signals3, query3) = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
+    (open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
     content_title = "Open Signal"
     return render_template('open_signal.html'
                         , content_title=content_title
@@ -194,6 +194,10 @@ def open_signal():
                         , open_signals2=open_signals2
                         , open_signals3=open_signals3
                         , open_signals4=open_signals4
+                        , query1=query1
+                        , query2=query2
+                        , query3=query3
+                        , query4=query4
                         )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
