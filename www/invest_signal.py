@@ -285,17 +285,17 @@ def direct_close_order(db, symbol, position, open_price, bitmex_flg):
     #最終営業日取得
     business_date = _get_max_businessdate(db, symbol)
     #前日日付作成(BitMEXの場合、最終営業日の1日前)
-    if bitmex_flg:
-        business_date = (datetime.strftime(business_date, '%Y-%m-%d') - timedelta(days=1)).strptime('%Y-%m-%d')
+    if bitmex_flg and business_date is not None:
+        business_date = (datetime.strptime(business_date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
     #高値、安値取得
     q = _get_quotes(db, symbol, business_date)
     #前日日付の高値、安値より１ティック上または下を返す
     t = tick.get_tick(symbol)
     if q:
         if position == "long":
-            close_order['ordertype'] = "逆指値成行買い返済"
+            close_order['ordertype'] = u"逆指値成行買い返済"
             close_order['orderprice']= q[4] - t
         elif position == "short":
-            close_order['ordertype'] = "逆指値成行売り返済"
+            close_order['ordertype'] = u"逆指値成行売り返済"
             close_order['orderprice'] = q[3] + t
     return close_order
