@@ -3,6 +3,7 @@
         {% block content %}
           <!-- Page Heading -->
           <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
+          <p class="mb-4">バックテストの日毎の詳細を確認できます。バックテストは0時から3時に更新。暗号通貨は9時から9時30分に更新。</p>
 
           <!-- Content Row -->
           <div class="card shadow mb-4">
@@ -37,7 +38,7 @@
           <div class="card shadow mb-4">
             <div class="card-header py-3">
               {% if rv %}
-              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][1] }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} : {{ start_date }} から {{ end_date }}</h6>
               {% endif %}
             </div>
             <div class="card-body">

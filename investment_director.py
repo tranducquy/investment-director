@@ -15,7 +15,7 @@ from www import tick
 from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
-import symbol
+from www import symbol
 
 s = my_logger.Logger()
 logger = s.myLogger()

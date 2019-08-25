@@ -7,7 +7,7 @@ import yfinance as yf
 import common
 import my_logger
 import backtest
-import symbol as sym
+from www import symbol as sym
 
 s = my_logger.Logger()
 logger = s.myLogger()

@@ -93,7 +93,7 @@
       <!-- Nav Item - Backtest Result -->
       <li class="nav-item">
         <a class="nav-link" href="/backtest_summary">
-          <i class="fas fa-fw fa-table"></i>
+          <i class="fas fa-fw fa-object-group"></i>
           <span>Backtest Summary</span></a>
       </li>
 
@@ -107,18 +107,44 @@
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">SYMBOL:</h6>
             <a class="collapse-item" href="./backtest_history">Stocks</a>
-            <a class="collapse-item" href="./bitmex_xbtusd">XBTUSD</a>
-            <a class="collapse-item" href="./bitmex_ethusd">ETHUSD</a>
-            <a class="collapse-item" href="./minkabu_fx_gbpjpy">GBPJPY</a>
+            <a class="collapse-item" href="./backtest_history?symbol=XBTUSD">XBTUSD</a>
+            <a class="collapse-item" href="./backtest_history?symbol=ETHUSD">ETHUSD</a>
+            <a class="collapse-item" href="./backtest_history?symbol=GBPJPY">GBPJPY</a>
           </div>
         </div>
       </li>
 
       <!-- Nav Item - OHLCV Daily -->
       <li class="nav-item">
-        <a class="nav-link" href="/ohlcv_daily">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOHLCVDaily" aria-expanded="true" aria-controls="collapseUtilities">
           <i class="fas fa-fw fa-history"></i>
           <span>OHLCV Daily</span>
+        </a>
+        <div id="collapseOHLCVDaily" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">SYMBOL:</h6>
+            <a class="collapse-item" href="./ohlcv_daily">Stocks</a>
+            <a class="collapse-item" href="./ohlcv_daily?symbol=XBTUSD">XBTUSD</a>
+            <a class="collapse-item" href="./ohlcv_daily?symbol=ETHUSD">ETHUSD</a>
+            <a class="collapse-item" href="./ohlcv_daily?symbol=GBPJPY">GBPJPY</a>
+          </div>
+        </div>
+      </li>
+
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        Settings
+      </div>
+
+      <!-- Nav Item - Backtest History Collapse Menu -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="/symbols">
+          <i class="fas fa-fw fa-list"></i>
+          <span>Symbols</span>
         </a>
       </li>
 

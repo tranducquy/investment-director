@@ -23,7 +23,7 @@ from butler import new_value_and_moving_average
 from butler import bandwalk 
 from www import tick
 import investment_director
-import symbol
+from www import symbol
 
 s = my_logger.Logger()
 logger = s.myLogger()

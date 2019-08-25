@@ -4,10 +4,10 @@
           <!-- Page Heading -->
           <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
 
-          <!-- DataTales Example -->
+          <!-- Symbol1 -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">symbol:{{ symbol }}, start_date:{{ start_date }}, end_date:{{ end_date }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">ファイル:{{ symbol1 }}, バックテスト開始日:{{ start_date }}, バックテスト終了日:{{ end_date }}</h6>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -34,30 +34,8 @@
                       <th>payoffratio</th>
                     </tr>
                   </thead>
-                  <tfoot>
-                    <tr>
-                      <th>end_date</th>
-                      <th>symbol</th>
-                      <th>strategy</th>
-                      <th>order_type</th>
-                      <th>order_price</th>
-                      <th>m3_profit_rate_sum</th>
-                      <th>y1_profit_rate_sum</th>
-                      <th>y3_profit_rate_sum</th>
-                      <th>y15_profit_rate_sum</th>
-                      <th>expected_rate</th>
-                      <th>long_expected_rate</th>
-                      <th>short_expected_rate</th>
-                      <th>win_rate</th>
-                      <th>average_period_per_trade</th>
-                      <th>trade_count</th>
-                      <th>long_trade_count</th>
-                      <th>short_trade_count</th>
-                      <th>payoffratio</th>
-                    </tr>
-                  </tfoot>
                   <tbody>
-                  {% for r in open_signals %}
+                  {% for r in open_signals1 %}
                     <tr>
                       <td>{{ r[4] }}</td>
                       <td>{{ r[0] }}</td>
@@ -84,4 +62,182 @@
               </div>
             </div>
           </div>
+
+          <!-- Symbol2 -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ファイル:{{ symbol2 }}, バックテスト開始日:{{ start_date }}, バックテスト終了日:{{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>end_date</th>
+                      <th>symbol</th>
+                      <th>strategy</th>
+                      <th>order_type</th>
+                      <th>order_price</th>
+                      <th>m3_profit_rate_sum</th>
+                      <th>y1_profit_rate_sum</th>
+                      <th>y3_profit_rate_sum</th>
+                      <th>y15_profit_rate_sum</th>
+                      <th>expected_rate</th>
+                      <th>long_expected_rate</th>
+                      <th>short_expected_rate</th>
+                      <th>win_rate</th>
+                      <th>average_period_per_trade</th>
+                      <th>trade_count</th>
+                      <th>long_trade_count</th>
+                      <th>short_trade_count</th>
+                      <th>payoffratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for r in open_signals2 %}
+                    <tr>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[0] }}</td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[5] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
+                      <td>{{ r[17] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Symbol3 -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ファイル:{{ symbol3 }}, バックテスト開始日:{{ start_date }}, バックテスト終了日:{{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>end_date</th>
+                      <th>symbol</th>
+                      <th>strategy</th>
+                      <th>order_type</th>
+                      <th>order_price</th>
+                      <th>m3_profit_rate_sum</th>
+                      <th>y1_profit_rate_sum</th>
+                      <th>y3_profit_rate_sum</th>
+                      <th>y15_profit_rate_sum</th>
+                      <th>expected_rate</th>
+                      <th>long_expected_rate</th>
+                      <th>short_expected_rate</th>
+                      <th>win_rate</th>
+                      <th>average_period_per_trade</th>
+                      <th>trade_count</th>
+                      <th>long_trade_count</th>
+                      <th>short_trade_count</th>
+                      <th>payoffratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for r in open_signals3 %}
+                    <tr>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[0] }}</td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[5] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
+                      <td>{{ r[17] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Symbol4 -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ファイル:{{ symbol4 }}, バックテスト開始日:{{ start_date }}, バックテスト終了日:{{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>end_date</th>
+                      <th>symbol</th>
+                      <th>strategy</th>
+                      <th>order_type</th>
+                      <th>order_price</th>
+                      <th>m3_profit_rate_sum</th>
+                      <th>y1_profit_rate_sum</th>
+                      <th>y3_profit_rate_sum</th>
+                      <th>y15_profit_rate_sum</th>
+                      <th>expected_rate</th>
+                      <th>long_expected_rate</th>
+                      <th>short_expected_rate</th>
+                      <th>win_rate</th>
+                      <th>average_period_per_trade</th>
+                      <th>trade_count</th>
+                      <th>long_trade_count</th>
+                      <th>short_trade_count</th>
+                      <th>payoffratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for r in open_signals4 %}
+                    <tr>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[0] }}</td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[5] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
+                      <td>{{ r[17] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
         {% endblock %}

@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template, g, request
 import sqlite3
 import invest_signal
+import symbol as sy
 
 app = Flask(__name__)
 
@@ -164,19 +165,36 @@ def index2():
 
 @app.route('/open_signal', methods=['GET'])
 def open_signal():
-    symbol = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
-    symbol_txt = os.path.join(SYMBOL_DIR, symbol)
+    symbol1 = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
+    symbol2 = request.args.get("symbol", "bitmex_xbtusd.txt")
+    symbol3 = request.args.get("symbol", "bitmex_ethusd.txt")
+    symbol4 = request.args.get("symbol", "minkabu_fx_gbpjpy.txt")
+    symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
+    symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
+    symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
+    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
     start_date = request.args.get("start_date", "2001-01-01")
     today = datetime.now()
     end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
-    open_signals = invest_signal.direct_open_order(get_db(), symbol_txt, start_date, end_date)
+    db = get_db()
+    open_signals1 = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date)
+    open_signals2 = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
+    open_signals3 = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
+    open_signals4 = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
     content_title = "Open Signal"
     return render_template('open_signal.html'
                         , content_title=content_title
                         , start_date=start_date
                         , end_date=end_date
-                        , symbol=symbol
-                        , open_signals=open_signals)
+                        , symbol1=symbol1
+                        , symbol2=symbol2
+                        , symbol3=symbol3
+                        , symbol4=symbol4
+                        , open_signals1=open_signals1
+                        , open_signals2=open_signals2
+                        , open_signals3=open_signals3
+                        , open_signals4=open_signals4
+                        )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
 def close_signal():
@@ -205,85 +223,16 @@ def close_signal():
         return render_template('close_signal.html'
                         , content_title=content_title)
 
-@app.route('/bitmex_xbtusd')
-def bitmex_xbtusd():
-    default_end_date = datetime.today().strftime('%Y-%m-%d')
-    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
-    if request.method == 'POST':
-        symbol = request.form.get("symbol", "XBTUSD")
-        start_date = request.form.get("start_date", default_start_date)
-        end_date = request.form.get("end_date", default_end_date)
-    else:
-        symbol = request.args.get("symbol", "XBTUSD")
-        start_date = request.args.get("start_date", default_start_date)
-        end_date = request.args.get("end_date", default_end_date)
-    query = BACKTEST_HISTORY_QUERY.format(symbol='XBTUSD', start_date=start_date, end_date=end_date)
-    rv = query_db(query)
-    content_title = "BitMEX XBTUSD Backtest Data"
-    return render_template('backtest_history_table.html'
-                        , content_title=content_title
-                        , symbol=symbol
-                        , start_date=start_date
-                        , end_date=end_date
-                        , rv=rv
-                        , query=query)
-
-@app.route('/bitmex_ethusd')
-def bitmex_ethusd():
-    default_end_date = datetime.today().strftime('%Y-%m-%d')
-    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
-    if request.method == 'POST':
-        symbol = request.form.get("symbol", "ETHUSD")
-        start_date = request.form.get("start_date", default_start_date)
-        end_date = request.form.get("end_date", default_end_date)
-    else:
-        symbol = request.args.get("symbol", "ETHUSD")
-        start_date = request.args.get("start_date", default_start_date)
-        end_date = request.args.get("end_date", default_end_date)
-    query = BACKTEST_HISTORY_QUERY.format(symbol='ETHUSD', start_date=start_date, end_date=end_date)
-    rv = query_db(query)
-    content_title = "BitMEX ETHUSD Backtest Data"
-    return render_template('backtest_history_table.html'
-                        , content_title=content_title
-                        , symbol=symbol
-                        , start_date=start_date
-                        , end_date=end_date
-                        , rv=rv
-                        , query=query)
-
-@app.route('/minkabu_fx_gbpjpy')
-def minkabu_fx_gbpjpy():
-    default_end_date = datetime.today().strftime('%Y-%m-%d')
-    default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
-    if request.method == 'POST':
-        symbol = request.form.get("symbol", "GBPJPY")
-        start_date = request.form.get("start_date", default_start_date)
-        end_date = request.form.get("end_date", default_end_date)
-    else:
-        symbol = request.args.get("symbol", "GBPJPY")
-        start_date = request.args.get("start_date", default_start_date)
-        end_date = request.args.get("end_date", default_end_date)
-    query = BACKTEST_HISTORY_QUERY.format(symbol='GBPJPY', start_date=start_date, end_date=end_date)
-    rv = query_db(query)
-    content_title = u"みん株FX GBPJPY Backtest Data"
-    return render_template('backtest_history_table.html'
-                        , content_title=content_title
-                        , symbol=symbol
-                        , start_date=start_date
-                        , end_date=end_date
-                        , rv=rv
-                        , query=query)
-
 @app.route('/backtest_history', methods=['GET', 'POST'])
 def backtest_history():
     default_end_date = datetime.today().strftime('%Y-%m-%d')
     default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
-        symbol = request.form.get("symbol", "8473.T")
+        symbol = request.form.get("symbol", "")
         start_date = request.form.get("start_date", default_start_date)
         end_date = request.form.get("end_date", default_end_date)
     else:
-        symbol = request.args.get("symbol", "8473.T")
+        symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
@@ -302,11 +251,11 @@ def ohlcv_daily():
     default_end_date = datetime.today().strftime('%Y-%m-%d')
     default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     if request.method == 'POST':
-        symbol = request.form.get("symbol", "8473.T")
+        symbol = request.form.get("symbol", "")
         start_date = request.form.get("start_date", default_start_date)
         end_date = request.form.get("end_date", default_end_date)
     else:
-        symbol = request.args.get("symbol", "8473.T")
+        symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
     content_title = u"OHLCV Daily".format(symbol=symbol)
@@ -355,6 +304,34 @@ def backtest_summary():
                         , end_date=end_date
                         , rv=rv
                         , query=query
+                        )
+
+
+@app.route('/symbols', methods=['GET'])
+def symbols():
+    symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX500.txt")
+    symbol2 = request.args.get("symbol2", "bitmex_xbtusd.txt")
+    symbol3 = request.args.get("symbol3", "bitmex_ethusd.txt")
+    symbol4 = request.args.get("symbol4", "minkabu_fx_gbpjpy.txt")
+    symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
+    symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
+    symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
+    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
+    symbol1_list = sy.get_symbols(symbol1_txt)
+    symbol2_list = sy.get_symbols(symbol2_txt)
+    symbol3_list = sy.get_symbols(symbol3_txt)
+    symbol4_list = sy.get_symbols(symbol4_txt)
+    content_title = u"Symbol List"
+    return render_template('symbols.html'
+                        , content_title=content_title
+                        , symbol1=symbol1
+                        , symbol2=symbol2
+                        , symbol3=symbol3
+                        , symbol4=symbol4
+                        , symbol1_list=symbol1_list
+                        , symbol2_list=symbol2_list
+                        , symbol3_list=symbol3_list
+                        , symbol4_list=symbol4_list
                         )
 
 if __name__ == "__main__":

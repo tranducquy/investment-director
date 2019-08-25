@@ -4,11 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import tick
-
-def get_symbols(filename):
-    with open(filename, "r") as f:
-        symbols = [v.rstrip() for v in f.readlines()]
-    return symbols
+import symbol as sy
 
 def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
@@ -120,7 +116,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     return symbols
 
 def direct_open_order(db, symbol_txt, start_date, end_date):
-    symbols = get_symbols(symbol_txt)
+    symbols = sy.get_symbols(symbol_txt)
     start_date = start_date
     end_date = end_date
     result = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
