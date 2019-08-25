@@ -766,7 +766,7 @@ def backtest(symbols, start_date, end_date):
         vol_ev_sigma_ratio = 1.0
         strategy_id = 1
         if ('bitmex_xbtusd.txt' in symbol_txt 
-            or 'minkabu_fx.txt' in symbol_txt):
+            or 'minkabu_fx_gbpjpy.txt' in symbol_txt):
             bollinger_ma = 8
             ev_sigma_ratio = 1.2
             strategy_id = 2
