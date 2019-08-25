@@ -139,6 +139,7 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     ,m3.profit_rate_sum as 期待利益率3か月
     ,y1.profit_rate_sum as 期待利益率1年
     ,y3.profit_rate_sum as 期待利益率3年
+    ,-1 as 期待利益率15年
     ,r.expected_rate as 全期間期待利益率
     ,r.long_expected_rate as 全期間期待利益率long
     ,r.short_expected_rate as 全期間期待利益率short

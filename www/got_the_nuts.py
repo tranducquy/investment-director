@@ -310,7 +310,6 @@ def backtest_summary():
                         , query=query
                         )
 
-
 @app.route('/symbols', methods=['GET'])
 def symbols():
     symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX500.txt")
