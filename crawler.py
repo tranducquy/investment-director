@@ -29,6 +29,7 @@ def insert_history(dbfile, quotes):
 
 def minkabu_fx_download(symbol, leg='daily', count=30):
     uri = "https://fx.minkabu.jp/api/v2/bar/%s/%s.json?count=%d" % (symbol, leg, count)
+    logger.info(uri)
     res = requests.get(uri).json()
     data = dict()
     data['BusinessDate'] = list()
@@ -90,9 +91,9 @@ if __name__ == '__main__':
     else:
         symbol_txt = args.symbol
     if args.period is None:
-        default_period = int(conf['default_period'])
+        unix_period = int(conf['default_unix_period'])
     else:
-        default_period = int(args.period)
+        unix_period = int(args.period)
 
     if 'bitmex' in symbol_txt:
         bitmex = True
@@ -106,10 +107,10 @@ if __name__ == '__main__':
     symbols = sym.get_symbols(symbol_txt)
     for symbol in symbols:
         if minkabu:
-            data = minkabu_fx_download(symbol, count=default_period)
+            data = minkabu_fx_download(symbol, count=unix_period)
             idx = len(data['BusinessDate'])
         elif bitmex:
-            data = bitmex_download(symbol, 60 * 60 * 24 * abs(default_period))
+            data = bitmex_download(symbol, 60 * 60 * 24 * abs(unix_period))
             idx = len(data['BusinessDate'])
         else:
             data = yf.download(symbol, start=start_date, end=end_date)
