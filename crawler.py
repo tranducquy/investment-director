@@ -94,7 +94,6 @@ if __name__ == '__main__':
         unix_period = int(conf['default_unix_period'])
     else:
         unix_period = int(args.period)
-
     if 'bitmex' in symbol_txt:
         bitmex = True
     else:
@@ -103,7 +102,6 @@ if __name__ == '__main__':
         minkabu = True
     else:
         minkabu = False
-
     symbols = sym.get_symbols(symbol_txt)
     for symbol in symbols:
         if minkabu:
