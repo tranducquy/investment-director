@@ -16,6 +16,9 @@
 
   <!-- Custom styles for this template-->
   <link href="static/css/sb-admin-2.min.css" rel="stylesheet">
+
+  {% block cumstom_styles_for_this_page %}
+  {% endblock %}
 </head>
 
 <body id="page-top">
@@ -687,12 +690,16 @@
   <!-- Custom scripts for all pages-->
   <script src="static/js/sb-admin-2.min.js"></script>
 
+  {% block page_level_plugins %}
   <!-- Page level plugins -->
   <script src="static/vendor/chart.js/Chart.min.js"></script>
+  {% endblock %}
 
+  {% block page_level_custom_scripts %}
   <!-- Page level custom scripts -->
   <script src="static/js/demo/chart-area-demo.js"></script>
   <script src="static/js/demo/chart-pie-demo.js"></script>
+  {% endblock %}
 
 </body>
 

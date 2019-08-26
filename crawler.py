@@ -37,6 +37,7 @@ def minkabu_fx_download(symbol, leg='daily', count=30):
     data['High'] = list()
     data['Low'] = list()
     data['Close'] = list()
+    data['Volume'] = list()
     for r in res:
         business_date = datetime.datetime.fromtimestamp(r[0]/1000).strftime('%Y-%m-%d')
         data['BusinessDate'].append(business_date)
@@ -119,13 +120,14 @@ if __name__ == '__main__':
         for i in range(idx):
             if minkabu or bitmex:
                 business_date = data['BusinessDate'][i]
+                volume = 0
             else:
                 business_date = (data.index[i]).strftime("%Y-%m-%d")
+                volume = int((data['Volume'][i]).astype('int64'))
             open_price = data['Open'][i]
             high_price = data['High'][i]
             low_price = data['Low'][i]
             close_price = data['Close'][i]
-            volume = int((data['Volume'][i]).astype('int64'))
             quotes.append( (symbol, business_date, open_price, high_price, low_price, close_price, volume) )
             if max_date == '':
                 max_date = business_date

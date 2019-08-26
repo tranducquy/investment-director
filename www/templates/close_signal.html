@@ -1,5 +1,10 @@
 {% extends "layout.html" %}
 
+{% block cumstom_styles_for_this_page %}
+  <!-- Custom styles for this page -->
+  <link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{% endblock %}
+
         {% block content %}
 
           <!-- Page Heading -->
@@ -65,7 +70,8 @@
               <h6 class="m-0 font-weight-bold text-primary">クローズシグナル</h6>
             </div>
             <div class="card-body">
-                <table class="table">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -85,8 +91,19 @@
                       {% endif %}
                     </tbody>
                 </table>
+              </div>
             </div>
           </div>
           {% endif %}
 
         {% endblock %}
+
+  {% block page_level_plugins %}
+  <!-- Page level plugins -->
+  <script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  {% endblock %}
+  {% block page_level_custom_scripts %}
+  <!-- Page level custom scripts -->
+  <script src="static/js/pages/datatables-common.js"></script>
+  {% endblock %}

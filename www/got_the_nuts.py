@@ -337,5 +337,9 @@ def symbols():
                         , symbol4_list=symbol4_list
                         )
 
+@app.route('/tables', methods=['GET'])
+def table():
+    return render_template('tables.html')
+
 if __name__ == "__main__":
      app.run()
