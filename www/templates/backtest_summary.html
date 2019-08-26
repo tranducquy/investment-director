@@ -92,23 +92,34 @@
                   <tbody>
                   {% for r in rv %}
                     <tr>
-                      <th>{{ r[0] }}</th>
-                      <th>{{ r[1] }}</th>
-                      <th>{{ r[2] }}</th>
-                      <th>{{ r[3] }}</th>
-                      <th>{{ r[4] }}</th>
-                      <th>{{ r[5] }}</th>
-                      <th>{{ r[6] }}</th>
-                      <th>{{ r[7] }}</th>
-                      <th>{{ r[8] }}</th>
-                      <th>{{ r[9] }}</th>
-                      <th>{{ r[10] }}</th>
-                      <th>{{ r[11] }}</th>
-                      <th>{{ r[12] }}</th>
-                      <th>{{ r[13] }}</th>
-                      <th>{{ r[14] }}</th>
-                      <th>{{ r[15] }}</th>
-                      <th>{{ r[16] }}</th>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[5] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>

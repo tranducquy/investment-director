@@ -41,8 +41,8 @@
       <hr class="sidebar-divider my-0">
 
       <!-- Nav Item - Dashboard -->
-      <li class="nav-item active">
-        <a class="nav-link" href="index">
+      <li class="nav-item {{ index }}">
+        <a class="nav-link" href="/index">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span></a>
       </li>
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Nav Item - Signal -->
-      <li class="nav-item">
+      <li class="nav-item {{ signal }}">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSignal" aria-expanded="true" aria-controls="collapseUtilities">
             <i class="fas fa-fw fa-signal"></i>
             <span>Signal</span>
@@ -94,14 +94,14 @@
       </div>
 
       <!-- Nav Item - Backtest Result -->
-      <li class="nav-item">
+      <li class="nav-item {{ backtest_summary }}">
         <a class="nav-link" href="/backtest_summary">
           <i class="fas fa-fw fa-object-group"></i>
           <span>Backtest Summary</span></a>
       </li>
 
       <!-- Nav Item - Backtest History Collapse Menu -->
-      <li class="nav-item">
+      <li class="nav-item {{ backtest_history }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBacktestHistory" aria-expanded="true" aria-controls="collapseUtilities">
           <i class="fas fa-fw fa-play-circle"></i>
           <span>Backtest History</span>
@@ -118,7 +118,7 @@
       </li>
 
       <!-- Nav Item - OHLCV Daily -->
-      <li class="nav-item">
+      <li class="nav-item {{ ohlcv_daily }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOHLCVDaily" aria-expanded="true" aria-controls="collapseUtilities">
           <i class="fas fa-fw fa-history"></i>
           <span>OHLCV Daily</span>
@@ -144,10 +144,18 @@
       </div>
 
       <!-- Nav Item - Backtest History Collapse Menu -->
-      <li class="nav-item">
+      <li class="nav-item {{ symbols }}">
         <a class="nav-link collapsed" href="/symbols">
           <i class="fas fa-fw fa-list"></i>
           <span>Symbols</span>
+        </a>
+      </li>
+
+      <!-- Nav Item - Backtest History Collapse Menu -->
+      <li class="nav-item {{ crontab }}">
+        <a class="nav-link collapsed" href="/crontab">
+          <i class="fas fa-fw fa-calendar"></i>
+          <span>crontab</span>
         </a>
       </li>
 
