@@ -1,0 +1,12 @@
+10 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX500.txt >> /usr/local/investment-director/cron.log 2>&1
+20 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX500.txt >> /usr/local/investment-director/cron.log 2>&1
+30 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX500.txt >> /usr/local/investment-director/cron.log 2>&1
+40 0 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX500.txt >> /usr/local/investment-director/cron.log 2>&1
+
+0 4 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/minkabu_fx_gbpjpy.txt  >> /usr/local/investment-director/cron.log 2>&1
+2 4 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/minkabu_fx_gbpjpy.txt >> /usr/local/investment-director/cron.log 2>&1
+
+2 9 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/bitmex_xbtusd.txt >> /usr/local/investment-director/cron.log 2>&1
+4 9 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/bitmex_ethusd.txt >> /usr/local/investment-director/cron.log 2>&1
+6 9 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/bitmex_xbtusd.txt >> /usr/local/investment-director/cron.log 2>&1
+8 9 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/bitmex_ethusd.txt >> /usr/local/investment-director/cron.log 2>&1
