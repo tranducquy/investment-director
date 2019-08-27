@@ -13,6 +13,8 @@ import subprocess
 import invest_signal
 import symbol as sy
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
 app = Flask(__name__)
 seed = datetime.now()
 app.config['SECRET_KEY'] = seed.strftime('%M%s%d%Y%m%H')
