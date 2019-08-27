@@ -6,12 +6,26 @@ from datetime import datetime
 from datetime import timedelta 
 from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template, g, request
+from flask_httpauth import HTTPDigestAuth
+import random
 import sqlite3
 import subprocess
 import invest_signal
 import symbol as sy
 
 app = Flask(__name__)
+
+auth = HTTPDigestAuth(random.random())
+users = {
+    "takeyukitanaka": "password1",
+    "vip": "vippassword1"
+}
+
+@auth.get_password
+def get_pw(username):
+    if username in users:
+        return users.get(username)
+    return None
 
 DATABASE = '/usr/local/investment-director/market-history.db'
 SYMBOL_DIR = '/usr/local/investment-director/symbol/'
@@ -157,16 +171,19 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 @app.route("/")
+@auth.login_required
 def index():
     index="active"
     return render_template('index.html', index=index)
 
 @app.route("/index")
+@auth.login_required
 def index2():
     index="active"
     return render_template('index.html', index=index)
 
 @app.route('/open_signal', methods=['GET'])
+@auth.login_required
 def open_signal():
     signal="active"
     symbol1 = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
@@ -185,9 +202,11 @@ def open_signal():
     (open_signals2, query2) = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
     (open_signals3, query3) = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
     (open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
+    header_title = "Open Signal"
     content_title = "Open Signal"
     return render_template('open_signal.html'
                         , signal=signal
+                        , header_title=header_title
                         , content_title=content_title
                         , start_date=start_date
                         , end_date=end_date
@@ -206,6 +225,7 @@ def open_signal():
                         )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
+@auth.login_required
 def close_signal():
     signal="active"
     content_title = 'Close Signal'
@@ -221,8 +241,10 @@ def close_signal():
         else:
             close_order_type = ""
             close_order_price = 0
+        header_title = '{symbol} Close Signal'.format(symbol=symbol)
         return render_template('close_signal.html'
                         , signal=signal
+                        , header_title=header_title
                         , content_title=content_title
                         , symbol=symbol
                         , position=position
@@ -236,6 +258,7 @@ def close_signal():
                         , content_title=content_title)
 
 @app.route('/backtest_history', methods=['GET', 'POST'])
+@auth.login_required
 def backtest_history():
     backtest_history="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
@@ -248,11 +271,13 @@ def backtest_history():
         symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
+    header_title = u"{symbol} {start_date} {end_date} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     query = BACKTEST_HISTORY_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date)
     rv = query_db(query)
     return render_template('backtest_history_table.html'
                         , backtest_history=backtest_history
+                        , header_title=header_title
                         , content_title=content_title
                         , symbol=symbol
                         , start_date=start_date
@@ -261,6 +286,7 @@ def backtest_history():
                         , query=query)
 
 @app.route('/ohlcv_daily', methods=['GET', 'POST'])
+@auth.login_required
 def ohlcv_daily():
     ohlcv_daily="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
@@ -273,11 +299,13 @@ def ohlcv_daily():
         symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
+    header_title = u"{symbol} {start_date} {end_date} OHLCV Daily".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"OHLCV Daily".format(symbol=symbol)
     query = OHLCV_DAILY_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date)
     rv = query_db(query)
     return render_template('ohlcv_table.html'
                         , ohlcv_daily=ohlcv_daily
+                        , header_title=header_title
                         , content_title=content_title
                         , symbol=symbol
                         , start_date=start_date
@@ -286,6 +314,7 @@ def ohlcv_daily():
                         , query=query)
 
 @app.route('/backtest_summary', methods=['GET', 'POST'])
+@auth.login_required
 def backtest_summary():
     backtest_summary='backtest_summary'
     default_regist_date = datetime.today().strftime('%Y-%m-%d') #今日
@@ -301,6 +330,7 @@ def backtest_summary():
     start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
     start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
     start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
+    header_title = u"Backtest Summary"
     content_title = u"Backtest Summary"
     query = BACKTEST_SUMMARY_QUERY.format(start_date=start_date
                                         , start_date_3month=start_date_3month
@@ -312,6 +342,7 @@ def backtest_summary():
                                         , backtest_summary=backtest_summary)
     rv = query_db(query)
     return render_template('backtest_summary.html'
+                        , header_title=header_title
                         , content_title=content_title
                         , start_date=start_date
                         , start_date_3month=start_date_3month
@@ -326,6 +357,7 @@ def backtest_summary():
                         )
 
 @app.route('/symbols', methods=['GET'])
+@auth.login_required
 def symbols():
     symbols = "active"
     symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX500.txt")
@@ -340,9 +372,11 @@ def symbols():
     symbol2_list = sy.get_symbols(symbol2_txt)
     symbol3_list = sy.get_symbols(symbol3_txt)
     symbol4_list = sy.get_symbols(symbol4_txt)
+    header_title = u"Symbol List"
     content_title = u"Symbol List"
     return render_template('symbols.html'
                         , symbols=symbols
+                        , header_title=header_title
                         , content_title=content_title
                         , symbol1=symbol1
                         , symbol2=symbol2
@@ -355,10 +389,15 @@ def symbols():
                         )
 
 @app.route('/crontab')
+@auth.login_required
 def crontab():
     crontab = "active"
     crontab_command = sy.get_symbols('/usr/local/investment-director/crontab/crontab')
-    return render_template('crontab.html', crontab=crontab, crontab_command=crontab_command)
+    header_title = u"crontab"
+    return render_template('crontab.html'
+                        , header_title=header_title
+                        , crontab=crontab
+                        , crontab_command=crontab_command)
 
 if __name__ == "__main__":
      app.run()
