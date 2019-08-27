@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+
+{% block title %}{{ header_title }} - {% endblock %}
+
+{% block cumstom_styles_for_this_page %}
+  <!-- Custom styles for this page -->
+  <link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+{% endblock %}
+
+        {% block content %}
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
+          <p class="mb-4">ご自由にどうぞ。</p>
+
+          <!-- Content Row -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">SQL</h6>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/db_access">
+                <div class="form-group">
+                  <textarea class="form-control" id="query" name="query" rows="20">{{ query }}</textarea>
+                </div>
+                <button class="btn btn-primary btn-icon-split" type="submit">
+                  <span class="icon text-white-50">
+                    <i class="fas fa-play"></i>
+                  </span>
+                  <span class="text">EXECUTE</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- DataTales -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">実行結果</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                      <tr>
+                      {% for h in ds_header %}
+                        <th>{{ h }}</th>
+                      {% endfor %}
+                      </tr>
+                    </thead>
+                    <tfoot>
+                      <tr>
+                      {% for h in ds_header %}
+                        <th>{{ h }}</th>
+                      {% endfor %}
+                      </tr>
+                    </tfoot>
+                  <tbody>
+                  {% for r in ds %}
+                    <tr>
+                      {% for d in r %}
+                      <td>{{ d }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">DEBUG</h6>
+            </div>
+            <div class="card-body">
+              <p>{{ errmsg }}</p>
+              <p>{{ query }}</p>
+            </div>
+          </div>
+
+        {% endblock %}
+
+  {% block page_level_plugins %}
+  <!-- Page level plugins -->
+  <script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  {% endblock %}
+  {% block page_level_custom_scripts %}
+  <!-- Page level custom scripts -->
+  <script src="static/js/pages/datatables-common.js"></script>
+  {% endblock %}

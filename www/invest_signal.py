@@ -234,7 +234,8 @@ def direct_open_order(db, symbol_txt, start_date, end_date):
     end_date = end_date
     if 'Nikkei225' in symbol_txt:
         (result, query) = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
-    elif 'bitmex' in symbol_txt:
+    elif 'bitmex' in symbol_txt or 'minkabu' in symbol_txt:
+    #elif 'bitmex' in symbol_txt:
         (result, query) = _get_open_signal(db, start_date, end_date, symbols, True)
     else:
         (result, query) = _get_open_signal(db, start_date, end_date, symbols, False)

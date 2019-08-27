@@ -45,7 +45,18 @@
                   {% for r in open_signals1 %}
                     <tr>
                       <td>{{ r[4] }}</td>
-                      <td>{{ r[0] }}</td>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
                       <td>{{ r[1] }}</td>
                       <td>{{ r[2] }}</td>
                       <td>{{ r[3] }}</td>
@@ -104,7 +115,18 @@
                   {% for r in open_signals2 %}
                     <tr>
                       <td>{{ r[4] }}</td>
-                      <td>{{ r[0] }}</td>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
                       <td>{{ r[1] }}</td>
                       <td>{{ r[2] }}</td>
                       <td>{{ r[3] }}</td>
@@ -164,6 +186,18 @@
                     <tr>
                       <td>{{ r[4] }}</td>
                       <td>{{ r[0] }}</td>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
                       <td>{{ r[1] }}</td>
                       <td>{{ r[2] }}</td>
                       <td>{{ r[3] }}</td>
@@ -222,7 +256,18 @@
                   {% for r in open_signals4 %}
                     <tr>
                       <td>{{ r[4] }}</td>
-                      <td>{{ r[0] }}</td>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
                       <td>{{ r[1] }}</td>
                       <td>{{ r[2] }}</td>
                       <td>{{ r[3] }}</td>

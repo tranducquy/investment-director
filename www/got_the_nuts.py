@@ -14,11 +14,12 @@ import invest_signal
 import symbol as sy
 
 app = Flask(__name__)
-
-auth = HTTPDigestAuth(random.random())
+seed = datetime.now()
+app.config['SECRET_KEY'] = seed.strftime('%M%s%d%Y%m%H')
+auth = HTTPDigestAuth()
 users = {
     "takeyukitanaka": "password1",
-    "vip": "vippassword1"
+    "vip": "vipuser1"
 }
 
 @auth.get_password
@@ -398,6 +399,34 @@ def crontab():
                         , header_title=header_title
                         , crontab=crontab
                         , crontab_command=crontab_command)
+
+@app.route('/db_access', methods=['GET', 'POST'])
+@auth.login_required
+def db_access():
+    header_title="DB ACCESS"
+    if request.method == 'POST':
+        try:
+            query = request.form.get("query", "")
+            cur = get_db().execute(query)
+            ds = cur.fetchall()
+            ds_header = [description[0] for description in cur.description]
+            cur.close()
+            return render_template('db_access.html'
+                                ,header_title=header_title
+                                ,query=query
+                                ,ds=ds
+                                ,ds_header=ds_header
+                                )
+        except Exception as err:
+            return render_template('db_access.html'
+                            ,header_title=header_title
+                            ,query=query
+                            ,errmsg=err
+                            )
+    else:
+        return render_template('db_access.html'
+                            ,header_title=header_title
+                            )
 
 if __name__ == "__main__":
      app.run()
