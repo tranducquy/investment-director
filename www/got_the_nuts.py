@@ -13,8 +13,6 @@ import subprocess
 import invest_signal
 import symbol as sy
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
 app = Flask(__name__)
 seed = datetime.now()
 app.config['SECRET_KEY'] = seed.strftime('%M%s%d%Y%m%H')
@@ -405,6 +403,7 @@ def crontab():
 @app.route('/db_access', methods=['GET', 'POST'])
 @auth.login_required
 def db_access():
+    db_access = "active"
     header_title="DB ACCESS"
     if request.method == 'POST':
         try:
@@ -414,6 +413,7 @@ def db_access():
             ds_header = [description[0] for description in cur.description]
             cur.close()
             return render_template('db_access.html'
+                                ,db_access=db_access
                                 ,header_title=header_title
                                 ,query=query
                                 ,ds=ds
@@ -421,12 +421,14 @@ def db_access():
                                 )
         except Exception as err:
             return render_template('db_access.html'
+                            ,db_access=db_access
                             ,header_title=header_title
                             ,query=query
                             ,errmsg=err
                             )
     else:
         return render_template('db_access.html'
+                            ,db_access=db_access
                             ,header_title=header_title
                             )
 
