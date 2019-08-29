@@ -2,8 +2,8 @@
 $(document).ready(function() {
   $('#dataTable').DataTable(
     {
-      lengthMenu: [ 50, 200, 1000 ],
-      displayLength: 50
+      lengthMenu: [ 100, 300, 2000 ],
+      displayLength: 100
     }
   );
 });
