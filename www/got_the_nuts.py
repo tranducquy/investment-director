@@ -172,19 +172,19 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 @app.route("/")
-@auth.login_required
+#@auth.login_required
 def index():
     index="active"
     return render_template('index.html', index=index)
 
 @app.route("/index")
-@auth.login_required
+#@auth.login_required
 def index2():
     index="active"
     return render_template('index.html', index=index)
 
 @app.route('/open_signal', methods=['GET'])
-@auth.login_required
+#@auth.login_required
 def open_signal():
     signal="active"
     symbol1 = request.args.get("symbol", "Nikkei225_TOPIX500.txt")
@@ -226,7 +226,7 @@ def open_signal():
                         )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
-@auth.login_required
+#@auth.login_required
 def close_signal():
     signal="active"
     content_title = 'Close Signal'
@@ -259,7 +259,7 @@ def close_signal():
                         , content_title=content_title)
 
 @app.route('/backtest_history', methods=['GET', 'POST'])
-@auth.login_required
+#@auth.login_required
 def backtest_history():
     backtest_history="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
@@ -287,7 +287,7 @@ def backtest_history():
                         , query=query)
 
 @app.route('/ohlcv_daily', methods=['GET', 'POST'])
-@auth.login_required
+#@auth.login_required
 def ohlcv_daily():
     ohlcv_daily="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
@@ -315,7 +315,7 @@ def ohlcv_daily():
                         , query=query)
 
 @app.route('/backtest_summary', methods=['GET', 'POST'])
-@auth.login_required
+#@auth.login_required
 def backtest_summary():
     backtest_summary='backtest_summary'
     default_regist_date = datetime.today().strftime('%Y-%m-%d') #今日
@@ -358,7 +358,7 @@ def backtest_summary():
                         )
 
 @app.route('/symbols', methods=['GET'])
-@auth.login_required
+#@auth.login_required
 def symbols():
     symbols = "active"
     symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX500.txt")
@@ -390,7 +390,7 @@ def symbols():
                         )
 
 @app.route('/crontab')
-@auth.login_required
+#@auth.login_required
 def crontab():
     crontab = "active"
     crontab_command = sy.get_symbols('/usr/local/investment-director/crontab/crontab')
@@ -401,7 +401,7 @@ def crontab():
                         , crontab_command=crontab_command)
 
 @app.route('/db_access', methods=['GET', 'POST'])
-@auth.login_required
+#@auth.login_required
 def db_access():
     db_access = "active"
     header_title="DB ACCESS"

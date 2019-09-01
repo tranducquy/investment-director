@@ -761,7 +761,7 @@ def backtest(symbols, start_date, end_date):
         bollinger_ma = 3 #移動平均の日数
         diff_price = 0.0000 #決済する差額
         ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
-        ev2_sigma_ratio = 1.1 #トレンドを判定するsigma2の倍率
+        ev2_sigma_ratio = 3.0 #トレンドを判定するsigma2の倍率
         vol_ma = 14
         vol_ev_sigma_ratio = 1.0
         strategy_id = 1
@@ -769,10 +769,12 @@ def backtest(symbols, start_date, end_date):
             or 'minkabu_fx_gbpjpy.txt' in symbol_txt):
             bollinger_ma = 8
             ev_sigma_ratio = 1.2
+            ev2_sigma_ratio = 3.0
             strategy_id = 2
         elif 'bitmex_ethusd.txt' in symbol_txt:
             bollinger_ma = 2 
             ev_sigma_ratio = 1.6
+            ev2_sigma_ratio = 3.0
             strategy_id = 3
         thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, strategy_id, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
         #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))

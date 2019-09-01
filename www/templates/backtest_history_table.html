@@ -7,6 +7,181 @@
   <link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 {% endblock %}
 
+{% block cumstom_header_js_for_this_page %}
+{% if rv %}
+<script>
+    window.onload = function () {
+    
+    var chart = new CanvasJS.Chart("chartContainer", {
+      animationEnabled: true,
+      theme: "light2", // "light1", "light2", "dark1", "dark2"
+      exportEnabled: true,
+      subtitles: [{
+        text: "{{ rv[0][0] }} {{ rv[0][1] }}"
+      }],
+      axisX: {
+        valueFormatString: "YY-MM-DD"
+      },
+      axisY: {
+        includeZero:false, 
+        prefix: "$",
+        title: "Price"
+      },
+      axisY2: {
+        prefix: "",
+        title: "ProfitRate",
+      },
+      toolTip: {
+        shared: true
+      },
+      legend: {
+        reversed: true,
+        cursor: "pointer",
+        itemclick: toggleDataSeries
+      },     
+      data: [
+      {
+        type: "column",
+        showInLegend: true,
+        name: "ProfitRate",
+        axisYType: "secondary",
+        yValueFormatString: "#0.00%",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[35] }}/100 },
+        {% endfor %}
+        ]
+      },
+
+      {
+        type: "line",
+        showInLegend: true,
+        name: "upper sigma2",
+        markerSize: 0,
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[11] }} },
+        {% endfor %}
+        ]
+      },
+      {
+        type: "line",
+        showInLegend: true,
+        name: "lower sigma2",
+        markerSize: 0,
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[12] }} },
+        {% endfor %}
+        ]
+      },
+      {
+        type: "line",
+        showInLegend: true,
+        name: "upper sigma1",
+        markerSize: 0,
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[9] }} },
+        {% endfor %}
+        ]
+      },
+      {
+        type: "line",
+        showInLegend: true,
+        name: "lower sigma1",
+        markerSize: 0,
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[10] }} },
+        {% endfor %}
+        ]
+      },
+
+      {
+        type: "line",
+        showInLegend: true,
+        name: "移動平均",
+        markerSize: 0,
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[8] }} },
+        {% endfor %}
+        ]
+      },
+
+
+      {
+        type: "candlestick",
+        showInLegend: true,
+        name: "Stock Price",
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [   // Y: [Open, High ,Low, Close]
+        {% for  r in rv %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: [{{ r[3] }}, {{ r[4] }}, {{ r[5] }}, {{ r[6] }}] },
+        {% endfor %}
+        ]
+      },
+
+      {
+        type: "scatter",
+        showInLegend: true,
+        name: "Close Order",
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+        {% if (r[21] == 5 or r[21] == 6 or r[21] == 7 or r[21] == 8) and r[23] != 0 and r[26] == '3' %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[23] }} },
+        {% endif %}
+        {% endfor %}
+        ]
+      },
+      {
+        type: "scatter",
+        showInLegend: true,
+        name: "Open Order",
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+        {% if (r[21] == 1 or r[21] == 2 or r[21] == 3 or r[21] == 4) and r[23] != 0 and r[26] == '3' %}
+          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[23] }} }, /* {{ r[26] }} */
+        {% endif %}
+        {% endfor %}
+        ]
+      },
+
+    ]
+    });
+    chart.render();
+    
+    function toggleDataSeries(e) {
+      if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+      } else {
+        e.dataSeries.visible = true;
+      }
+      e.chart.render();
+    }
+    
+    }
+    </script>
+{% endif %}
+{% endblock %}
+
         {% block content %}
           <!-- Page Heading -->
           <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
@@ -31,6 +206,7 @@
                   <label class="control-label">検索終了日</label>
                   <input class="form-control" type="text" id="end_date" name="end_date" value="{{ end_date }}">
                 </div>
+
                 <button class="btn btn-primary btn-icon-split" type="submit">
                   <span class="icon text-white-50">
                     <i class="fas fa-search"></i>
@@ -40,6 +216,17 @@
               </form>
             </div>
           </div>
+
+          {% if rv %}
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} : {{ start_date }} から {{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div id="chartContainer" style="height: 370px; width: 100%; margin: 0px auto;"></div>
+            </div>
+          </div>
+          {% endif %}
 
           <!-- DataTales Example -->
           <div class="card shadow mb-4">
@@ -187,6 +374,7 @@
   <!-- Page level plugins -->
   <script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
   <script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  <script src="static/vendor/canvasjs/canvasjs.min.js"></script>
   {% endblock %}
   {% block page_level_custom_scripts %}
   <!-- Page level custom scripts -->

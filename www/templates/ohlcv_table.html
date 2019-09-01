@@ -7,6 +7,82 @@
   <link href="static/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 {% endblock %}
 
+{% block cumstom_header_js_for_this_page %}
+{% if rv %}
+<script>
+    window.onload = function () {
+    
+    var chart = new CanvasJS.Chart("chartContainer", {
+      animationEnabled: true,
+      theme: "light2", // "light1", "light2", "dark1", "dark2"
+      exportEnabled: true,
+      subtitles: [{
+        text: "{{ symbol }}"
+      }],
+      axisX: {
+        valueFormatString: "YY-MM-DD"
+      },
+      axisY: {
+        includeZero:false, 
+        prefix: "$",
+        title: "Price"
+      },
+      axisY2: {
+        prefix: "",
+        title: "Volume",
+      },
+      toolTip: {
+        shared: true
+      },
+      legend: {
+        reversed: true,
+        cursor: "pointer",
+        itemclick: toggleDataSeries
+      },     
+      data: [
+      {
+        type: "column",
+        showInLegend: true,
+        name: "Volume",
+        axisYType: "secondary",
+        yValueFormatString: "#0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for  r in rv %}
+          { x: new Date({{ r[1][0:4] }}, {{ r[1][5:7] }}-1, {{ r[1][8:10] }}), y: {{ r[6] }} },
+        {% endfor %}
+        ]
+      },
+      {
+        type: "candlestick",
+        showInLegend: true,
+        name: "Stock Price",
+        yValueFormatString: "$#,##0.00",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [   // Y: [Open, High ,Low, Close]
+        {% for  r in rv %}
+          { x: new Date({{ r[1][0:4] }}, {{ r[1][5:7] }}-1, {{ r[1][8:10] }}), y: [{{ r[2] }}, {{ r[3] }}, {{ r[4] }}, {{ r[5] }}] },
+        {% endfor %}
+        ]
+      },
+      ]
+    });
+    chart.render();
+    
+    function toggleDataSeries(e) {
+      if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+      } else {
+        e.dataSeries.visible = true;
+      }
+      e.chart.render();
+    }
+    
+    }
+    </script>
+{% endif %}
+{% endblock %}
+
         {% block content %}
           <!-- Page Heading -->
           <h1 class="h3 mb-2 text-gray-800">{{ content_title }}</h1>
@@ -40,6 +116,17 @@
               </form>
             </div>
           </div>
+
+          {% if rv %}
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">{{ symbol }} : {{ start_date }} から {{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div id="chartContainer" style="height: 370px; width: 100%; margin: 0px auto;"></div>
+            </div>
+          </div>
+          {% endif %}
 
           <!-- DataTales -->
           <div class="card shadow mb-4">
@@ -103,6 +190,7 @@
   <!-- Page level plugins -->
   <script src="static/vendor/datatables/jquery.dataTables.min.js"></script>
   <script src="static/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+  <script src="static/vendor/canvasjs/canvasjs.min.js"></script>
   {% endblock %}
   {% block page_level_custom_scripts %}
   <!-- Page level custom scripts -->
