@@ -4,27 +4,140 @@
           <h1 class="h3 mb-2 text-gray-800">Dashboard</h1>
 
           <!-- Content Row -->
-          <div class="card shadow mb-4">
-            <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">直近3か月取引推奨銘柄(株式) 2019-09-02</h6>
+          <div class="row">
+            <!-- Area Chart -->
+            <div class="col-xl-8 col-lg-7">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">マーケット概要</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com" rel="noopener" target="_blank"><span class="blue-text">暗号通貨</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+    {
+    "colorTheme": "light",
+    "dateRange": "3m",
+    "showChart": true,
+    "locale": "ja",
+    "largeChartUrl": "",
+    "isTransparent": false,
+    "width": "600",
+    "height": "660",
+    "plotLineColorGrowing": "rgba(33, 150, 243, 1)",
+    "plotLineColorFalling": "rgba(73, 133, 231, 1)",
+    "gridLineColor": "rgba(233, 233, 234, 1)",
+    "scaleFontColor": "rgba(120, 123, 134, 1)",
+    "belowLineFillColorGrowing": "rgba(33, 150, 243, 0.12)",
+    "belowLineFillColorFalling": "rgba(33, 150, 243, 0.12)",
+    "symbolActiveColor": "rgba(33, 150, 243, 0.12)",
+    "tabs": [
+      {
+        "title": "指数",
+        "symbols": [
+          {
+            "s": "OANDA:SPX500USD",
+            "d": "S&P 500"
+          },
+          {
+            "s": "OANDA:NAS100USD",
+            "d": "Nasdaq 100"
+          },
+          {
+            "s": "FOREXCOM:DJI",
+            "d": "Dow 30"
+          },
+          {
+            "s": "INDEX:NKY",
+            "d": "Nikkei 225"
+          },
+          {
+            "s": "INDEX:DEU30",
+            "d": "DAX Index"
+          },
+          {
+            "s": "INDEX:HSI",
+            "d": "HANG SENG"
+          },
+          {
+            "s": "OANDA:UK100GBP",
+            "d": "UK100GBP"
+          }
+        ],
+        "originalTitle": "Indices"
+      },
+      {
+        "title": "FX",
+        "symbols": [
+          {
+            "s": "FX:EURUSD"
+          },
+          {
+            "s": "FX:GBPUSD"
+          },
+          {
+            "s": "FX:USDJPY"
+          },
+          {
+            "s": "OANDA:GBPJPY",
+            "d": "FX:GBPJPY"
+          }
+        ],
+        "originalTitle": "Forex"
+      },
+      {
+        "title": "暗号通貨",
+        "symbols": [
+          {
+            "s": "BITSTAMP:BTCUSD",
+            "d": "BTCUSD"
+          },
+          {
+            "s": "BITSTAMP:ETHUSD",
+            "d": "ETHUSD"
+          }
+        ]
+      }
+    ]
+  }
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+                </div>
+              </div>
             </div>
-            <div class="card-body">
-              <ul class="list-group">
-              {% for r in symbols %}
-                <li class="list-group-item">
-                  {{ r }}
-                  {% if '.T' in r %}
-                  <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
-                  {% elif ('XBTUSD' in r or 'ETHUSD' in r) %}
-                  <a href="https://www.bitmex.com/app/trade/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
-                  {% elif 'GBPJPY' in r %}
-                  <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
-                  {% endif %}
-                  <a href="/backtest_history?symbol={{ r }}"><i class="fas fa-fw fa-play-circle"></i></a>
-                  <a href="/ohlcv_daily?symbol={{ r }}"><i class="fas fa-fw fa-history"></i></a>
-                </li>
-              {% endfor %}
-              </ul>
+  
+            <!-- Pie Chart -->
+            <div class="col-xl-4 col-lg-5">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">直近3か月取引推奨銘柄(株式) 2019-09-02</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <ul class="list-group">
+                  {% for r in symbols %}
+                    <li class="list-group-item">
+                      {{ r }}
+                      {% if '.T' in r %}
+                      <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                      {% elif ('XBTUSD' in r or 'ETHUSD' in r) %}
+                      <a href="https://www.bitmex.com/app/trade/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                      {% elif 'GBPJPY' in r %}
+                      <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                      {% endif %}
+                      <a href="/backtest_history?symbol={{ r }}"><i class="fas fa-fw fa-play-circle"></i></a>
+                      <a href="/ohlcv_daily?symbol={{ r }}"><i class="fas fa-fw fa-history"></i></a>
+                    </li>
+                  {% endfor %}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -41,8 +154,8 @@
     <script type="text/javascript">
     new TradingView.widget(
     {
-    "width":980,
-    "height":610,
+    "width": 980,
+    "height": 610,
     "symbol": "BITSTAMP:BTCUSD",
     "interval": "D",
     "timezone": "Etc/UTC",
