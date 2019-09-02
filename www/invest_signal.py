@@ -107,7 +107,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     on r.symbol = order_table.symbol
     where 0 = 0
     and r.rate_of_return > 0
-    and (m3.profit_rate_sum > 3 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
+    and (m3.profit_rate_sum > 5 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
     and r.symbol in ({0})
     order by m3.profit_rate_sum desc
        """ % (
