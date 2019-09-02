@@ -1,4 +1,197 @@
 {% extends "layout.html" %}
 {% block content %}
-  <p>内緒のページ</p>
+          <!-- Page Heading -->
+          <h1 class="h3 mb-2 text-gray-800">Dashboard</h1>
+
+          <!-- Content Row -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">BTCUSDチャート</h6>
+            </div>
+            <div class="card-body">
+              <!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_05c02"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com/symbols/BITSTAMP-BTCUSD/" rel="noopener" target="_blank"><span class="blue-text">BTCUSDチャート</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width":980,
+    "height":610,
+    "symbol": "BITSTAMP:BTCUSD",
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "Light",
+    "style": "1",
+    "locale": "ja",
+    "toolbar_bg": "#f1f3f6",
+    "enable_publishing": false,
+    "withdateranges": true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "studies": [
+      "BB@tv-basicstudies"
+    ],
+    "container_id": "tradingview_05c02"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ETHUSDチャート</h6>
+            </div>
+            <div class="card-body">
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_6b5b5"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com/symbols/BITSTAMP-ETHUSD/" rel="noopener" target="_blank"><span class="blue-text">ETHUSDチャート</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width": 980,
+    "height": 610,
+    "symbol": "BITSTAMP:ETHUSD",
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "Light",
+    "style": "1",
+    "locale": "ja",
+    "toolbar_bg": "#f1f3f6",
+    "enable_publishing": false,
+    "withdateranges": true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "studies": [
+      "BB@tv-basicstudies"
+    ],
+    "container_id": "tradingview_6b5b5"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Nikkei225チャート</h6>
+            </div>
+            <div class="card-body">
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_98d1c"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com/symbols/INDEX-NKY/" rel="noopener" target="_blank"><span class="blue-text">NKYチャート</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width": 980,
+    "height": 610,
+    "symbol": "INDEX:NKY",
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "Light",
+    "style": "1",
+    "locale": "ja",
+    "toolbar_bg": "#f1f3f6",
+    "enable_publishing": false,
+    "withdateranges": true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "studies": [
+      "BB@tv-basicstudies"
+    ],
+    "container_id": "tradingview_98d1c"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">S&P500チャート</h6>
+            </div>
+            <div class="card-body">
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_b6d2f"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com/symbols/SPCFD-SPX/" rel="noopener" target="_blank"><span class="blue-text">SPXチャート</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width": 980,
+    "height": 610,
+    "symbol": "SPCFD:SPX",
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "Light",
+    "style": "1",
+    "locale": "ja",
+    "toolbar_bg": "#f1f3f6",
+    "enable_publishing": false,
+    "withdateranges": true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "studies": [
+      "BB@tv-basicstudies"
+    ],
+    "container_id": "tradingview_b6d2f"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">HANG SENGチャート</h6>
+            </div>
+            <div class="card-body">
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+    <div id="tradingview_81554"></div>
+    <div class="tradingview-widget-copyright">TradingView提供の<a href="https://jp.tradingview.com/symbols/INDEX-HSI/" rel="noopener" target="_blank"><span class="blue-text">HSIチャート</span></a></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+    new TradingView.widget(
+    {
+    "width": 980,
+    "height": 610,
+    "symbol": "INDEX:HSI",
+    "interval": "D",
+    "timezone": "Etc/UTC",
+    "theme": "Light",
+    "style": "1",
+    "locale": "ja",
+    "toolbar_bg": "#f1f3f6",
+    "enable_publishing": false,
+    "withdateranges": true,
+    "hide_side_toolbar": false,
+    "allow_symbol_change": true,
+    "studies": [
+      "BB@tv-basicstudies"
+    ],
+    "container_id": "tradingview_81554"
+  }
+    );
+    </script>
+  </div>
+  <!-- TradingView Widget END -->
+            </div>
+          </div>
+
 {% endblock%}

@@ -175,14 +175,7 @@ def query_db(query, args=(), one=False):
 @app.route("/")
 #@auth.login_required
 def index():
-    xbtusd  = donkatsu_bitmex.download_bitmex_1punashi('XBTUSD')
-    ethusd  = donkatsu_bitmex.download_bitmex_1punashi('ETHUSD')
-    index="active"
-    return render_template('index.html'
-                        , index=index
-                        , xbtusd=xbtusd
-                        , ethusd=ethusd
-                        )
+    return render_template('index.html', index=index)
 
 @app.route("/index")
 #@auth.login_required
