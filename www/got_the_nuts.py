@@ -175,13 +175,34 @@ def query_db(query, args=(), one=False):
 @app.route("/")
 #@auth.login_required
 def index():
-    return render_template('index.html', index=index)
+    index="active"
+    symbols = [
+                 "9107.T"
+                ,"6728.T"
+                ,"5202.T"
+                ,"6141.T"
+                ,"6753.T"
+                ]
+    return render_template('index.html'
+                            , symbols=symbols
+                            , index=index
+                            )
 
 @app.route("/index")
 #@auth.login_required
 def index2():
     index="active"
-    return render_template('index.html', index=index)
+    symbols = [
+                 "9107.T"
+                ,"6728.T"
+                ,"5202.T"
+                ,"6141.T"
+                ,"6753.T"
+                ]
+    return render_template('index.html'
+                            , symbols=symbols
+                            , index=index
+                            )
 
 @app.route('/open_signal', methods=['GET'])
 #@auth.login_required

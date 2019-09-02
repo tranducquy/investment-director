@@ -6,6 +6,30 @@
           <!-- Content Row -->
           <div class="card shadow mb-4">
             <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">直近3か月取引推奨銘柄(株式) 2019-09-02</h6>
+            </div>
+            <div class="card-body">
+              <ul class="list-group">
+              {% for r in symbols %}
+                <li class="list-group-item">
+                  {{ r }}
+                  {% if '.T' in r %}
+                  <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                  {% elif ('XBTUSD' in r or 'ETHUSD' in r) %}
+                  <a href="https://www.bitmex.com/app/trade/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                  {% elif 'GBPJPY' in r %}
+                  <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                  {% endif %}
+                  <a href="/backtest_history?symbol={{ r }}"><i class="fas fa-fw fa-play-circle"></i></a>
+                  <a href="/ohlcv_daily?symbol={{ r }}"><i class="fas fa-fw fa-history"></i></a>
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">BTCUSDチャート</h6>
             </div>
             <div class="card-body">
