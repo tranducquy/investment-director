@@ -152,4 +152,33 @@ create table position
 )
 ;
 
-
+delete from ohlc where symbol = '4666.T' and business_date = '2007-01-01';
+delete from backtest_history where symbol = '4666.T' and business_date = '2007-01-01';
+delete from backtest_result where symbol = '4666.T';
+delete from ohlc where symbol = '4751.T' and business_date = '2007-01-01';
+delete from backtest_history where symbol = '4751.T' and business_date = '2007-01-01';
+delete from backtest_result where symbol = '4751.T';
+delete from ohlc where symbol = '4755.T' and business_date < '2013-07-16';
+delete from backtest_history where symbol = '4755.T' and business_date < '2013-07-16';
+delete from backtest_result where symbol = '4755.T';
+delete from ohlc where symbol = '5214.T' and business_date < '2007-01-01';
+delete from backtest_history where symbol = '5214.T' and business_date < '2007-01-01';
+delete from backtest_result where symbol = '5214.T';
+delete from ohlc where symbol = '7267.T' and business_date < '2007-01-01';
+delete from backtest_history where symbol = '7267.T' and business_date < '2007-01-01';
+delete from backtest_result where symbol = '7267.T';
+delete from ohlc where symbol = '8309.T' and business_date < '2007-01-01';
+delete from backtest_history where symbol = '8309.T' and business_date < '2007-01-01';
+delete from backtest_result where symbol = '8309.T';
+delete from ohlc where symbol = '8411.T' and business_date < '2006-08-01';
+delete from backtest_history where symbol = '8411.T' and business_date < '2006-08-01';
+delete from backtest_result where symbol = '8411.T';
+delete from ohlc where symbol = '9201.T' and business_date < '2002-10-01';
+delete from backtest_history where symbol = '9201.T' and business_date < '2002-10-01';
+delete from backtest_result where symbol = '9201.T';
+delete from ohlc where symbol = '9613.T' and business_date < '2009-02-24';
+delete from backtest_history where symbol = '9613.T' and business_date < '2009-02-24';
+delete from backtest_result where symbol = '9613.T';
+delete from ohlc where symbol = '9984.T' and business_date < '2006-01-10';
+delete from backtest_history where symbol = '9984.T' and business_date < '2006-01-10';
+delete from backtest_result where symbol = '9984.T';
