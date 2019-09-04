@@ -56,6 +56,14 @@
                   {% endif %}
                   <label>BitMEXの場合チェック</label>
                 </div>
+                <div class="form-check">
+                  {% if firstday_flg %}
+                  <input type="checkbox" class="form-check-input" id="checkbox_firstday" name="checkbox_firstday" checked>
+                  {% else %}
+                  <input type="checkbox" class="form-check-input" id="checkbox_firstday" name="checkbox_firstday">
+                  {% endif %}
+                  <label>約定当日の場合チェック</label>
+                </div>
                 <button class="btn btn-primary btn-icon-split" type="submit">
                   <span class="icon text-white-50">
                     <i class="fas fa-flag"></i>

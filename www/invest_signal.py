@@ -278,25 +278,35 @@ def _get_quotes(db, symbol, business_date):
         quotes = r[0]
     return quotes
 
-def direct_close_order(db, symbol, position, open_price, bitmex_flg):
+def direct_close_order(db, symbol, position, open_price, bitmex_flg, firstday_flg):
     """現在は新値のみなので、すべての場合最終営業日の高値または安値を基準に1ティック差の価格を返す。ストラテジによって調整要"""
     close_order = dict()
     if symbol == "":
         return close_order
     #最終営業日取得
     business_date = _get_max_businessdate(db, symbol)
+    losscut_ratio = 0.04
     #前日日付作成(BitMEXの場合、最終営業日の1日前)
     if bitmex_flg and business_date is not None:
         business_date = (datetime.strptime(business_date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
+        losscut_ratio = 0.05
     #高値、安値取得
     q = _get_quotes(db, symbol, business_date)
     #前日日付の高値、安値より１ティック上または下を返す
     t = tick.get_tick(symbol)
     if q:
-        if position == "long":
-            close_order['ordertype'] = u"逆指値成行買い返済"
-            close_order['orderprice']= q[4] - t
-        elif position == "short":
-            close_order['ordertype'] = u"逆指値成行売り返済"
-            close_order['orderprice'] = q[3] + t
+        if firstday_flg == '':
+            if position == "long":
+                close_order['ordertype'] = u"逆指値成行買い返済"
+                close_order['orderprice']= q[4] - t
+            elif position == "short":
+                close_order['ordertype'] = u"逆指値成行売り返済"
+                close_order['orderprice'] = q[3] + t
+        else:
+            if position == "long":
+                close_order['ordertype'] = u"逆指値成行買い返済(当日損切り)"
+                close_order['orderprice']= q[3] - (q[3] * losscut_ratio)
+            elif position == "short":
+                close_order['ordertype'] = u"逆指値成行売り返済(当日損切り)"
+                close_order['orderprice'] = q[4] + (q[4] * losscut_ratio)
     return close_order

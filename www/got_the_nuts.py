@@ -12,7 +12,6 @@ import sqlite3
 import subprocess
 import invest_signal
 import symbol as sy
-import donkatsu_bitmex
 
 app = Flask(__name__)
 seed = datetime.now()
@@ -256,7 +255,8 @@ def close_signal():
         position = request.form.get("position", "")
         open_price = request.form.get("open_price", "")
         bitmex_flg = request.form.get("checkbox_bitmex", "")
-        close_order = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg)
+        firstday_flg = request.form.get("checkbox_firstday", "")
+        close_order = invest_signal.direct_close_order(get_db(), symbol, position, open_price, bitmex_flg, firstday_flg)
         if close_order.get('ordertype') is not None:
             close_order_type = close_order['ordertype']
             close_order_price = close_order['orderprice']
@@ -272,6 +272,7 @@ def close_signal():
                         , position=position
                         , open_price=open_price
                         , bitmex_flg=bitmex_flg
+                        , firstday_flg=firstday_flg
                         , close_order_type=close_order_type
                         , close_order_price=close_order_price)
     else:
