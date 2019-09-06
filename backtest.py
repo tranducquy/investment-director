@@ -33,6 +33,7 @@ def get_option():
     argparser.add_argument('--symbol', type=str, help='Absolute/relative path to input file')
     argparser.add_argument('--start_date', type=str, help='Date of backtest start')
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
+    argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
     args = argparser.parse_args()
     return args
 
