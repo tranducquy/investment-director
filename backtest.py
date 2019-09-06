@@ -33,7 +33,6 @@ def get_option():
     argparser.add_argument('--symbol', type=str, help='Absolute/relative path to input file')
     argparser.add_argument('--start_date', type=str, help='Date of backtest start')
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
-    argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
     args = argparser.parse_args()
     return args
 
@@ -58,6 +57,7 @@ def check_float(num):
 def make_history(
               symbol
             , strategy_id
+            , strategy_option
             , business_date
             , quotes
             , idx
@@ -77,6 +77,7 @@ def make_history(
     t = (
           symbol
         , strategy_id
+        , strategy_option
         , business_date
         , check_float(quotes.quotes['open'][idx])
         , check_float(quotes.quotes['high'][idx])
@@ -124,6 +125,7 @@ def save_history(backtest_history):
                     (
                         symbol,
                         strategy_id,
+                        strategy_option,
                         business_date,
                         open,
                         high,
@@ -197,6 +199,7 @@ def save_history(backtest_history):
                         ,?
                         ,?
                         ,?
+                        ,?
                     )
                 """,
                 backtest_history
@@ -211,7 +214,7 @@ def save_history(backtest_history):
             conn.close
         my_lock.lock.release()
 
-def make_summary_msg(symbol, strategy_id, title, summary, quotes):
+def make_summary_msg(symbol, strategy_id, strategy_option, title, summary, quotes):
     if quotes.quotes.index.size == 0:
         return "\n"
     if summary['WinCount'] == 0 and summary['LoseCount'] == 0:
@@ -298,7 +301,7 @@ def make_summary_msg(symbol, strategy_id, title, summary, quotes):
     save_simulate_result(
          symbol
         ,strategy_id
-        ,title
+        ,strategy_option
         ,start_date
         ,end_date
         ,market_start_date
@@ -340,7 +343,7 @@ def make_summary_msg(symbol, strategy_id, title, summary, quotes):
 def save_simulate_result(
                      symbol
                     ,strategy_id
-                    ,strategy
+                    ,strategy_option
                     ,start_date
                     ,end_date
                     ,market_start_date
@@ -386,7 +389,7 @@ def save_simulate_result(
                     (
                      symbol
                     ,strategy_id
-                    ,strategy
+                    ,strategy_option
                     ,start_date
                     ,end_date
                     ,market_start_date
@@ -468,7 +471,7 @@ def save_simulate_result(
         (
          symbol
         ,strategy_id
-        ,strategy
+        ,strategy_option
         ,start_date
         ,end_date
         ,market_start_date
@@ -515,7 +518,7 @@ def save_simulate_result(
             conn.close
         my_lock.lock.release()
 
-def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trade_fee, tick):
+def simulator_run(title, strategy_id, strategy_option, quotes, butler, symbol, initial_cash, trade_fee, tick):
     p = Position(initial_cash, trade_fee, tick)
     backtest_history = list()
     for idx, high in enumerate(quotes.quotes['high']):
@@ -687,6 +690,7 @@ def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trad
         history = make_history(
               symbol
             , strategy_id
+            , strategy_option
             , business_date
             , quotes
             , idx
@@ -702,50 +706,39 @@ def simulator_run(title, strategy_id, quotes, butler, symbol, initial_cash, trad
             )
         backtest_history.append(history)
     #シミュレーション結果を出力
-    summary_msg_log = make_summary_msg(symbol, strategy_id, title, p.summary, quotes)
+    summary_msg_log = make_summary_msg(symbol, strategy_id, strategy_option, title, p.summary, quotes)
     save_history(backtest_history)
     logger.info(summary_msg_log)
 
-def backtest_bollingerband(symbols, start_date, end_date, strategy_id, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
-    symbol_cnt = len(symbols)
-    fin_cnt = 0
-    for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
-        t = tick.get_tick(symbol)
-        bollinger_butler = bollingerband.Butler(t, ma, diff, True)
-        title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
-        simulator_run(title, strategy_id, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
-        fin_cnt = 1 + fin_cnt
-        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
+def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
+    q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
+    t = tick.get_tick(symbol)
+    bollinger_butler = bollingerband.Butler(t, ma, diff, True)
+    title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
+    simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
 
-def backtest_new_value_and_moving_average(symbols, start_date, end_date, strategy_id, ma, new_value, vol_ma):
-    symbol_cnt = len(symbols)
-    fin_cnt = 0
-    for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, 2, 3, vol_ma)
-        t = tick.get_tick(symbol)
-        nv_ma_butler = new_value_and_moving_average.Butler(t, new_value)
-        title = "新値%d日_移動平均%d日_出来高移動平均%d日" % (new_value, ma, vol_ma)
-        simulator_run(title, strategy_id, q, nv_ma_butler, symbol, initial_cash, trade_fee, t) 
-        fin_cnt = 1 + fin_cnt
-        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
+def get_bollingerband_newvalue_settings(db, symbol):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("""
+    select
+     symbol
+    ,sma
+    ,sigma1
+    from bollingerband_newvalue
+    where symbol = '{symbol}'
+    """.format(symbol=symbol))
+    rs = c.fetchall()
+    conn.close()
+    return rs
 
-def backtest_bandwalk(symbols, start_date, end_date, strategy_id, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma, walk):
-    symbol_cnt = len(symbols)
-    fin_cnt = 0
-    for symbol in symbols:
-        q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
-        t = tick.get_tick(symbol)
-        butler = bandwalk.Butler(t, ma, diff, walk)
-        title = "バンドウォーク移動平均%d日標準偏差%s倍_ウォーク%s" % (ma, '{:.2f}'.format(ev_sigma), walk)
-        simulator_run(title, strategy_id, q, butler, symbol, initial_cash, trade_fee, t) 
-        fin_cnt = 1 + fin_cnt
-        logger.info("backtest(%s: %d/%d)" % (title, fin_cnt, symbol_cnt))
-
-def backtest(symbols, start_date, end_date):
-    work_size = 20
+def backtest(db, symbols, start_date, end_date):
+    work_size = 16 #16symbolずつ実行
     thread_pool = list()
+    fin_cnt = 0
+    max_cnt = len(symbols)
     while True:
+        #symbol読み込み
         symbols_work = list()
         symbols_len = len(symbols)
         if symbols_len > work_size:
@@ -756,64 +749,65 @@ def backtest(symbols, start_date, end_date):
             symbols.clear()
         else:
             break
-
-        #ボリンジャーバンド+新値
-        bollinger_ma = 3 #移動平均の日数
-        diff_price = 0.0000 #決済する差額
-        ev_sigma_ratio = 1.0 #トレンドを判定するsigmaの倍率
-        ev2_sigma_ratio = 3.0 #トレンドを判定するsigma2の倍率
-        vol_ma = 14
-        vol_ev_sigma_ratio = 1.0
-        strategy_id = 1
-        if ('bitmex_xbtusd.txt' in symbol_txt 
-            or 'minkabu_fx_gbpjpy.txt' in symbol_txt):
-            bollinger_ma = 8
-            ev_sigma_ratio = 1.2
-            ev2_sigma_ratio = 3.0
-            strategy_id = 2
-        elif 'bitmex_ethusd.txt' in symbol_txt:
-            bollinger_ma = 2 
-            ev_sigma_ratio = 1.6
-            ev2_sigma_ratio = 3.0
-            strategy_id = 3
-        thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, strategy_id, bollinger_ma, diff_price, ev_sigma_ratio, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio)))
-        #thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbols_work, start_date, end_date, 5, diff_price, 1.2)))
-        #for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
-        #    for bol_m in range(2, bolllinger_ma+1):
-        #        backtest_bollingerband(symbols_work, start_date, end_date, bol_m, diff_price, ev_s)
-
-        #新値＋移動平均+出来高移動平均
-        nv_ma = 4 #移動平均の日数
-        new_value_duration = 1 #新値の日数
-        vol_ma = 20 #出来高移動平均の日数
-        strategy_id = 200
-        #thread_pool.append(threading.Thread(target=backtest_new_value_and_moving_average, args=(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_ma)))
-        #for vol_m in range(2, vol_ma+1):
-        #    backtest_new_value_and_moving_average_and_volume_moving_average(symbols_work, start_date, end_date, nv_ma, new_value_duration, vol_m)
-
-        #ボリンジャーバンドのバンドウォーク
-        bollinger_ma = 15 #移動平均の日数
-        ev_sigma_ratio = 3.0 #トレンドを判定するsigmaの倍率
-        ev2_sigma_ratio = 3.0 #トレンドを判定するsigma2の倍率
-        vol_ma = 14
-        vol_ev_sigma_ratio = 1.0
-        walk_duration = 5
-        strategy_id = 100
-        #thread_pool.append(threading.Thread(target=backtest_bandwalk, args=(symbols_work, start_date, end_date, 10, diff_price, 1.5, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, walk_duration)))
-        #for w in range(1, walk_duration+1):
-        #    for ev_s in np.arange(1.0, ev_sigma_ratio+0.1, 0.1):
-        #        for bol_m in range(2, bollinger_ma+1):
-        #            backtest_bandwalk(symbols_work, start_date, end_date, bol_m, diff_price, ev_s, ev2_sigma_ratio, vol_ma, vol_ev_sigma_ratio, w)
-
-    thread_join_cnt = 0
-    thread_pool_cnt = len(thread_pool)
-    for t in thread_pool:
-        t.start()
-    for t in thread_pool:
-        t.join()
-        thread_join_cnt += 1
-        logger.info("*** thread join[%d]/[%d] ***" % (thread_join_cnt, thread_pool_cnt))
-    thread_pool.clear()
+        #symbol単位でスレッド作成
+        for symbol in symbols_work:
+            """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
+            #ストラテジ取得
+            rs = get_bollingerband_newvalue_settings(db, symbol)
+            #ボリンジャーバンド+新値 
+            #デフォルト設定
+            strategy_id = 1
+            bollinger_ma = 3 #移動平均の日数
+            diff_price = 0.0000 #決済する差額
+            sigma1_ratio = 1.0 #トレンドを判定するsigmaの倍率
+            sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
+            vol_ma = 14
+            vol_sigma_ratio = 1.0
+            strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=bollinger_ma, sd=sigma1_ratio)
+            #結果が0件のときはデフォルト設定で実行する
+            if not rs:
+                #スレッド作成
+                thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbol
+                                                                                            , start_date
+                                                                                            , end_date
+                                                                                            , strategy_id
+                                                                                            , strategy_option
+                                                                                            , bollinger_ma
+                                                                                            , diff_price
+                                                                                            , sigma1_ratio
+                                                                                            , sigma2_ratio
+                                                                                            , vol_ma
+                                                                                            , vol_sigma_ratio)))
+                continue
+            for r in rs:
+                bollinger_ma = r[1]
+                sigma1_ratio = r[2]
+                strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=bollinger_ma, sd=sigma1_ratio)
+                #スレッド作成
+                thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbol
+                                                                                            , start_date
+                                                                                            , end_date
+                                                                                            , strategy_id
+                                                                                            , strategy_option
+                                                                                            , bollinger_ma
+                                                                                            , diff_price
+                                                                                            , sigma1_ratio
+                                                                                            , sigma2_ratio
+                                                                                            , vol_ma
+                                                                                            , vol_sigma_ratio)))
+        thread_join_cnt = 0
+        thread_pool_cnt = len(thread_pool)
+        #symbol単位のスレッド実行
+        for t in thread_pool:
+            t.start()
+        #スレッド終了まで待機
+        for t in thread_pool:
+            t.join()
+            thread_join_cnt += 1
+            logger.info("*** thread join[%d]/[%d] ***" % (thread_join_cnt, thread_pool_cnt))
+        thread_pool.clear()
+        fin_cnt += len(symbols_work)
+        logger.info("backtest(%d/%d)" % (fin_cnt, max_cnt))
 
 if __name__ == '__main__':
     trade_fee = 0.1
@@ -832,9 +826,8 @@ if __name__ == '__main__':
     else:
         start_date = args.start_date
     if args.end_date is None:
-        max_businessdate = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
-        end_date = max_businessdate
+        end_date = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
     else:
         end_date = args.end_date
-    backtest(ss, start_date, end_date)
+    backtest(dbfile, ss, start_date, end_date)
 

@@ -16,7 +16,7 @@ create table backtest_result
 (
     symbol text,
     strategy_id integer,
-    strategy text,
+    strategy_option text,
     start_date text,
     end_date text,
     market_start_date text,
@@ -52,7 +52,7 @@ create table backtest_result
     short_expected_rate decimal(10,5),
     short_expected_rate_per_1day decimal(10,5),
     regist_date text,
-    primary key(symbol, strategy_id)
+    primary key(symbol, strategy_id, strategy_option)
 )
 ;
 
@@ -60,12 +60,11 @@ create table m_strategy
 (
     strategy_id integer,
     strategy_name text,
+    strategy_option text,
     primary key(strategy_id)
 )
 ;
-insert into m_strategy (strategy_id, strategy_name) values (1, 'ボリンジャーバンド新値SMA3SD1.0'); --株式(Nikkei225,TOPIX)
-insert into m_strategy (strategy_id, strategy_name) values (2, 'ボリンジャーバンド新値SMA8SD1.2'); --暗号通貨(bitmex XBTUSD), FX(minkabu GBPJPY)
-insert into m_strategy (strategy_id, strategy_name) values (3, 'ボリンジャーバンド新値SMA2SD1.6'); --暗号通貨(bitmex ETHUSD)
+insert into m_strategy (strategy_id, strategy_name, strategy_option) values (1, 'ボリンジャーバンド新値', 'SMA{sma}SD{sd}');
 
 create table m_ordertype
 (
@@ -75,23 +74,24 @@ create table m_ordertype
 )
 ;
 insert into m_ordertype (ordertype_id, ordertype_name) values (0, '注文なし');
-insert into m_ordertype (ordertype_id, ordertype_name) values (1, '逆指値成行買い');
-insert into m_ordertype (ordertype_id, ordertype_name) values (2, '逆指値成行売り');
-insert into m_ordertype (ordertype_id, ordertype_name) values (3, '指値買い');
-insert into m_ordertype (ordertype_id, ordertype_name) values (4, '指値売り');
-insert into m_ordertype (ordertype_id, ordertype_name) values (5, '逆指値成行買い返済');
-insert into m_ordertype (ordertype_id, ordertype_name) values (6, '逆指値成行売り返済');
-insert into m_ordertype (ordertype_id, ordertype_name) values (7, '成行買い返済');
-insert into m_ordertype (ordertype_id, ordertype_name) values (8, '成行売り返済');
-insert into m_ordertype (ordertype_id, ordertype_name) values (9, '成行買い');
-insert into m_ordertype (ordertype_id, ordertype_name) values (10, '成行売り');
-insert into m_ordertype (ordertype_id, ordertype_name) values (11, '指値買い返済');
-insert into m_ordertype (ordertype_id, ordertype_name) values (12, '指値売り返済');
+insert into m_ordertype (ordertype_id, ordertype_name) values (1, '逆指値成行買');
+insert into m_ordertype (ordertype_id, ordertype_name) values (2, '逆指値成行売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (3, '指値買');
+insert into m_ordertype (ordertype_id, ordertype_name) values (4, '指値売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (5, '逆指値成行返売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (6, '逆指値成行返買');
+insert into m_ordertype (ordertype_id, ordertype_name) values (7, '成行返売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (8, '成行返買');
+insert into m_ordertype (ordertype_id, ordertype_name) values (9, '成行買');
+insert into m_ordertype (ordertype_id, ordertype_name) values (10, '成行売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (11, '指値返売');
+insert into m_ordertype (ordertype_id, ordertype_name) values (12, '指値返買');
 
 create table backtest_history
 (
     symbol text,
     strategy_id integer,
+    strategy_option text,
     business_date text,
     open decimal(10,5),
     high decimal(10,5),
@@ -126,7 +126,7 @@ create table backtest_history
     total_value decimal(10, 5),
     profit_value decimal(10, 5),
     profit_rate decimal(10, 5),
-    primary key(symbol, strategy_id, business_date)
+    primary key(symbol, strategy_id, strategy_option, business_date)
 )
 ;
 
@@ -182,3 +182,15 @@ delete from backtest_result where symbol = '9613.T';
 delete from ohlc where symbol = '9984.T' and business_date < '2006-01-10';
 delete from backtest_history where symbol = '9984.T' and business_date < '2006-01-10';
 delete from backtest_result where symbol = '9984.T';
+
+create table bollingerband_newvalue
+(
+    symbol text,
+    sma integer,
+    sigma1 decimal(10,5),
+    primary key(symbol, sma, sigma1)
+);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('GBPJPY', 8, 1.2);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('XBTUSD', 8, 1.2);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('ETHUSD', 2, 1.6);
+

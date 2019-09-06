@@ -34,6 +34,7 @@ BACKTEST_HISTORY_QUERY = u"""
                     select 
                      bh.symbol
                     ,ms.strategy_name
+                    ,bh.strategy_option
                     ,bh.business_date
                     ,bh.open
                     ,bh.high
@@ -71,7 +72,10 @@ BACKTEST_HISTORY_QUERY = u"""
                     from backtest_history as bh
                     left outer join m_strategy as ms
                      on bh.strategy_id = ms.strategy_id
-                    where bh.symbol = '{symbol}'
+                    where 
+                    bh.symbol = '{symbol}'
+                    and bh.strategy_id = {strategy_id}
+                    and bh.strategy_option = '{strategy_option}'
                     and bh.business_date between '{start_date}' and '{end_date}'
                     order by bh.business_date"""
 
@@ -94,6 +98,7 @@ BACKTEST_SUMMARY_QUERY = u"""
                     select
                      r.symbol
                     ,ms.strategy_name
+                    ,r.strategy_option
                     ,r.end_date
                     ,r.rate_of_return as 全期間騰落率_複利
                     ,m3.profit_rate_sum as 期待利益率3か月
@@ -116,43 +121,47 @@ BACKTEST_SUMMARY_QUERY = u"""
                         select
                          symbol
                         ,strategy_id
+                        ,strategy_option
                         ,sum(profit_rate) as profit_rate_sum
                         ,count(business_date) as count
                         from backtest_history
                         where business_date between '{start_date_3month}' and '{end_date}'
-                        group by symbol, strategy_id
+                        group by symbol, strategy_id, strategy_option
                     ) m3
-                    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id
+                    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id and r.strategy_option = m3.strategy_option
                     left outer join (
                         select
                          symbol
                         ,strategy_id
+                        ,strategy_option
                         ,sum(profit_rate) as profit_rate_sum
                         from backtest_history
                         where business_date between '{start_date_1year}' and '{end_date}'
-                        group by symbol, strategy_id
+                        group by symbol, strategy_id, strategy_option
                     ) y1
-                    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id
+                    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id and r.strategy_option = y1.strategy_option
                     left outer join (
                         select
                         symbol
                         ,strategy_id
+                        ,strategy_option
                         ,sum(profit_rate) as profit_rate_sum
                         from backtest_history
                         where business_date between '{start_date_3year}' and '{end_date}'
-                        group by symbol, strategy_id
+                        group by symbol, strategy_id, strategy_option
                     ) y3
-                    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id
+                    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_option = y3.strategy_option
                     left outer join (
                         select
                         symbol
                         ,strategy_id
+                        ,strategy_option
                         ,sum(profit_rate) as profit_rate_sum
                         from backtest_history
                         where business_date between '{start_date_15year}' and '{end_date}'
-                        group by symbol, strategy_id
+                        group by symbol, strategy_id, strategy_option
                     ) y15
-                    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id
+                    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_option = y15.strategy_option
                     where 0 = 0 
                     and r.regist_date = '{regist_date}'
                     --and r.end_date = '{end_date}'
@@ -286,23 +295,35 @@ def backtest_history():
     backtest_history="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
     default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
+    default_strategy_id = 1
+    default_strategy_option = 'SMA3SD1.0'
     if request.method == 'POST':
         symbol = request.form.get("symbol", "")
         start_date = request.form.get("start_date", default_start_date)
         end_date = request.form.get("end_date", default_end_date)
+        strategy_id = request.form.get("strategy_id", default_strategy_id)
+        strategy_option = request.form.get("strategy_option", default_strategy_option)
     else:
         symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
+        strategy_id = request.args.get("strategy_id", default_strategy_id)
+        strategy_option = request.args.get("strategy_option", default_strategy_option)
     header_title = u"{symbol} {start_date} {end_date} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
-    query = BACKTEST_HISTORY_QUERY.format(symbol=symbol, start_date=start_date, end_date=end_date)
+    query = BACKTEST_HISTORY_QUERY.format(symbol=symbol
+                                            , start_date=start_date
+                                            , end_date=end_date
+                                            , strategy_id=strategy_id
+                                            , strategy_option=strategy_option)
     rv = query_db(query)
     return render_template('backtest_history_table.html'
                         , backtest_history=backtest_history
                         , header_title=header_title
                         , content_title=content_title
                         , symbol=symbol
+                        , strategy_id=strategy_id
+                        , strategy_option=strategy_option
                         , start_date=start_date
                         , end_date=end_date
                         , rv=rv

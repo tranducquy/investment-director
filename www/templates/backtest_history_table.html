@@ -49,7 +49,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[35] }}/100 },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[36] }}/100 },
         {% endfor %}
         ]
       },
@@ -63,7 +63,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[11] }} },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[12] }} },
         {% endfor %}
         ]
       },
@@ -76,7 +76,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[12] }} },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[13] }} },
         {% endfor %}
         ]
       },
@@ -89,7 +89,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[9] }} },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[10] }} },
         {% endfor %}
         ]
       },
@@ -102,7 +102,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[10] }} },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[11] }} },
         {% endfor %}
         ]
       },
@@ -116,7 +116,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[8] }} },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[9] }} },
         {% endfor %}
         ]
       },
@@ -130,7 +130,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [   // Y: [Open, High ,Low, Close]
         {% for  r in rv %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: [{{ r[3] }}, {{ r[4] }}, {{ r[5] }}, {{ r[6] }}] },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: [{{ r[4] }}, {{ r[5] }}, {{ r[6] }}, {{ r[7] }}] },
         {% endfor %}
         ]
       },
@@ -143,8 +143,8 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-        {% if (r[21] == 5 or r[21] == 6 or r[21] == 7 or r[21] == 8) and r[23] != 0 and r[26] == '3' %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[23] }} },
+        {% if (r[22] == 5 or r[22] == 6 or r[22] == 7 or r[22] == 8) and r[24] != 0 and r[27] == '3' %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[24] }} },
         {% endif %}
         {% endfor %}
         ]
@@ -157,8 +157,8 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-        {% if (r[21] == 1 or r[21] == 2 or r[21] == 3 or r[21] == 4) and r[23] != 0 and r[26] == '3' %}
-          { x: new Date({{ r[2][0:4] }}, {{ r[2][5:7] }}-1, {{ r[2][8:10] }}), y: {{ r[23] }} }, /* {{ r[26] }} */
+        {% if (r[22] == 1 or r[22] == 2 or r[22] == 3 or r[22] == 4) and r[24] != 0 and r[27] == '3' %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[24] }} }, /* {{ r[27] }} */
         {% endif %}
         {% endfor %}
         ]
@@ -199,6 +199,14 @@
                   <input class="form-control" type="text" id="symbol" name="symbol" value="{{ symbol }}">
                 </div>
                 <div class="form-group">
+                  <label class="control-label">ストラテジ</label>
+                  <input class="form-control" type="text" id="strategy_id" name="strategy_id" value="{{ strategy_id }}">
+                </div>
+                <div class="form-group">
+                  <label class="control-label">ストラテジのパラメータ</label>
+                  <input class="form-control" type="text" id="strategy_option" name="strategy_option" value="{{ strategy_option }}">
+                </div>
+                <div class="form-group">
                   <label class="control-label">検索開始日</label>
                   <input class="form-control" type="text" id="start_date" name="start_date" value="{{ start_date }}">
                 </div>
@@ -220,7 +228,7 @@
           {% if rv %}
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} : {{ start_date }} から {{ end_date }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} {{ rv[0][2] }}: {{ start_date }} から {{ end_date }}</h6>
             </div>
             <div class="card-body">
               <div id="chartContainer" style="height: 370px; width: 100%; margin: 0px auto;"></div>
@@ -232,7 +240,7 @@
           <div class="card shadow mb-4">
             <div class="card-header py-3">
               {% if rv %}
-              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} : {{ start_date }} から {{ end_date }}</h6>
+              <h6 class="m-0 font-weight-bold text-primary">{{ rv[0][0] }} {{ rv[0][1] }} {{rv[0][2] }}: {{ start_date }} から {{ end_date }}</h6>
               {% endif %}
             </div>
             <div class="card-body">
@@ -317,7 +325,6 @@
                   <tbody>
                   {% for r in rv %}
                     <tr>
-                      <td>{{ r[2] }}</td>
                       <td>{{ r[3] }}</td>
                       <td>{{ r[4] }}</td>
                       <td>{{ r[5] }}</td>
@@ -351,6 +358,7 @@
                       <td>{{ r[33] }}</td>
                       <td>{{ r[34] }}</td>
                       <td>{{ r[35] }}</td>
+                      <td>{{ r[36] }}</td>
                     </tr>
                   {% endfor %}
                   </tbody>
