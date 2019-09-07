@@ -34,6 +34,7 @@ def get_option():
     argparser.add_argument('--start_date', type=str, help='Date of backtest start')
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
+    argparser.add_argument('--brute_force', type=str, help='breaking the code!')
     args = argparser.parse_args()
     return args
 
@@ -718,6 +719,49 @@ def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_o
     title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
     simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
 
+def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
+    #デフォルト設定
+    strategy_id = 1
+    diff_price = 0.0000 #決済する差額
+    sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
+    vol_ma = 14
+    vol_sigma_ratio = 1.0
+    #単純移動平均2-10
+    min_sma_duration = 2
+    max_sma_duration = 10
+    #標準偏差0.5-3.5
+    min_sigma1_duration = 0.5
+    max_sigma1_duration = 3.5
+    sigma1_band= 0.1
+    for bollinger_ma in range(min_sma_duration, max_sma_duration):
+        thread_pool = list()
+        for sigma1_ratio in numpy.arange(min_sigma1_duration, max_sigma1_duration, sigma1_band):
+            strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=bollinger_ma, sd=sigma1_ratio)
+            #スレッド作成
+            thread_pool.append(threading.Thread(target=backtest_bollingerband, args=(symbol
+                                                                                        , start_date
+                                                                                        , end_date
+                                                                                        , strategy_id
+                                                                                        , strategy_option
+                                                                                        , bollinger_ma
+                                                                                        , diff_price
+                                                                                        , sigma1_ratio
+                                                                                        , sigma2_ratio
+                                                                                        , vol_ma
+                                                                                        , vol_sigma_ratio)))
+        thread_join_cnt = 0
+        thread_pool_cnt = len(thread_pool)
+        #symbol単位のスレッド実行
+        for t in thread_pool:
+            t.start()
+        #スレッド終了まで待機
+        for t in thread_pool:
+            t.join()
+            thread_join_cnt += 1
+            logger.info("*** thread join[%d]/[%d] ***" % (thread_join_cnt, thread_pool_cnt))
+        thread_pool.clear()
+    logger.info("bruteforce_bollingerband_newvalue done symbol[%s]" % (symbol))
+
 def get_bollingerband_newvalue_settings(db, symbol):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -733,7 +777,7 @@ def get_bollingerband_newvalue_settings(db, symbol):
     conn.close()
     return rs
 
-def backtest(db, symbols, start_date, end_date):
+def backtest(db, symbols, start_date, end_date, brute_force=None):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
     fin_cnt = 0
@@ -753,6 +797,9 @@ def backtest(db, symbols, start_date, end_date):
         #symbol単位でスレッド作成
         for symbol in symbols_work:
             """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
+            if not brute_force is None:
+                bruteforce_bollingerband_newvalue(symbol, start_date, end_date)
+                continue
             #ストラテジ取得
             rs = get_bollingerband_newvalue_settings(db, symbol)
             #ボリンジャーバンド+新値 
@@ -830,5 +877,9 @@ if __name__ == '__main__':
         end_date = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
     else:
         end_date = args.end_date
-    backtest(dbfile, ss, start_date, end_date)
+    if args.brute_force is None:
+        brute_force = None
+    else:
+        brute_force = args.brute_force
+    backtest(dbfile, ss, start_date, end_date, brute_force)
 
