@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import symbol as sy
+import tick
 
 def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
@@ -71,7 +72,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 548
     ) y3
-    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_id = y3.strategy_option
+    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_option = y3.strategy_option
     left outer join (
     select
      symbol
@@ -83,10 +84,12 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 2738
     ) y15
-    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_id = y15.strategy_option
+    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_option = y15.strategy_option
     inner join (
         select
          bh.symbol
+        ,bh.strategy_id
+        ,bh.strategy_option
         ,bh.order_create_date
         ,mo.ordertype_name as order_name
         ,bh.order_vol
@@ -114,7 +117,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ) as order_table
     on r.symbol = order_table.symbol
     and r.strategy_id = order_table.strategy_id
-    and r.strategy_optino = order_table.strategy_option
+    and r.strategy_option = order_table.strategy_option
     where 0 = 0
     and r.rate_of_return > 0
     and (m3.profit_rate_sum > 5 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
@@ -142,7 +145,8 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     sql = u"""
     select
      r.symbol
-    ,r.strategy
+    ,r.strategy_id
+    ,r.strategy_option
     ,order_table.order_name
     ,order_table.order_price
     ,r.end_date
@@ -164,35 +168,38 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     select
      symbol
     ,strategy_id
+    ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
     ,count(business_date) as count
     from backtest_history
     where business_date between '%s' and '%s'
-    group by symbol, strategy_id
+    group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 45
     ) m3
-    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id
+    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id and r.strategy_option = m3.strategy_option
     left outer join (
     select
      symbol
     ,strategy_id
+    ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
     from backtest_history
     where business_date between '%s' and '%s'
-    group by symbol, strategy_id
+    group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 183
     ) y1
-    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id
+    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id and r.strategy_option = y1.strategy_option
     left outer join (
     select
      symbol
     ,strategy_id
+    ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
     from backtest_history
     where business_date between '%s' and '%s'
-    group by symbol, strategy_id
+    group by symbol, strategy_id, strategy_option
     ) y3
-    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id
+    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_option = y3.strategy_option
     inner join (
         select
          bh.symbol
@@ -307,16 +314,16 @@ def direct_close_order(db, symbol, position, open_price, bitmex_flg, firstday_fl
     if q:
         if firstday_flg == '':
             if position == "long":
-                close_order['ordertype'] = u"逆指値成行買い返済"
+                close_order['ordertype'] = u"逆指値成行返売(close long)"
                 close_order['orderprice']= q[4] - t
             elif position == "short":
-                close_order['ordertype'] = u"逆指値成行売り返済"
+                close_order['ordertype'] = u"逆指値成行返買(close short)"
                 close_order['orderprice'] = q[3] + t
         else:
             if position == "long":
-                close_order['ordertype'] = u"逆指値成行買い返済(当日損切り)"
+                close_order['ordertype'] = u"逆指値成行返売(当日損切りclose long)"
                 close_order['orderprice']= q[3] - (q[3] * losscut_ratio)
             elif position == "short":
-                close_order['ordertype'] = u"逆指値成行売り返済(当日損切り)"
+                close_order['ordertype'] = u"逆指値成行返買(当日損切りclose short)"
                 close_order['orderprice'] = q[4] + (q[4] * losscut_ratio)
     return close_order
