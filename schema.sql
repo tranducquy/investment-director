@@ -194,3 +194,12 @@ insert into bollingerband_newvalue (symbol, sma, sigma1) values ('GBPJPY', 8, 1.
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('XBTUSD', 8, 1.2);
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('ETHUSD', 2, 1.6);
 
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('3103.T', 18, 0.4);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('5202.T', 24, 0.4);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6141.T', 3, 1.3);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6728.T', 16, 0.3);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6753,T', 4, 1.2);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('7012.T', 8, 1.1);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('8303.T', 21, 0.5);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
