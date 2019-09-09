@@ -728,10 +728,10 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
     vol_sigma_ratio = 1.0
     #単純移動平均2-10
     min_sma_duration = 2
-    max_sma_duration = 10
+    max_sma_duration = 25
     #標準偏差0.5-3.5
-    min_sigma1_duration = 0.5
-    max_sigma1_duration = 3.5
+    min_sigma1_duration = 0.1
+    max_sigma1_duration = 2.5
     sigma1_band= 0.1
     for bollinger_ma in range(min_sma_duration, max_sma_duration):
         thread_pool = list()
