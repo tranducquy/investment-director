@@ -726,10 +726,10 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
     sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
     vol_ma = 14
     vol_sigma_ratio = 1.0
-    #単純移動平均2-10
+    #単純移動平均2-25
     min_sma_duration = 2
     max_sma_duration = 25
-    #標準偏差0.5-3.5
+    #標準偏差0.1-2.5
     min_sigma1_duration = 0.1
     max_sigma1_duration = 2.5
     sigma1_band= 0.1
