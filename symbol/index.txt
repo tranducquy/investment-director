@@ -2,3 +2,4 @@
 ^GSPC
 ^DJI
 ^HSI
+^GDAXI
