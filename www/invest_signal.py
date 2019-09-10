@@ -302,7 +302,7 @@ def direct_close_order(db, symbol, position, open_price, bitmex_flg, firstday_fl
         return close_order
     #最終営業日取得
     business_date = _get_max_businessdate(db, symbol)
-    losscut_ratio = 0.04
+    losscut_ratio = 0.03
     #前日日付作成(BitMEXの場合、最終営業日の1日前)
     if bitmex_flg and business_date is not None:
         business_date = (datetime.strptime(business_date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
