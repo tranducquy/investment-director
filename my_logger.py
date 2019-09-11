@@ -8,7 +8,7 @@ class Logger :
     logger = None
     def myLogger(self, name='test'):
         if None == self.logger:
-            config.dictConfig(json.loads(open("config_log.json", encoding='UTF-8').read()))
+            config.dictConfig(json.loads(open(os.path.dirname(os.path.abspath(__file__)) + "config_log.json", encoding='UTF-8').read()))
             self.logger = getLogger(name)
         return self.logger
 
