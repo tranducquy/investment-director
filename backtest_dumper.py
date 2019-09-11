@@ -9,10 +9,9 @@ from my_db import MyDB
 class BacktestDumper():
     def __init__(self, logger=None):
         if logger is None:
-            self.logger = my_logger.Logger().logger
+            self.logger = my_logger.Logger().myLogger()
         else:
             self.logger = logger
-        self.logger.info('BacktestDumper()')
 
     def save_simulate_result(
                          self

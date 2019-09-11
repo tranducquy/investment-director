@@ -10,11 +10,10 @@ from backtest_dumper import BacktestDumper
 class Market():
     def __init__(self, logger=None):
         if logger is None:
-            self.logger = my_logger.Logger().logger
+            self.logger = my_logger.Logger().myLogger()
         else:
             self.logger = logger
         self.dumper = BacktestDumper()
-        self.logger.info('Market()')
 
     def simulator_run(self, title, strategy_id, strategy_option, quotes, butler, symbol, initial_cash, trade_fee, tick):
         p = Position(initial_cash, trade_fee, tick)

@@ -19,6 +19,8 @@ from butler import bandwalk
 from www import tick
 import investment_director
 from www import symbol
+from market import Market
+from my_db import MyDB
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -34,11 +36,11 @@ def get_option():
     return args
 
 def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
-    q = Quotes(dbfile, symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
+    q = Quotes(symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
     t = tick.get_tick(symbol)
     bollinger_butler = bollingerband.Butler(t, ma, diff, True)
     title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
-    simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
+    Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
 
 def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
     #デフォルト設定
@@ -83,8 +85,8 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
         thread_pool.clear()
     logger.info("bruteforce_bollingerband_newvalue done symbol[%s]" % (symbol))
 
-def get_bollingerband_newvalue_settings(db, symbol):
-    conn = sqlite3.connect(db)
+def get_bollingerband_newvalue_settings(symbol):
+    conn = MyDB().get_db()
     c = conn.cursor()
     c.execute("""
     select
@@ -98,7 +100,7 @@ def get_bollingerband_newvalue_settings(db, symbol):
     conn.close()
     return rs
 
-def backtest(db, symbols, start_date, end_date, brute_force=None):
+def backtest(symbols, start_date, end_date, brute_force=None):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
     fin_cnt = 0
@@ -122,7 +124,7 @@ def backtest(db, symbols, start_date, end_date, brute_force=None):
                 bruteforce_bollingerband_newvalue(symbol, start_date, end_date)
                 continue
             #ストラテジ取得
-            rs = get_bollingerband_newvalue_settings(db, symbol)
+            rs = get_bollingerband_newvalue_settings(symbol)
             #ボリンジャーバンド+新値 
             #デフォルト設定
             strategy_id = 1
@@ -194,12 +196,12 @@ if __name__ == '__main__':
     else:
         start_date = args.start_date
     if args.end_date is None:
-        end_date = investment_director.get_max_businessdate_from_ohlc(dbfile, ss)
+        end_date = investment_director.get_max_businessdate_from_ohlc(ss)
     else:
         end_date = args.end_date
     if args.brute_force is None:
         brute_force = None
     else:
         brute_force = args.brute_force
-    backtest(dbfile, ss, start_date, end_date, brute_force)
+    backtest(ss, start_date, end_date, brute_force)
 

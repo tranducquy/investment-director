@@ -2,10 +2,10 @@
 import sqlite3
 import pandas as pd
 import my_lock
+from my_db import MyDB
 
 class Quotes():
-    def __init__(self, dbfile, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=15, vol_ev_sigma_ratio=1):
-        self.dbfile = dbfile
+    def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=15, vol_ev_sigma_ratio=1):
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
@@ -23,7 +23,7 @@ class Quotes():
     def get_history(self):
         try:
             my_lock.lock.acquire()
-            conn = sqlite3.connect(self.dbfile, isolation_level='EXCLUSIVE')
+            conn = MyDB().get_db()
             df = pd.read_sql_query("""select
                                       symbol
                                      , business_date

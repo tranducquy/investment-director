@@ -4,17 +4,16 @@ import common
 import my_logger
 
 class MyDB():
-    def __init__(self, logger=None, dbfile=None):
-        if logger is None:
-            self.logger = my_logger.Logger().logger
+    def __init__(self, l=None, dbfile=None):
+        if l is None:
+            self.logger = my_logger.Logger().myLogger()
         else:
-            self.logger = logger
+            self.logger = l
         if dbfile is None:
             conf = common.read_conf()
             self.dbfile = conf['dbfile']
         else:
             self.dbfile = dbfile
-        self.logger.info('MyDB()')
 
     def connect_db(self):
         """Connects to the specific database."""

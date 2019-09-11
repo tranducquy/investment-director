@@ -16,12 +16,13 @@ from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
 from www import symbol
+from my_db import MyDB
 
 s = my_logger.Logger()
 logger = s.myLogger()
 
-def get_max_businessdate_from_ohlc(db, symbols):
-    conn = sqlite3.connect(db)
+def get_max_businessdate_from_ohlc(symbols):
+    conn = MyDB().get_db()
     c = conn.cursor()
     #ohlcの最終登録日を取得
     c.execute("""
