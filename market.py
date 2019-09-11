@@ -3,7 +3,9 @@
 import numpy
 import my_logger
 from position import Position
+from positiontype import PositionType
 from ordertype import OrderType
+from backtest_dumper import BacktestDumper
 
 class Market():
     def __init__(self, logger=None):
@@ -11,10 +13,11 @@ class Market():
             self.logger = my_logger.Logger().logger
         else:
             self.logger = logger
+        self.dumper = BacktestDumper()
         self.logger.info('Market()')
 
     def simulator_run(self, title, strategy_id, strategy_option, quotes, butler, symbol, initial_cash, trade_fee, tick):
-        P = Position(initial_cash, trade_fee, tick)
+        p = Position(initial_cash, trade_fee, tick)
         backtest_history = list()
         for idx, high in enumerate(quotes.quotes['high']):
             if idx < quotes.ma_duration:
@@ -45,13 +48,13 @@ class Market():
             # 注文を呼び出す
             if p.order != None:
                 p.call_order(business_date)
-                set_order_info(call_order_info, p.order)
+                self.set_order_info(call_order_info, p.order)
             # 注文がある場合、約定判定
             if current_position == PositionType.NOTHING and p.order != None:
                 if p.order.order_type == OrderType.STOP_MARKET_LONG:
                     #約定判定
                     if p.order.price == -1:
-                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     elif high >= p.order.price and open_price >= p.order.price: #寄り付きが高値の場合
                         #最大volまで購入
@@ -60,11 +63,11 @@ class Market():
                         p.open_long(business_date, p.order.price)
                     else:
                         p.order.fail_order()
-                    set_order_info(execution_order_info, p.order)
+                    self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.STOP_MARKET_SHORT:
                     #約定判定
                     if p.order.price == -1:
-                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
                         #最大volまで購入
@@ -73,25 +76,25 @@ class Market():
                         p.open_short(business_date, p.order.price)
                     else:
                         p.order.fail_order()
-                    set_order_info(execution_order_info, p.order)
+                    self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.MARKET_LONG:
                     #約定判定
                     if p.order.price == -1:
-                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     else:
                         #最大volまで購入
                         p.open_long(business_date, open_price)
-                    set_order_info(execution_order_info, p.order)
+                    self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.MARKET_SHORT:
                     #約定判定
                     if p.order.price == -1:
-                        logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     else:
                         #最大volまで購入
                         p.open_short(business_date, open_price)
-                    set_order_info(execution_order_info, p.order)
+                    self.set_order_info(execution_order_info, p.order)
             elif current_position == PositionType.LONG and p.order != None:
                 #約定判定
                 if p.order.order_type == OrderType.CLOSE_STOP_MARKET_LONG: #逆指値成行買い返済
@@ -106,7 +109,7 @@ class Market():
                 elif p.order.order_type == OrderType.CLOSE_MARKET_LONG: #成行買い返済
                     p.close_long(business_date, open_price)
                     trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
-                set_order_info(execution_order_info, p.order)
+                self.set_order_info(execution_order_info, p.order)
             elif current_position == PositionType.SHORT and p.order != None:
                 #約定判定
                 if p.order.order_type == OrderType.CLOSE_STOP_MARKET_SHORT: #逆指値成行売り返済
@@ -121,7 +124,7 @@ class Market():
                 elif p.order.order_type == OrderType.CLOSE_MARKET_SHORT: #成行売り返済
                     p.close_short(business_date, open_price)
                     trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
-                set_order_info(execution_order_info, p.order)
+                self.set_order_info(execution_order_info, p.order)
             #注文は1日だけ有効
             p.clear_order()
     
@@ -134,32 +137,32 @@ class Market():
                     #create stop market long
                     t = butler.create_order_stop_market_long_for_all_cash(p.cash, quotes, idx)
                     p.create_order_stop_market_long(business_date, t[0], t[1])
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.STOP_MARKET_SHORT:
                     #create stop market short
                     t = butler.create_order_stop_market_short_for_all_cash(p.cash, quotes, idx)
                     p.create_order_stop_market_short(business_date, t[0], t[1])
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 elif long_order_type == OrderType.MARKET_LONG:
                     t = butler.create_order_market_long_for_all_cash(p.cash, quotes, idx)
                     p.create_order_market_long(business_date, t[0], t[1])
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.MARKET_SHORT:
                     t = butler.create_order_market_short_for_all_cash(p.cash, quotes, idx)
                     p.create_order_market_short(business_date, t[0], t[1])
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
             elif current_position == PositionType.LONG:
                 close_order_type = butler.check_close_long(p.pos_price, quotes, idx)
                 if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG:
                     #逆指値成行買い返済注文
                     price = butler.create_order_close_stop_market_long(quotes, idx)
                     p.create_order_close_stop_market_long(business_date, price, p.pos_vol)
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 elif close_order_type == OrderType.CLOSE_MARKET_LONG:
                     #成行買い返済注文
                     price = butler.create_order_close_market_long(quotes, idx)
                     p.create_order_close_market_long(business_date, price, p.pos_vol)
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 else:
                     pass #注文無し
             elif current_position == PositionType.SHORT:
@@ -168,12 +171,12 @@ class Market():
                     #逆指値成行売り返済注文
                     price = butler.create_order_close_stop_market_short(quotes, idx)
                     p.create_order_close_stop_market_short(business_date, price, p.pos_vol)
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 if close_order_type == OrderType.CLOSE_MARKET_SHORT:
                     #成行売り返済注文
                     price = butler.create_order_close_market_short(quotes, idx)
                     p.create_order_close_market_short(business_date, price, p.pos_vol)
-                    set_order_info(order_info, p.order)
+                    self.set_order_info(order_info, p.order)
                 else:
                     pass #注文無し
             #1日の結果を出力
@@ -182,7 +185,7 @@ class Market():
                 close = 0
             else:
                 close = quotes.quotes['close'][idx]
-            history = make_history(
+            history = self.dumper.make_history(
                   symbol
                 , strategy_id
                 , strategy_option
@@ -201,7 +204,16 @@ class Market():
                 )
             backtest_history.append(history)
         #シミュレーション結果を出力
-        summary_msg_log = make_summary_msg(symbol, strategy_id, strategy_option, title, p.summary, quotes)
-        save_history(backtest_history)
-        logger.info(summary_msg_log)
+        summary_msg_log = self.dumper.make_summary_msg(symbol, strategy_id, strategy_option, title, p.summary, quotes)
+        self.dumper.save_history(backtest_history)
+        self.logger.info(summary_msg_log)
     
+    def set_order_info(self, info, order):
+        info['create_date'] = order.create_date
+        info['order_date'] = order.order_date
+        info['close_order_date'] = order.close_order_date
+        info['order_type'] = order.order_type
+        info['order_status'] = order.order_status
+        info['vol'] = order.vol
+        info['price'] = order.price
+
