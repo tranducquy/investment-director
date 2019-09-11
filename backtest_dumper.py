@@ -234,9 +234,9 @@ class BacktestDumper():
             , self._check_float(quotes.lower_ev_sigma[idx])
             , self._check_float(quotes.upper_ev2_sigma[idx])
             , self._check_float(quotes.lower_ev2_sigma[idx])
-            , self._check_float(quotes.vol_ma[idx])
-            , self._check_float(quotes.vol_upper_ev_sigma[idx])
-            , self._check_float(quotes.vol_lower_ev_sigma[idx])
+            , 0.00 # vol_sma
+            , 0.00 # vol_upper_sigma1
+            , 0.00 # vol_lower_sigma1
             , order_info['create_date']
             , order_info['order_type']
             , self._check_float(order_info['vol'])

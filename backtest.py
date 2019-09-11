@@ -6,7 +6,6 @@ import sys
 from quotes import Quotes
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-import sqlite3
 import numpy as np
 import threading
 import numpy
@@ -35,20 +34,17 @@ def get_option():
     args = argparser.parse_args()
     return args
 
-def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, diff, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma):
-    q = Quotes(symbol, start_date, end_date, ma, ev_sigma, ev2_sigma, vol_ma, vol_ev_sigma)
+def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, ev_sigma, ev2_sigma):
+    q = Quotes(symbol, start_date, end_date, ma, ev_sigma, ev2_sigma)
     t = tick.get_tick(symbol)
-    bollinger_butler = bollingerband.Butler(t, ma, diff, True)
+    bollinger_butler = bollingerband.Butler(t, ma)
     title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
     Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
 
 def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
     #デフォルト設定
     strategy_id = 1
-    diff_price = 0.0000 #決済する差額
     sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
-    vol_ma = 14
-    vol_sigma_ratio = 1.0
     #単純移動平均2-25
     min_sma_duration = 2
     max_sma_duration = 25
@@ -67,11 +63,9 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
                                                                                         , strategy_id
                                                                                         , strategy_option
                                                                                         , bollinger_ma
-                                                                                        , diff_price
                                                                                         , sigma1_ratio
                                                                                         , sigma2_ratio
-                                                                                        , vol_ma
-                                                                                        , vol_sigma_ratio)))
+                                                                                        )))
         thread_join_cnt = 0
         thread_pool_cnt = len(thread_pool)
         #symbol単位のスレッド実行
@@ -129,11 +123,8 @@ def backtest(symbols, start_date, end_date, brute_force=None):
             #デフォルト設定
             strategy_id = 1
             bollinger_ma = 3 #移動平均の日数
-            diff_price = 0.0000 #決済する差額
             sigma1_ratio = 1.0 #トレンドを判定するsigmaの倍率
             sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
-            vol_ma = 14
-            vol_sigma_ratio = 1.0
             strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=bollinger_ma, sd=sigma1_ratio)
             #結果が0件のときはデフォルト設定で実行する
             if not rs:
@@ -144,11 +135,8 @@ def backtest(symbols, start_date, end_date, brute_force=None):
                                                                                             , strategy_id
                                                                                             , strategy_option
                                                                                             , bollinger_ma
-                                                                                            , diff_price
                                                                                             , sigma1_ratio
-                                                                                            , sigma2_ratio
-                                                                                            , vol_ma
-                                                                                            , vol_sigma_ratio)))
+                                                                                            , sigma2_ratio)))
                 continue
             for r in rs:
                 bollinger_ma = r[1]
@@ -161,11 +149,8 @@ def backtest(symbols, start_date, end_date, brute_force=None):
                                                                                             , strategy_id
                                                                                             , strategy_option
                                                                                             , bollinger_ma
-                                                                                            , diff_price
                                                                                             , sigma1_ratio
-                                                                                            , sigma2_ratio
-                                                                                            , vol_ma
-                                                                                            , vol_sigma_ratio)))
+                                                                                            , sigma2_ratio)))
         thread_join_cnt = 0
         thread_pool_cnt = len(thread_pool)
         #symbol単位のスレッド実行

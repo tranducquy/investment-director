@@ -1,19 +1,16 @@
 
-import sqlite3
 import pandas as pd
 import my_lock
 from my_db import MyDB
 
 class Quotes():
-    def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=15, vol_ev_sigma_ratio=1):
+    def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3):
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
         self.ma_duration = ma_duration
         self.ev_sigma_ratio = ev_sigma_ratio 
         self.ev2_sigma_ratio = ev2_sigma_ratio 
-        self.vol_ma_duration = vol_ma_duration
-        self.vol_ev_sigma_ratio = vol_ev_sigma_ratio
         self.get_history()
         self.set_sigma()
 
@@ -65,12 +62,6 @@ class Quotes():
         self.lower_ev_sigma = self.sma - self.sigma * self.ev_sigma_ratio
         self.upper_ev2_sigma = self.sma + self.sigma * self.ev2_sigma_ratio
         self.lower_ev2_sigma = self.sma - self.sigma * self.ev2_sigma_ratio
-        #出来高の移動平均を算出
-        v = pd.Series(self.quotes['volume'])
-        self.vol_ma = v.rolling(window=self.vol_ma_duration).mean()
-        self.vol_sigma = v.rolling(window=self.vol_ma_duration).std(ddof=0)
-        self.vol_upper_ev_sigma = self.vol_ma + self.vol_sigma * self.vol_ev_sigma_ratio
-        self.vol_lower_ev_sigma = self.vol_ma - self.vol_sigma * self.vol_ev_sigma_ratio
 
     def get_headdate(self):
         if self.quotes.index.size != 0:

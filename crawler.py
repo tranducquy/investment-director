@@ -2,7 +2,6 @@
 
 import sys
 import datetime
-import sqlite3
 import calendar, requests
 import pandas as pd
 import yfinance as yf
