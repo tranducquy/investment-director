@@ -12,7 +12,7 @@ class Assets():
         self.margin_remaining_ratio = margin_remaining_ratio
 
     def _calc_leverage(self, factor):
-        #TODO:
+        #TODO:factor対応
         return 1
 
     def get_margin_cash(self, factor=1):
@@ -21,8 +21,8 @@ class Assets():
 
     def get_max_vol(self, price, factor=1):
         #TODO:最小単元
-        leverage = self._calc_leverage(factor)
-        return math.floor(self.cash * leverage / price)
+        margin_cash = self.get_margin_cash(factor)
+        return math.floor(margin_cash / price)
 
     def open_long(self, price, vol):
         self.before_cash = self.cash
