@@ -20,6 +20,7 @@ import investment_director
 from www import symbol
 from market import Market
 from my_db import MyDB
+from assets import Assets
 
 s = my_logger.Logger()
 logger = s.myLogger()
@@ -34,12 +35,13 @@ def get_option():
     args = argparser.parse_args()
     return args
 
-def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, ev_sigma, ev2_sigma):
-    q = Quotes(symbol, start_date, end_date, ma, ev_sigma, ev2_sigma)
+def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, sigma1, sigma2, initial_cash):
+    q = Quotes(symbol, start_date, end_date, ma, sigma1, sigma2)
     t = tick.get_tick(symbol)
     bollinger_butler = bollingerband.Butler(t, ma)
-    title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(ev_sigma))
-    Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, initial_cash, trade_fee, t) 
+    title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
+    a = Assets(initial_cash)
+    Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, a, trade_fee) 
 
 def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
     #デフォルト設定
@@ -65,6 +67,7 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
                                                                                         , bollinger_ma
                                                                                         , sigma1_ratio
                                                                                         , sigma2_ratio
+                                                                                        , initial_cash
                                                                                         )))
         thread_join_cnt = 0
         thread_pool_cnt = len(thread_pool)
@@ -94,7 +97,7 @@ def get_bollingerband_newvalue_settings(symbol):
     conn.close()
     return rs
 
-def backtest(symbols, start_date, end_date, brute_force=None):
+def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
     fin_cnt = 0
@@ -136,7 +139,9 @@ def backtest(symbols, start_date, end_date, brute_force=None):
                                                                                             , strategy_option
                                                                                             , bollinger_ma
                                                                                             , sigma1_ratio
-                                                                                            , sigma2_ratio)))
+                                                                                            , sigma2_ratio
+                                                                                            , initial_cash
+                                                                                            )))
                 continue
             for r in rs:
                 bollinger_ma = r[1]
@@ -150,7 +155,9 @@ def backtest(symbols, start_date, end_date, brute_force=None):
                                                                                             , strategy_option
                                                                                             , bollinger_ma
                                                                                             , sigma1_ratio
-                                                                                            , sigma2_ratio)))
+                                                                                            , sigma2_ratio
+                                                                                            , initial_cash
+                                                                                            )))
         thread_join_cnt = 0
         thread_pool_cnt = len(thread_pool)
         #symbol単位のスレッド実行
@@ -169,7 +176,7 @@ if __name__ == '__main__':
     trade_fee = 0.1
     conf = common.read_conf()
     s = my_logger.Logger()
-    initial_cash = int(conf['initial_cash'])
+    cash = int(conf['initial_cash'])
     args = get_option()
     if args.symbol is None:
         symbol_txt = conf['symbol']
@@ -188,5 +195,5 @@ if __name__ == '__main__':
         brute_force = None
     else:
         brute_force = args.brute_force
-    backtest(ss, start_date, end_date, brute_force)
+    backtest(ss, start_date, end_date, cash, brute_force)
 

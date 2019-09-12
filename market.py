@@ -15,8 +15,8 @@ class Market():
             self.logger = logger
         self.dumper = BacktestDumper()
 
-    def simulator_run(self, title, strategy_id, strategy_option, quotes, butler, symbol, initial_cash, trade_fee, tick):
-        p = Position(initial_cash, trade_fee, tick)
+    def simulator_run(self, title, strategy_id, strategy_option, quotes, butler, symbol, assets, trade_fee):
+        p = Position(assets)
         backtest_history = list()
         for idx, high in enumerate(quotes.quotes['high']):
             if idx < quotes.ma_duration:
@@ -57,9 +57,10 @@ class Market():
                         p.order.fail_order()
                     elif high >= p.order.price and open_price >= p.order.price: #寄り付きが高値の場合
                         #最大volまで購入
-                        p.open_long(business_date, open_price)
+                        order_vol = assets.get_max_vol(open_price)
+                        p.open_long(business_date, open_price, order_vol)
                     elif high >= p.order.price:
-                        p.open_long(business_date, p.order.price)
+                        p.open_long(business_date, p.order.price, p.order.vol)
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
@@ -70,9 +71,10 @@ class Market():
                         p.order.fail_order()
                     elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
                         #最大volまで購入
-                        p.open_short(business_date, open_price)
+                        order_vol = assets.get_max_vol(open_price) * -1
+                        p.open_short(business_date, open_price, order_vol)
                     elif low <= p.order.price:
-                        p.open_short(business_date, p.order.price)
+                        p.open_short(business_date, p.order.price, p.order.vol)
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
@@ -134,20 +136,24 @@ class Market():
                 short_order_type = butler.check_open_short(quotes, idx)
                 if long_order_type == OrderType.STOP_MARKET_LONG:
                     #create stop market long
-                    t = butler.create_order_stop_market_long_for_all_cash(p.cash, quotes, idx)
+                    margin_cash = assets.get_margin_cash()
+                    t = butler.create_order_stop_market_long_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_stop_market_long(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.STOP_MARKET_SHORT:
                     #create stop market short
-                    t = butler.create_order_stop_market_short_for_all_cash(p.cash, quotes, idx)
+                    margin_cash = assets.get_margin_cash()
+                    t = butler.create_order_stop_market_short_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_stop_market_short(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif long_order_type == OrderType.MARKET_LONG:
-                    t = butler.create_order_market_long_for_all_cash(p.cash, quotes, idx)
+                    margin_cash = assets.get_margin_cash()
+                    t = butler.create_order_market_long_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_market_long(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.MARKET_SHORT:
-                    t = butler.create_order_market_short_for_all_cash(p.cash, quotes, idx)
+                    margin_cash = assets.get_margin_cash()
+                    t = butler.create_order_market_short_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_market_short(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
             elif current_position == PositionType.LONG:
@@ -195,10 +201,10 @@ class Market():
                 , call_order_info
                 , execution_order_info
                 , p.position
-                , p.cash
+                , assets.cash
                 , p.pos_vol
                 , p.pos_price
-                , round(p.cash + p.pos_vol * close, 2)
+                , round(assets.cash + p.pos_vol * close, 2)
                 , trade_perfomance
                 )
             backtest_history.append(history)
