@@ -13,7 +13,7 @@ class Assets():
 
     def _calc_leverage(self, factor):
         #TODO:factor対応
-        return 1
+        return 3
 
     def get_margin_cash(self, factor=1):
         leverage = self._calc_leverage(factor)

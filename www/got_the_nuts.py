@@ -289,6 +289,22 @@ def close_signal():
                         , signal=signal
                         , content_title=content_title)
 
+def get_bb_strategy_option(symbol):
+    query = """
+    select
+    symbol
+    ,sma
+    ,sigma1
+    from bollingerband_newvalue
+    where symbol = '{symbol}'
+    """.format(symbol=symbol)
+    rv = query_db(query)
+    if rv:
+        strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=rv[0][1], sd=rv[0][2])
+    else:
+        strategy_option = ""
+    return strategy_option
+
 @app.route('/backtest_history', methods=['GET', 'POST'])
 #@auth.login_required
 def backtest_history():
@@ -302,13 +318,15 @@ def backtest_history():
         start_date = request.form.get("start_date", default_start_date)
         end_date = request.form.get("end_date", default_end_date)
         strategy_id = request.form.get("strategy_id", default_strategy_id)
-        strategy_option = request.form.get("strategy_option", default_strategy_option)
+        strategy_option = request.form.get("strategy_option", "")
+        if strategy_option == "":
+            strategy_option = get_bb_strategy_option(symbol)
     else:
         symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
         strategy_id = request.args.get("strategy_id", default_strategy_id)
-        strategy_option = request.args.get("strategy_option", default_strategy_option)
+        strategy_option = request.args.get("strategy_option", get_bb_strategy_option(symbol))
     header_title = u"{symbol} {start_date} {end_date} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     query = BACKTEST_HISTORY_QUERY.format(symbol=symbol

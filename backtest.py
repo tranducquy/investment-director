@@ -43,7 +43,7 @@ def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_o
     a = Assets(initial_cash)
     Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, a, trade_fee) 
 
-def bruteforce_bollingerband_newvalue(symbol, start_date, end_date):
+def bruteforce_bollingerband_newvalue(symbol, start_date, end_date, initial_cash):
     #デフォルト設定
     strategy_id = 1
     sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
@@ -118,7 +118,7 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         for symbol in symbols_work:
             """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
             if not brute_force is None:
-                bruteforce_bollingerband_newvalue(symbol, start_date, end_date)
+                bruteforce_bollingerband_newvalue(symbol, start_date, end_date, initial_cash)
                 continue
             #ストラテジ取得
             rs = get_bollingerband_newvalue_settings(symbol)
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     trade_fee = 0.1
     conf = common.read_conf()
     s = my_logger.Logger()
-    cash = int(conf['initial_cash'])
+    inicash = int(conf['initial_cash'])
     args = get_option()
     if args.symbol is None:
         symbol_txt = conf['symbol']
@@ -195,5 +195,5 @@ if __name__ == '__main__':
         brute_force = None
     else:
         brute_force = args.brute_force
-    backtest(ss, start_date, end_date, cash, brute_force)
+    backtest(ss, start_date, end_date, inicash, brute_force)
 
