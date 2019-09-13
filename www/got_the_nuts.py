@@ -493,13 +493,17 @@ def db_access():
                             ,header_title=header_title
                             )
 
-@app.route('/tradingview')
+@app.route('/tradingview1')
 #@auth.login_required
-def tradingview():
+def tradingview1():
     tradingview = "active"
-    return render_template('tradingview.html'
-                            ,tradingview=tradingview
-                            )
+    return render_template('tradingview1.html' ,tradingview=tradingview)
+
+@app.route('/tradingview2')
+#@auth.login_required
+def tradingview2():
+    tradingview = "active"
+    return render_template('tradingview2.html' ,tradingview=tradingview)
 
 if __name__ == "__main__":
      app.run()

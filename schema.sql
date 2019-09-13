@@ -229,3 +229,4 @@ insert into bollingerband_newvalue (symbol, sma, sigma1) values ('7012.T', 8, 1.
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('8303.T', 21, 0.5);
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
+insert into bollingerband_newvalue (symbol, sma, sigma1) values ('7003.T', 10, 1.0);

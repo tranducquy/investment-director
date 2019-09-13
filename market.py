@@ -70,7 +70,7 @@ class Market():
                         self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
-                        #最大volまで購入
+                        #最大volまで売却
                         order_vol = assets.get_max_vol(open_price) * -1
                         p.open_short(business_date, open_price, order_vol)
                     elif low <= p.order.price:
@@ -85,7 +85,8 @@ class Market():
                         p.order.fail_order()
                     else:
                         #最大volまで購入
-                        p.open_long(business_date, open_price)
+                        order_vol = assets.get_max_vol(open_price)
+                        p.open_long(business_date, open_price, order_vol)
                     self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.MARKET_SHORT:
                     #約定判定
@@ -93,8 +94,9 @@ class Market():
                         self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
                     else:
-                        #最大volまで購入
-                        p.open_short(business_date, open_price)
+                        #最大volまで売却
+                        order_vol = assets.get_max_vol(open_price) * -1
+                        p.open_short(business_date, open_price, order_vol)
                     self.set_order_info(execution_order_info, p.order)
             elif current_position == PositionType.LONG and p.order != None:
                 #約定判定
