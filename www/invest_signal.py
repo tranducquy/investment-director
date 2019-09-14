@@ -23,9 +23,17 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,order_table.order_price
     ,r.end_date
     ,m3.profit_rate_sum as 期待利益率3か月
+    ,m3_long.profit_rate_sum as 期待利益率3か月long
+    ,m3_short.profit_rate_sum as 期待利益率3か月short
     ,y1.profit_rate_sum as 期待利益率1年
+    ,y1_long.profit_rate_sum as 期待利益率1年long
+    ,y1_short.profit_rate_sum as 期待利益率1年short
     ,y3.profit_rate_sum as 期待利益率3年
+    ,y3_long.profit_rate_sum as 期待利益率3年long
+    ,y3_short.profit_rate_sum as 期待利益率3年short
     ,y15.profit_rate_sum as 期待利益率15年
+    ,y15_long.profit_rate_sum as 期待利益率15年long
+    ,y15_short.profit_rate_sum as 期待利益率15年short
     ,r.expected_rate as 全期間期待利益率
     ,r.long_expected_rate as 全期間期待利益率long
     ,r.short_expected_rate as 全期間期待利益率short
@@ -44,7 +52,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,sum(profit_rate) as profit_rate_sum
     ,count(business_date) as count
     from backtest_history
-    where business_date between '%s' and '%s'
+    where business_date between '{start_date_3month}' and '{end_date}'
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 45
     ) m3
@@ -55,8 +63,35 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,strategy_id
     ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
+    ,count(business_date) as count
     from backtest_history
-    where business_date between '%s' and '%s'
+    where business_date between '{start_date_3month}' and '{end_date}'
+    and execution_order_type = 5
+    group by symbol, strategy_id, strategy_option
+    ) m3_long
+    on r.symbol = m3_long.symbol and r.strategy_id = m3_long.strategy_id and r.strategy_option = m3_long.strategy_option
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    ,count(business_date) as count
+    from backtest_history
+    where business_date between '{start_date_3month}' and '{end_date}'
+    and execution_order_type = 6
+    group by symbol, strategy_id, strategy_option
+    ) m3_short
+    on r.symbol = m3_short.symbol and r.strategy_id = m3_short.strategy_id and r.strategy_option = m3_short.strategy_option
+
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_1year}' and '{end_date}'
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 183
     ) y1
@@ -68,7 +103,32 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
     from backtest_history
-    where business_date between '%s' and '%s'
+    where business_date between '{start_date_1year}' and '{end_date}'
+    and execution_order_type = 5
+    group by symbol, strategy_id, strategy_option
+    ) y1_long
+    on r.symbol = y1_long.symbol and r.strategy_id = y1_long.strategy_id and r.strategy_option = y1_long.strategy_option
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_1year}' and '{end_date}'
+    and execution_order_type = 6
+    group by symbol, strategy_id, strategy_option
+    ) y1_short
+    on r.symbol = y1_short.symbol and r.strategy_id = y1_short.strategy_id and r.strategy_option = y1_short.strategy_option
+
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_3year}' and '{end_date}'
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 548
     ) y3
@@ -80,11 +140,61 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,strategy_option
     ,sum(profit_rate) as profit_rate_sum
     from backtest_history
-    where business_date between '%s' and '%s'
+    where business_date between '{start_date_3year}' and '{end_date}'
+    and execution_order_type = 5
+    group by symbol, strategy_id, strategy_option
+    ) y3_long
+    on r.symbol = y3_long.symbol and r.strategy_id = y3_long.strategy_id and r.strategy_option = y3_long.strategy_option
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_3year}' and '{end_date}'
+    and execution_order_type = 6
+    group by symbol, strategy_id, strategy_option
+    ) y3_short
+    on r.symbol = y3_short.symbol and r.strategy_id = y3_short.strategy_id and r.strategy_option = y3_short.strategy_option
+
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_15year}' and '{end_date}'
     group by symbol, strategy_id, strategy_option
     HAVING count(business_date) > 2738
     ) y15
     on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_option = y15.strategy_option
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_15year}' and '{end_date}'
+    and execution_order_type = 5
+    group by symbol, strategy_id, strategy_option
+    ) y15_long
+    on r.symbol = y15_long.symbol and r.strategy_id = y15_long.strategy_id and r.strategy_option = y15_long.strategy_option
+    left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_15year}' and '{end_date}'
+    and execution_order_type = 6
+    group by symbol, strategy_id, strategy_option
+    ) y15_short
+    on r.symbol = y15_short.symbol and r.strategy_id = y15_short.strategy_id and r.strategy_option = y15_short.strategy_option
+    
     inner join (
         select
          bh.symbol
@@ -121,15 +231,16 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     where 0 = 0
     and r.rate_of_return > 0
     and (m3.profit_rate_sum > 5 and y1.profit_rate_sum > 15 and y3.profit_rate_sum > 45 and y15.profit_rate_sum > 225)
-    and r.symbol in ({0})
+    and r.symbol in ({symbols})
     order by m3.profit_rate_sum desc
-       """ % (
-             start_date_3month, end_date
-           , start_date_1year, end_date
-           , start_date_3year, end_date
-           , start_date_15year, end_date
+       """.format( 
+             start_date_3month=start_date_3month
+           , start_date_1year=start_date_1year
+           , start_date_3year=start_date_3year
+           , start_date_15year=start_date_15year
+           , end_date=end_date
+           , symbols=', '.join('?' for _ in symbols)
            )
-    sql = sql.format(', '.join('?' for _ in symbols))
     c.execute(sql, symbols)
     symbols = c.fetchall()
     c.close()

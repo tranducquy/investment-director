@@ -32,6 +32,7 @@ def get_option():
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
     argparser.add_argument('--brute_force', type=str, help='breaking the code!')
+    argparser.add_argument('--profit_rate_sum', action='store_true')
     args = argparser.parse_args()
     return args
 
@@ -39,11 +40,11 @@ def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_o
     q = Quotes(symbol, start_date, end_date, ma, sigma1, sigma2)
     t = tick.get_tick(symbol)
     bollinger_butler = bollingerband.Butler(t, ma)
-    title = "ボリンジャーバンド新値SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
+    title = "BollingerBand/DailyTrail SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
     a = Assets(initial_cash)
     Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, a, trade_fee) 
 
-def bruteforce_bollingerband_newvalue(symbol, start_date, end_date, initial_cash):
+def bruteforce_bollingerband_dailytrail(symbol, start_date, end_date, initial_cash):
     #デフォルト設定
     strategy_id = 1
     sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
@@ -80,9 +81,9 @@ def bruteforce_bollingerband_newvalue(symbol, start_date, end_date, initial_cash
             thread_join_cnt += 1
             logger.info("*** thread join[%d]/[%d] ***" % (thread_join_cnt, thread_pool_cnt))
         thread_pool.clear()
-    logger.info("bruteforce_bollingerband_newvalue done symbol[%s]" % (symbol))
+    logger.info("bruteforce_bollingerband_dailytrail done symbol[%s]" % (symbol))
 
-def get_bollingerband_newvalue_settings(symbol):
+def get_bollingerband_dailytrail_settings(symbol):
     conn = MyDB().get_db()
     c = conn.cursor()
     c.execute("""
@@ -90,7 +91,7 @@ def get_bollingerband_newvalue_settings(symbol):
      symbol
     ,sma
     ,sigma1
-    from bollingerband_newvalue
+    from bollingerband_dailytrail
     where symbol = '{symbol}'
     """.format(symbol=symbol))
     rs = c.fetchall()
@@ -118,11 +119,11 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         for symbol in symbols_work:
             """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
             if not brute_force is None:
-                bruteforce_bollingerband_newvalue(symbol, start_date, end_date, initial_cash)
+                bruteforce_bollingerband_dailytrail(symbol, start_date, end_date, initial_cash)
                 continue
             #ストラテジ取得
-            rs = get_bollingerband_newvalue_settings(symbol)
-            #ボリンジャーバンド+新値 
+            rs = get_bollingerband_dailytrail_settings(symbol)
+            #ボリンジャーバンド+DailyTrail
             #デフォルト設定
             strategy_id = 1
             bollinger_ma = 3 #移動平均の日数
@@ -172,6 +173,11 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         fin_cnt += len(symbols_work)
         logger.info("backtest(%d/%d)" % (fin_cnt, max_cnt))
 
+def update_profit_rate_sum():
+    logger.info("update_profit_rate_sum()")
+    #backtest_result table取得
+    #update
+
 if __name__ == '__main__':
     trade_fee = 0.1
     conf = common.read_conf()
@@ -196,4 +202,6 @@ if __name__ == '__main__':
     else:
         brute_force = args.brute_force
     backtest(ss, start_date, end_date, inicash, brute_force)
+    if args.profit_rate_sum:
+        update_profit_rate_sum()
 
