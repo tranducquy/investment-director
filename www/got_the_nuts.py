@@ -230,6 +230,14 @@ and execution_order_type in (5, 6)
 group by symbol, strategy_id, strategy_option, substr(business_date, 1, 7), execution_order_type
 """
 
+BOLLINGERBAND_DAILYTRAIL_LIST = """
+select
+ symbol
+,sma
+,sigma1
+from bollingerband_newvalue
+"""
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -247,11 +255,12 @@ def query_db(query, args=(), one=False):
 def index():
     index="active"
     symbols = [
-                 "9107.T"
-                ,"6728.T"
-                ,"5202.T"
+                 "5202.T"
                 ,"6141.T"
+                ,"6728.T"
                 ,"6753.T"
+                ,"7003.T"
+                ,"9107.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
@@ -263,11 +272,12 @@ def index():
 def index2():
     index="active"
     symbols = [
-                 "9107.T"
-                ,"6728.T"
-                ,"5202.T"
+                 "5202.T"
                 ,"6141.T"
+                ,"6728.T"
                 ,"6753.T"
+                ,"7003.T"
+                ,"9107.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
@@ -577,6 +587,8 @@ def db_access():
         elif q == "profit_rate_per_month_long_short":
             (regist_date , end_date , start_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
             query = PROFIT_RATE_PER_MONTH_LONG_SHORT.format(start_date_3year=start_date_3year, end_date=end_date)
+        elif q == "strategy_list":
+            query = BOLLINGERBAND_DAILYTRAIL_LIST
         elif q == "":
             pass
         return render_template('db_access.html'
