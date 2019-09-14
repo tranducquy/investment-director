@@ -55,6 +55,14 @@ create table backtest_result
     primary key(symbol, strategy_id, strategy_option)
 )
 ;
+alter table backtest_result add column long_expected_rate_3month decimal(10,5);
+alter table backtest_result add column long_expected_rate_1year decimal(10,5);
+alter table backtest_result add column long_expected_rate_3year decimal(10,5);
+alter table backtest_result add column long_expected_rate_15year decimal(10,5);
+alter table backtest_result add column short_expected_rate_3month decimal(10,5);
+alter table backtest_result add column short_expected_rate_1year decimal(10,5);
+alter table backtest_result add column short_expected_rate_3year decimal(10,5);
+alter table backtest_result add column short_expected_rate_15year decimal(10,5);
 
 create table m_strategy
 (
@@ -64,7 +72,7 @@ create table m_strategy
     primary key(strategy_id)
 )
 ;
-insert into m_strategy (strategy_id, strategy_name, strategy_option) values (1, 'ボリンジャーバンド新値', 'SMA{sma}SD{sd}');
+insert into m_strategy (strategy_id, strategy_name, strategy_option) values (1, 'Bollingerband/DailyTrail', 'SMA{sma}SD{sd}');
 
 create table m_ordertype
 (
@@ -183,16 +191,16 @@ delete from ohlc where symbol = '9984.T' and business_date < '2006-01-10';
 delete from backtest_history where symbol = '9984.T' and business_date < '2006-01-10';
 delete from backtest_result where symbol = '9984.T';
 
-create table bollingerband_newvalue
+create table bollingerband_dailytrail
 (
     symbol text,
     sma integer,
     sigma1 decimal(10,5),
     primary key(symbol, sma, sigma1)
 );
-delete from bollingerband_newvalue where symbol = 'XBTUSD';
-delete from bollingerband_newvalue where symbol = 'ETHUSD';
-delete from bollingerband_newvalue where symbol = 'GBPJPY';
+delete from bollingerband_dailytrail where symbol = 'XBTUSD';
+delete from bollingerband_dailytrail where symbol = 'ETHUSD';
+delete from bollingerband_dailytrail where symbol = 'GBPJPY';
 delete from backtest_result where symbol = 'XBTUSD' and strategy_option = 'SMA8SD1.2';
 delete from backtest_history where symbol = 'XBTUSD' and strategy_option = 'SMA8SD1.2';
 delete from backtest_result where symbol = 'ETHUSD' and strategy_option = 'SMA2SD1.6';
@@ -219,16 +227,16 @@ delete from backtest_result where symbol = '9107.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '9107.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('GBPJPY', 20, 0.3);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('3103.T', 18, 0.4);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('5202.T', 24, 0.4);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6141.T', 3, 1.3);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6728.T', 16, 0.3);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('6753.T', 4, 1.2);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('7012.T', 8, 1.1);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('8303.T', 21, 0.5);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
-insert into bollingerband_newvalue (symbol, sma, sigma1) values ('7003.T', 10, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 20, 0.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3103.T', 18, 0.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5202.T', 24, 0.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6141.T', 3, 1.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6728.T', 16, 0.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6753.T', 4, 1.2);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7012.T', 8, 1.1);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8303.T', 21, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7003.T', 10, 1.0);
