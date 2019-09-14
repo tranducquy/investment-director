@@ -32,7 +32,7 @@ def get_option():
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
     argparser.add_argument('--brute_force', type=str, help='breaking the code!')
-    argparser.add_argument('--profit_rate_sum', action='store_true')
+    argparser.add_argument('--sum_profit_rate', action='store_true')
     args = argparser.parse_args()
     return args
 
@@ -173,10 +173,195 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         fin_cnt += len(symbols_work)
         logger.info("backtest(%d/%d)" % (fin_cnt, max_cnt))
 
-def update_profit_rate_sum():
-    logger.info("update_profit_rate_sum()")
+def get_dates():
+    end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+    start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
+    start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
+    start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
+    start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
+    return (
+              end_date 
+            , start_date_3month
+            , start_date_1year
+            , start_date_3year
+            , start_date_15year
+            )
+
+def update_expected_rate():
+    logger.info("update_expected_rate()")
+    (end_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
     #backtest_result table取得
-    #update
+    conn = MyDB().get_db()
+    c = conn.cursor()
+    c.execute("""
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    from backtest_result
+    """)
+    rs = c.fetchall()
+    conn.close()
+    for r in rs:
+        logger.info("{symbol},{strategy_id},{strategy_option}".format(symbol=r[0], strategy_id=r[1], strategy_option=r[2]))
+        conn = MyDB().get_db()
+        c = conn.cursor()
+        c.execute("""
+                update backtest_result
+                set
+                 expected_rate_3month = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3month}' and '{end_date}'
+                    group by symbol, strategy_id, strategy_option
+                )
+                ,expected_rate_1year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_1year}' and '{end_date}'
+                    group by symbol, strategy_id, strategy_option
+                )
+                ,expected_rate_3year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3year}' and '{end_date}'
+                    group by symbol, strategy_id, strategy_option
+                )
+                ,expected_rate_15year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_15year}' and '{end_date}'
+                    group by symbol, strategy_id, strategy_option
+                )
+                ,long_expected_rate_3month = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3month}' and '{end_date}'
+                    and execution_order_type = 5
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,long_expected_rate_1year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_1year}' and '{end_date}'
+                    and execution_order_type = 5
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,long_expected_rate_3year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3year}' and '{end_date}'
+                    and execution_order_type = 5
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,long_expected_rate_15year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_15year}' and '{end_date}'
+                    and execution_order_type = 5
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,short_expected_rate_3month = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3month}' and '{end_date}'
+                    and execution_order_type = 6
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,short_expected_rate_1year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_1year}' and '{end_date}'
+                    and execution_order_type = 6
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,short_expected_rate_3year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_3year}' and '{end_date}'
+                    and execution_order_type = 6
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                ,short_expected_rate_15year = 
+                (
+                    select 
+                     sum(profit_rate) 
+                    from backtest_history 
+                    where symbol='{symbol}' 
+                    and strategy_id = {strategy_id} 
+                    and strategy_option = '{strategy_option}' 
+                    and business_date between '{start_date_15year}' and '{end_date}'
+                    and execution_order_type = 6
+                    group by symbol, strategy_id, strategy_option, execution_order_type
+                )
+                where symbol = '{symbol}' and strategy_id = {strategy_id} and strategy_option = '{strategy_option}'
+                """.format(
+                              symbol=r[0]
+                            , strategy_id=r[1]
+                            , strategy_option=r[2]
+                            , end_date=end_date
+                            , start_date_3month=start_date_3month
+                            , start_date_1year=start_date_1year
+                            , start_date_3year=start_date_3year
+                            , start_date_15year=start_date_15year
+                )
+        )
+        conn.close()
 
 if __name__ == '__main__':
     trade_fee = 0.1
@@ -202,6 +387,6 @@ if __name__ == '__main__':
     else:
         brute_force = args.brute_force
     backtest(ss, start_date, end_date, inicash, brute_force)
-    if args.profit_rate_sum:
-        update_profit_rate_sum()
+    if args.sum_profit_rate:
+        update_expected_rate()
 

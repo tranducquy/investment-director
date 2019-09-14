@@ -102,14 +102,18 @@ r.symbol
 ,r.strategy_option
 ,r.end_date
 ,r.rate_of_return as 全期間騰落率_複利
-,m3_long.profit_rate_sum as 期待利益率3か月long
-,m3_short.profit_rate_sum as 期待利益率3か月short
-,y1_long.profit_rate_sum as 期待利益率1年long
-,y1_short.profit_rate_sum as 期待利益率1年short
-,y3_long.profit_rate_sum as 期待利益率3年long
-,y3_short.profit_rate_sum as 期待利益率3年short
-,y15_long.profit_rate_sum as 期待利益率15年long
-,y15_short.profit_rate_sum as 期待利益率15年short
+,r.expected_rate_3month as 期待利益率3か月
+,r.long_expected_rate_3month as 期待利益率3か月long
+,r.short_expected_rate_3month as 期待利益率3か月short
+,r.expected_rate_1year as 期待利益率1年
+,r.long_expected_rate_1year as 期待利益率1年long
+,r.short_expected_rate_1year as 期待利益率1年short
+,r.expected_rate_3year as 期待利益率3年
+,r.long_expected_rate_3year as 期待利益率3年long
+,r.short_expected_rate_3year as 期待利益率3年short
+,r.expected_rate_15year as 期待利益率15年
+,r.long_expected_rate_15year as 期待利益率15年long
+,r.short_expected_rate_15year as 期待利益率15年short
 ,r.expected_rate as 全期間期待利益率
 ,r.long_expected_rate as 全期間期待利益率long
 ,r.short_expected_rate as 全期間期待利益率short
@@ -122,104 +126,6 @@ r.symbol
 from backtest_result as r
 inner join m_strategy as ms 
 on r.strategy_id = ms.strategy_id
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    ,count(business_date) as count
-    from backtest_history
-    where business_date between '{start_date_3month}' and '{end_date}'
-    and execution_order_type = 5
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) m3_long
-on r.symbol = m3_long.symbol and r.strategy_id = m3_long.strategy_id and r.strategy_option = m3_long.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    ,count(business_date) as count
-    from backtest_history
-    where business_date between '{start_date_3month}' and '{end_date}'
-    and execution_order_type = 6
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) m3_short
-on r.symbol = m3_short.symbol and r.strategy_id = m3_short.strategy_id and r.strategy_option = m3_short.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_1year}' and '{end_date}'
-    and execution_order_type = 5
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y1_long
-on r.symbol = y1_long.symbol and r.strategy_id = y1_long.strategy_id and r.strategy_option = y1_long.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_1year}' and '{end_date}'
-    and execution_order_type = 6
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y1_short
-on r.symbol = y1_short.symbol and r.strategy_id = y1_short.strategy_id and r.strategy_option = y1_short.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_3year}' and '{end_date}'
-    and execution_order_type = 5
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y3_long
-on r.symbol = y3_long.symbol and r.strategy_id = y3_long.strategy_id and r.strategy_option = y3_long.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_3year}' and '{end_date}'
-    and execution_order_type = 6
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y3_short
-on r.symbol = y3_short.symbol and r.strategy_id = y3_short.strategy_id and r.strategy_option = y3_short.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_15year}' and '{end_date}'
-    and execution_order_type = 5
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y15_long
-on r.symbol = y15_long.symbol and r.strategy_id = y15_long.strategy_id and r.strategy_option = y15_long.strategy_option
-left outer join (
-    select
-     symbol
-    ,strategy_id
-    ,strategy_option
-    ,sum(profit_rate) as profit_rate_sum
-    from backtest_history
-    where business_date between '{start_date_15year}' and '{end_date}'
-    and execution_order_type = 6
-    group by symbol, strategy_id, strategy_option, execution_order_type
-    ) y15_short
-on r.symbol = y15_short.symbol and r.strategy_id = y15_short.strategy_id and r.strategy_option = y15_short.strategy_option
 where 0 = 0 
 and r.regist_date = '{regist_date}'
 order by r.rate_of_return desc

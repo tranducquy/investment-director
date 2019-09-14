@@ -55,6 +55,10 @@ create table backtest_result
     primary key(symbol, strategy_id, strategy_option)
 )
 ;
+alter table backtest_result add column expected_rate_3month decimal(10,5);
+alter table backtest_result add column expected_rate_1year decimal(10,5);
+alter table backtest_result add column expected_rate_3year decimal(10,5);
+alter table backtest_result add column expected_rate_15year decimal(10,5);
 alter table backtest_result add column long_expected_rate_3month decimal(10,5);
 alter table backtest_result add column long_expected_rate_1year decimal(10,5);
 alter table backtest_result add column long_expected_rate_3year decimal(10,5);
