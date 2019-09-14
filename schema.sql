@@ -217,6 +217,8 @@ delete from backtest_result where symbol = '9101.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '9101.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '9107.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '9107.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
 insert into bollingerband_newvalue (symbol, sma, sigma1) values ('GBPJPY', 20, 0.3);

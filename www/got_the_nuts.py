@@ -31,142 +31,204 @@ def get_pw(username):
 DATABASE = '/usr/local/investment-director/market-history.db'
 SYMBOL_DIR = '/usr/local/investment-director/symbol/'
 BACKTEST_HISTORY_QUERY = u"""
-                    select 
-                     bh.symbol
-                    ,ms.strategy_name
-                    ,bh.strategy_option
-                    ,bh.business_date
-                    ,bh.open
-                    ,bh.high
-                    ,bh.low
-                    ,bh.close
-                    ,bh.volume
-                    ,bh.sma
-                    ,bh.upper_sigma1
-                    ,bh.lower_sigma1
-                    ,bh.upper_sigma2
-                    ,bh.lower_sigma2
-                    ,bh.vol_sma
-                    ,bh.vol_upper_sigma1
-                    ,bh.vol_lower_sigma1
-                    ,bh.order_create_date
-                    ,bh.order_type
-                    ,bh.order_vol
-                    ,bh.order_price
-                    ,bh.call_order_date
-                    ,bh.call_order_type
-                    ,bh.call_order_vol
-                    ,bh.call_order_price
-                    ,bh.execution_order_date
-                    ,bh.execution_order_type
-                    ,bh.execution_order_status
-                    ,bh.execution_order_vol
-                    ,bh.execution_order_price
-                    ,bh.position
-                    ,bh.cash
-                    ,bh.pos_vol
-                    ,bh.pos_price
-                    ,bh.total_value
-                    ,bh.profit_value
-                    ,bh.profit_rate
-                    from backtest_history as bh
-                    left outer join m_strategy as ms
-                     on bh.strategy_id = ms.strategy_id
-                    where 
-                    bh.symbol = '{symbol}'
-                    and bh.strategy_id = {strategy_id}
-                    and bh.strategy_option = '{strategy_option}'
-                    and bh.business_date between '{start_date}' and '{end_date}'
-                    order by bh.business_date"""
+select 
+ bh.symbol
+,ms.strategy_name
+,bh.strategy_option
+,bh.business_date
+,bh.open
+,bh.high
+,bh.low
+,bh.close
+,bh.volume
+,bh.sma
+,bh.upper_sigma1
+,bh.lower_sigma1
+,bh.upper_sigma2
+,bh.lower_sigma2
+,bh.vol_sma
+,bh.vol_upper_sigma1
+,bh.vol_lower_sigma1
+,bh.order_create_date
+,bh.order_type
+,bh.order_vol
+,bh.order_price
+,bh.call_order_date
+,bh.call_order_type
+,bh.call_order_vol
+,bh.call_order_price
+,bh.execution_order_date
+,bh.execution_order_type
+,bh.execution_order_status
+,bh.execution_order_vol
+,bh.execution_order_price
+,bh.position
+,bh.cash
+,bh.pos_vol
+,bh.pos_price
+,bh.total_value
+,bh.profit_value
+,bh.profit_rate
+from backtest_history as bh
+left outer join m_strategy as ms
+on bh.strategy_id = ms.strategy_id
+where 
+bh.symbol = '{symbol}'
+and bh.strategy_id = {strategy_id}
+and bh.strategy_option = '{strategy_option}'
+and bh.business_date between '{start_date}' and '{end_date}'
+order by bh.business_date
+"""
 
 OHLCV_DAILY_QUERY = u"""
-                    select 
-                     symbol
-                    ,business_date
-                    ,open
-                    ,high
-                    ,low
-                    ,close
-                    ,volume
-                    from ohlc 
-                    where symbol = '{symbol}'
-                    and business_date between '{start_date}' and '{end_date}'
-                    order by business_date
+select 
+symbol
+,business_date
+,open
+,high
+,low
+,close
+,volume
+from ohlc 
+where symbol = '{symbol}'
+and business_date between '{start_date}' and '{end_date}'
+order by business_date
                     """
 
 BACKTEST_SUMMARY_QUERY = u"""
-                    select
-                     r.symbol
-                    ,ms.strategy_name
-                    ,r.strategy_option
-                    ,r.end_date
-                    ,r.rate_of_return as 全期間騰落率_複利
-                    ,m3.profit_rate_sum as 期待利益率3か月
-                    ,y1.profit_rate_sum as 期待利益率1年
-                    ,y3.profit_rate_sum as 期待利益率3年
-                    ,y15.profit_rate_sum as 期待利益率15年
-                    ,r.expected_rate as 全期間期待利益率
-                    ,r.long_expected_rate as 全期間期待利益率long
-                    ,r.short_expected_rate as 全期間期待利益率short
-                    ,r.win_rate as 勝率
-                    ,r.average_period_per_trade as 平均取引期間
-                    ,r.win_count+r.loss_count as 取引数
-                    ,r.long_win_count+r.long_loss_count as 取引数long
-                    ,r.short_win_count+r.short_loss_count as 取引数short
-                    ,r.payoffratio as ペイオフレシオ
-                    from backtest_result as r
-                    inner join m_strategy as ms 
-                     on r.strategy_id = ms.strategy_id
-                    left outer join (
-                        select
-                         symbol
-                        ,strategy_id
-                        ,strategy_option
-                        ,sum(profit_rate) as profit_rate_sum
-                        ,count(business_date) as count
-                        from backtest_history
-                        where business_date between '{start_date_3month}' and '{end_date}'
-                        group by symbol, strategy_id, strategy_option
-                    ) m3
-                    on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id and r.strategy_option = m3.strategy_option
-                    left outer join (
-                        select
-                         symbol
-                        ,strategy_id
-                        ,strategy_option
-                        ,sum(profit_rate) as profit_rate_sum
-                        from backtest_history
-                        where business_date between '{start_date_1year}' and '{end_date}'
-                        group by symbol, strategy_id, strategy_option
-                    ) y1
-                    on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id and r.strategy_option = y1.strategy_option
-                    left outer join (
-                        select
-                        symbol
-                        ,strategy_id
-                        ,strategy_option
-                        ,sum(profit_rate) as profit_rate_sum
-                        from backtest_history
-                        where business_date between '{start_date_3year}' and '{end_date}'
-                        group by symbol, strategy_id, strategy_option
-                    ) y3
-                    on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_option = y3.strategy_option
-                    left outer join (
-                        select
-                        symbol
-                        ,strategy_id
-                        ,strategy_option
-                        ,sum(profit_rate) as profit_rate_sum
-                        from backtest_history
-                        where business_date between '{start_date_15year}' and '{end_date}'
-                        group by symbol, strategy_id, strategy_option
-                    ) y15
-                    on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_option = y15.strategy_option
-                    where 0 = 0 
-                    and r.regist_date = '{regist_date}'
-                    --and r.end_date = '{end_date}'
-                    order by m3.profit_rate_sum desc
-                    """
+select
+r.symbol
+,ms.strategy_name
+,r.strategy_option
+,r.end_date
+,r.rate_of_return as 全期間騰落率_複利
+,m3.profit_rate_sum as 期待利益率3か月
+,y1.profit_rate_sum as 期待利益率1年
+,y3.profit_rate_sum as 期待利益率3年
+,y15.profit_rate_sum as 期待利益率15年
+,r.expected_rate as 全期間期待利益率
+,r.long_expected_rate as 全期間期待利益率long
+,r.short_expected_rate as 全期間期待利益率short
+,r.win_rate as 勝率
+,r.average_period_per_trade as 平均取引期間
+,r.win_count+r.loss_count as 取引数
+,r.long_win_count+r.long_loss_count as 取引数long
+,r.short_win_count+r.short_loss_count as 取引数short
+,r.payoffratio as ペイオフレシオ
+from backtest_result as r
+inner join m_strategy as ms 
+on r.strategy_id = ms.strategy_id
+left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    ,count(business_date) as count
+    from backtest_history
+    where business_date between '{start_date_3month}' and '{end_date}'
+    group by symbol, strategy_id, strategy_option
+    ) m3
+on r.symbol = m3.symbol and r.strategy_id = m3.strategy_id and r.strategy_option = m3.strategy_option
+left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_1year}' and '{end_date}'
+    group by symbol, strategy_id, strategy_option
+    ) y1
+on r.symbol = y1.symbol and r.strategy_id = y1.strategy_id and r.strategy_option = y1.strategy_option
+left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_3year}' and '{end_date}'
+    group by symbol, strategy_id, strategy_option
+    ) y3
+on r.symbol = y3.symbol and r.strategy_id = y3.strategy_id and r.strategy_option = y3.strategy_option
+left outer join (
+    select
+     symbol
+    ,strategy_id
+    ,strategy_option
+    ,sum(profit_rate) as profit_rate_sum
+    from backtest_history
+    where business_date between '{start_date_15year}' and '{end_date}'
+    group by symbol, strategy_id, strategy_option
+    ) y15
+on r.symbol = y15.symbol and r.strategy_id = y15.strategy_id and r.strategy_option = y15.strategy_option
+where 0 = 0 
+and r.regist_date = '{regist_date}'
+order by m3.profit_rate_sum desc
+"""
+
+PROFIT_RATE_PER_YEAR = """
+select
+ symbol
+,strategy_id
+,strategy_option
+,substr(business_date, 1, 4) as YYYY
+,sum(profit_rate) as 利益率合計
+from backtest_history
+where symbol = ''
+and execution_order_type in (5, 6)
+group by symbol, strategy_id, strategy_option, substr(business_date, 1, 4)
+"""
+
+PROFIT_RATE_PER_YEAR_LONG_SHORT = """
+select
+ symbol
+,strategy_id
+,strategy_option
+,substr(business_date, 1, 4) as YYYY
+,case
+  when execution_order_type = 5 then 'long'
+  when execution_order_type = 6 then 'short'
+ end as 注文タイプ
+,sum(profit_rate) as 利益率合計
+from backtest_history
+where symbol = ''
+and execution_order_type in (5, 6)
+group by symbol, strategy_id, strategy_option, substr(business_date, 1, 4), execution_order_type
+"""
+
+PROFIT_RATE_PER_MONTH = """
+select
+ symbol
+,strategy_id
+,strategy_option
+,substr(business_date, 1, 7) as YYYY-MM
+,sum(profit_rate) as 利益率合計
+from backtest_history
+where symbol = ''
+and business_date between '{start_date_3year}' and '{end_date}'
+and execution_order_type in (5, 6)
+group by symbol, strategy_id, strategy_option, substr(business_date, 1, 7)
+"""
+
+PROFIT_RATE_PER_MONTH_LONG_SHORT = """
+select
+ symbol
+,strategy_id
+,strategy_option
+,substr(business_date, 1, 7) as YYYY-MM
+,case
+  when execution_order_type = 5 then 'long'
+  when execution_order_type = 6 then 'short'
+ end as 注文タイプ
+,sum(profit_rate) as 利益率合計
+from backtest_history
+where symbol = ''
+and business_date between '{start_date_3year}' and '{end_date}'
+and execution_order_type in (5, 6)
+group by symbol, strategy_id, strategy_option, substr(business_date, 1, 7), execution_order_type
+"""
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -312,7 +374,6 @@ def backtest_history():
     default_end_date = datetime.today().strftime('%Y-%m-%d')
     default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
     default_strategy_id = 1
-    default_strategy_option = 'SMA3SD1.0'
     if request.method == 'POST':
         symbol = request.form.get("symbol", "")
         start_date = request.form.get("start_date", default_start_date)
@@ -375,25 +436,31 @@ def ohlcv_daily():
                         , rv=rv
                         , query=query)
 
-@app.route('/backtest_summary', methods=['GET', 'POST'])
-#@auth.login_required
-def backtest_summary():
-    backtest_summary='backtest_summary'
-    default_regist_date = datetime.today().strftime('%Y-%m-%d') #今日
-    default_end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-    if request.method == 'POST':
-        regist_date = request.form.get("regist_date", default_regist_date)
-        end_date = request.form.get("end_date", default_end_date)
-    else:
-        regist_date = request.args.get("regist_date", default_regist_date)
-        end_date = request.args.get("end_date", default_end_date)
+def get_dates():
+    regist_date = datetime.today().strftime('%Y-%m-%d') #今日
+    end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
     start_date = '2001-01-01'
     start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
     start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
     start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
     start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
+    return (
+              regist_date
+            , end_date 
+            , start_date
+            , start_date_3month
+            , start_date_1year
+            , start_date_3year
+            , start_date_15year
+            )
+
+@app.route('/backtest_summary', methods=['GET', 'POST'])
+#@auth.login_required
+def backtest_summary():
+    backtest_summary='backtest_summary'
     header_title = u"Backtest Summary"
     content_title = u"Backtest Summary"
+    (regist_date , end_date , start_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
     query = BACKTEST_SUMMARY_QUERY.format(start_date=start_date
                                         , start_date_3month=start_date_3month
                                         , start_date_1year=start_date_1year
@@ -488,9 +555,34 @@ def db_access():
                             ,errmsg=err
                             )
     else:
+        q = request.args.get("q", "")
+        query = ""
+        if q == "backtest_result":
+            (regist_date , end_date , start_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
+            query = BACKTEST_SUMMARY_QUERY.format(start_date=start_date
+                                                , start_date_3month=start_date_3month
+                                                , start_date_1year=start_date_1year
+                                                , start_date_3year=start_date_3year
+                                                , start_date_15year=start_date_15year
+                                                , regist_date=regist_date
+                                                , end_date=end_date
+                                                , backtest_summary=backtest_summary)
+        elif q == "profit_rate_per_year":
+            query = PROFIT_RATE_PER_YEAR
+        elif q == "profit_rate_per_year_long_short":
+            query = PROFIT_RATE_PER_YEAR_LONG_SHORT
+        elif q == "profit_rate_per_month":
+            (regist_date , end_date , start_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
+            query = PROFIT_RATE_PER_MONTH.format(start_date_3year=start_date_3year, end_date=end_date)
+        elif q == "profit_rate_per_month_long_short":
+            (regist_date , end_date , start_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
+            query = PROFIT_RATE_PER_MONTH_LONG_SHORT.format(start_date_3year=start_date_3year, end_date=end_date)
+        elif q == "":
+            pass
         return render_template('db_access.html'
                             ,db_access=db_access
                             ,header_title=header_title
+                            ,query=query
                             )
 
 @app.route('/tradingview1')

@@ -136,6 +136,47 @@
         </div>
       </li>
 
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        Tools
+      </div>
+
+      <!-- Nav Item - DB Access -->
+      <li class="nav-item {{ db_access }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDbaccess" aria-expanded="true" aria-controls="collapseUtilities">
+          <i class="fas fa-fw fa-database"></i>
+          <span>DB Access</span>
+        </a>
+        <div id="collapseDbaccess" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">QUERY:</h6>
+            <a class="collapse-item" href="./db_access">None</a>
+            <a class="collapse-item" href="./db_access?q=backtest_result">バックテスト結果</a>
+            <a class="collapse-item" href="./db_access?q=profit_rate_per_year">年別利益率</a>
+            <a class="collapse-item" href="./db_access?q=profit_rate_per_year_long_short">年別利益率(long/short)</a>
+            <a class="collapse-item" href="./db_access?q=profit_rate_per_month">月別利益率</a>
+            <a class="collapse-item" href="./db_access?q=profit_rate_per_month_long_short">月別利益率(long/short)</a>
+          </div>
+        </div>
+      </li>
+
+      <!-- Nav Item - Tradingview -->
+      <li class="nav-item {{ tradingview }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTradingview" aria-expanded="true" aria-controls="collapseUtilities">
+          <i class="fas fa-fw fa-align-left"></i>
+          <span>Tradingview</span>
+        </a>
+        <div id="collapseTradingview" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">SYMBOL:</h6>
+            <a class="collapse-item" href="./tradingview1">index</a>
+            <a class="collapse-item" href="./tradingview2">currency</a>
+          </div>
+        </div>
+      </li>
 
       <!-- Divider -->
       <hr class="sidebar-divider">
@@ -159,37 +200,6 @@
           <i class="fas fa-fw fa-calendar"></i>
           <span>crontab</span>
         </a>
-      </li>
-
-      <!-- Divider -->
-      <hr class="sidebar-divider">
-
-      <!-- Heading -->
-      <div class="sidebar-heading">
-        Tools
-      </div>
-
-      <!-- Nav Item - DB Access -->
-      <li class="nav-item {{ db_access }}">
-        <a class="nav-link" href="/db_access">
-          <i class="fas fa-fw fa-database"></i>
-          <span>DB Access</span>
-        </a>
-      </li>
-
-      <!-- Nav Item - Tradingview -->
-      <li class="nav-item {{ tradingview }}">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTradingview" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-align-left"></i>
-          <span>Tradingview</span>
-        </a>
-        <div id="collapseTradingview" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">SYMBOL:</h6>
-            <a class="collapse-item" href="./tradingview1">index</a>
-            <a class="collapse-item" href="./tradingview2">currency</a>
-          </div>
-        </div>
       </li>
 
       <!-- Divider -->
