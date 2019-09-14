@@ -337,7 +337,7 @@ def get_bb_strategy_option(symbol):
     if rv:
         strategy_option = "SMA{sma}SD{sd:.1f}".format(sma=rv[0][1], sd=rv[0][2])
     else:
-        strategy_option = ""
+        strategy_option = "SMA3SD1.0"
     return strategy_option
 
 @app.route('/backtest_history', methods=['GET', 'POST'])

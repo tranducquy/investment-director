@@ -231,6 +231,24 @@ delete from backtest_result where symbol = '9107.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '9107.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '7003.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '8377.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '8377.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '8473.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '8473.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '7732.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '7732.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '5019.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '5019.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '8601.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '8601.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '8801.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '8801.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '1963.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '1963.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '7201.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '7201.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '5471.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '5471.T' and strategy_option = 'SMA3SD1.0';
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 20, 0.3);
@@ -244,3 +262,14 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8303.T', 21,
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7003.T', 10, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8377.T', 4, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8473.T', 8, 0.7);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7732.T', 4, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5019.T', 15, 0.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8601.T', 4, 0.8);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8801.T', 4, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1963.T', 12, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7201.T', 7, 1.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5471.T', 3, 1.1);
+
+
