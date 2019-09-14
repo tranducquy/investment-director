@@ -361,6 +361,7 @@ def update_expected_rate():
                             , start_date_15year=start_date_15year
                 )
         )
+        conn.commit()
         conn.close()
 
 if __name__ == '__main__':
