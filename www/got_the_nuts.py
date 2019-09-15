@@ -198,6 +198,82 @@ select
 from bollingerband_dailytrail
 """
 
+OPEN_SIGNAL = """
+select
+ r.symbol
+,r.strategy_id
+,r.strategy_option
+,order_table.order_name
+,order_table.order_price
+,r.end_date
+,r.expected_rate_3month as 利益率3か月
+,r.long_expected_rate_3month as 利益率3か月long
+,r.short_expected_rate_3month as 利益率3か月short
+,r.expected_rate_1year as 利益率1年
+,r.long_expected_rate_1year as 利益率1年long
+,r.short_expected_rate_1year as 利益率1年short
+,r.expected_rate_3year as 利益率3年
+,r.long_expected_rate_3year as 利益率3年long
+,r.short_expected_rate_3year as 利益率3年short
+,r.expected_rate_15year as 利益率15年
+,r.long_expected_rate_15year as 利益率15年long
+,r.short_expected_rate_15year as 利益率15年short
+,r.expected_rate as 全期間利益率
+,r.long_expected_rate as 全期間利益率long
+,r.short_expected_rate as 全期間利益率short
+,r.win_rate as 勝率
+,r.average_period_per_trade as 平均取引期間
+,r.win_count+r.loss_count as 取引数
+,r.long_win_count+r.long_loss_count as 取引数long
+,r.short_win_count+r.short_loss_count as 取引数short
+,r.payoffratio as ペイオフレシオ
+from backtest_result r
+inner join (
+    select
+    bh.symbol
+    ,bh.strategy_id
+    ,bh.strategy_option
+    ,bh.order_create_date
+    ,bh.order_type
+    ,mo.ordertype_name as order_name
+    ,bh.order_vol
+    ,bh.order_price
+    from backtest_history as bh
+    inner join m_ordertype as mo
+    on bh.order_type = mo.ordertype_id
+    inner join (
+        select
+        symbol
+        ,strategy_id
+        ,strategy_option
+        ,max(business_date) as max_business_date
+        from backtest_history
+        group by symbol, strategy_id, strategy_option
+    ) as bhmd
+    on bh.symbol = bhmd.symbol
+    and bh.strategy_id = bhmd.strategy_id
+    and bh.strategy_option = bhmd.strategy_option
+    and bh.business_date = bhmd.max_business_date
+    where 0 = 0
+    and bh.order_type in (1, 2)
+    and bh.order_price > 0
+    and bh.order_vol != 0
+) as order_table
+on r.symbol = order_table.symbol
+and r.strategy_id = order_table.strategy_id
+and r.strategy_option = order_table.strategy_option
+where 0 = 0
+and r.rate_of_return > 0
+and (
+    (order_table.order_type = 1 and (r.long_expected_rate_3month > 15 or r.long_expected_rate_1year > 15)) 
+    or 
+    (order_table.order_type = 2 and (r.short_expected_rate_3month > 15 or r.short_expected_rate_1year > 15))
+)
+and (r.expected_rate_3month > 5 and r.expected_rate_1year > 15 and r.expected_rate_3year > 45 and r.expected_rate_15year > 225)
+and r.symbol in ({symbols})
+order by r.expected_rate_3month desc
+"""
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -549,6 +625,8 @@ def db_access():
             query = PROFIT_RATE_PER_MONTH_LONG_SHORT.format(start_date_3year=start_date_3year, end_date=end_date)
         elif q == "strategy_list":
             query = BOLLINGERBAND_DAILYTRAIL_LIST
+        elif q == "open_signal":
+            query = OPEN_SIGNAL
         elif q == "":
             pass
         return render_template('db_access.html'

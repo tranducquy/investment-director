@@ -45,6 +45,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
         ,bh.strategy_id
         ,bh.strategy_option
         ,bh.order_create_date
+        ,bh.order_type
         ,mo.ordertype_name as order_name
         ,bh.order_vol
         ,bh.order_price
@@ -74,6 +75,11 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     and r.strategy_option = order_table.strategy_option
     where 0 = 0
     and r.rate_of_return > 0
+    and (
+        (order_table.order_type = 1 and (r.long_expected_rate_3month > 15 or r.long_expected_rate_1year > 15)) 
+        or 
+        (order_table.order_type = 2 and (r.short_expected_rate_3month > 15 or r.short_expected_rate_1year > 15))
+    )
     and (r.expected_rate_3month > 5 and r.expected_rate_1year > 15 and r.expected_rate_3year > 45 and r.expected_rate_15year > 225)
     and r.symbol in ({symbols})
     order by r.expected_rate_3month desc
