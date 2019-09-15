@@ -32,7 +32,6 @@ def get_option():
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
     argparser.add_argument('--brute_force', type=str, help='breaking the code!')
-    argparser.add_argument('--sum_profit_rate', action='store_true')
     args = argparser.parse_args()
     return args
 
@@ -388,6 +387,5 @@ if __name__ == '__main__':
     else:
         brute_force = args.brute_force
     backtest(ss, start_date, end_date, inicash, brute_force)
-    if args.sum_profit_rate:
-        update_expected_rate()
+    update_expected_rate()
 
