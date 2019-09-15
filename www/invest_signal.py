@@ -95,9 +95,17 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     ,order_table.order_price
     ,r.end_date
     ,r.expected_rate_3month as 期待利益率3か月
+    ,r.long_expected_rate_3month as 期待利益率3か月long
+    ,r.short_expected_rate_3month as 期待利益率3か月short
     ,r.expected_rate_1year as 期待利益率1年
+    ,r.long_expected_rate_1year as 期待利益率1年long
+    ,r.short_expected_rate_1year as 期待利益率1年short
     ,r.expected_rate_3year as 期待利益率3年
+    ,r.long_expected_rate_3year as 期待利益率3年long
+    ,r.short_expected_rate_3year as 期待利益率3年short
     ,-1 as 期待利益率15年
+    ,-1 as 期待利益率15年long
+    ,-1 as 期待利益率15年short
     ,r.expected_rate as 全期間期待利益率
     ,r.long_expected_rate as 全期間期待利益率long
     ,r.short_expected_rate as 全期間期待利益率short
