@@ -49,7 +49,7 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[36] }}/100 },
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[33] }}/100 },
         {% endfor %}
         ]
       },
@@ -143,8 +143,8 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-        {% if (r[22] == 5 or r[22] == 6 or r[22] == 7 or r[22] == 8) and r[24] != 0 and r[27] == '3' %}
-          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[29] }} },
+        {% if (r[19] == 5 or r[19] == 6 or r[19] == 7 or r[19] == 8) and r[21] != 0 and r[24] == '3' %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[26] }} },
         {% endif %}
         {% endfor %}
         ]
@@ -157,8 +157,8 @@
         xValueFormatString: "YY-MM-DD",
         dataPoints: [
         {% for  r in rv %}
-        {% if (r[22] == 1 or r[22] == 2 or r[22] == 3 or r[22] == 4) and r[24] != 0 and r[27] == '3' %}
-          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[29] }} },
+        {% if (r[19] == 1 or r[19] == 2 or r[19] == 3 or r[19] == 4) and r[21] != 0 and r[24] == '3' %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[26] }} },
         {% endif %}
         {% endfor %}
         ]
