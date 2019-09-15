@@ -46,9 +46,6 @@ select
 ,bh.lower_sigma1
 ,bh.upper_sigma2
 ,bh.lower_sigma2
-,bh.vol_sma
-,bh.vol_upper_sigma1
-,bh.vol_lower_sigma1
 ,bh.order_create_date
 ,bh.order_type
 ,bh.order_vol
