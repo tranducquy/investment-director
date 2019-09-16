@@ -57,6 +57,7 @@
       {
         type: "line",
         showInLegend: true,
+        visible: false,
         name: "upper sigma2",
         markerSize: 0,
         yValueFormatString: "$#,##0.00",
@@ -70,6 +71,7 @@
       {
         type: "line",
         showInLegend: true,
+        visible: false,
         name: "lower sigma2",
         markerSize: 0,
         yValueFormatString: "$#,##0.00",
@@ -80,6 +82,7 @@
         {% endfor %}
         ]
       },
+
       {
         type: "line",
         showInLegend: true,
@@ -167,16 +170,93 @@
     ]
     });
     chart.render();
-    
-    function toggleDataSeries(e) {
-      if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-        e.dataSeries.visible = false;
-      } else {
-        e.dataSeries.visible = true;
+
+    //fund balance
+    var fund_chart = new CanvasJS.Chart("fundchartContainer", {
+  	  animationEnabled: true,  
+      theme: "light1", // "light1", "light2", "dark1", "dark2"
+      exportEnabled: true,
+      subtitles: [{
+		    text: "資金残高"
+      }],
+      axisX: {
+        valueFormatString: "YY-MM-DD"
+      },
+	    axisY: {
+		    title: "資金",
+        valueFormatString: "#0,,.",
+		    suffix: "mn",
+		    prefix: "$"
+      },
+      axisY2: {
+        prefix: "",
+        title: "損益",
+        valueFormatString: "#0,,.",
+		    suffix: "mn",
+		    prefix: "$"
+      },
+      toolTip: {
+        shared: true
+      },
+      legend: {
+        reversed: true,
+        cursor: "pointer",
+        itemclick: toggleDataSeries
+      },     
+	    data: [
+      {
+        type: "column",
+        showInLegend: true,
+        name: "損益",
+        axisYType: "secondary",
+		    yValueFormatString: "$#,##0",
+        xValueFormatString: "YY-MM-DD",
+        dataPoints: [
+        {% for r in rv %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[32] }} },
+        {% endfor %}
+        ]
+      },
+      {
+		    type: "splineArea",
+        showInLegend: true,
+        visible: false,
+        name: "資金+建玉(含み損益)",
+        color: "rgba(00,80,80,.7)",
+        xValueFormatString: "YY-MM-DD",
+		    yValueFormatString: "$#,##0",
+        dataPoints: [
+        {% for r in rv %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[31] }} },
+        {% endfor %}
+		    ]
+	    },
+      {
+		    type: "splineArea",
+        showInLegend: true,
+        name: "資金+建玉(取得価格)",
+        color: "rgba(54,158,173,.7)",
+		    markerSize: 5,
+        xValueFormatString: "YY-MM-DD",
+		    yValueFormatString: "$#,##0",
+        dataPoints: [
+        {% for r in rv %}
+          { x: new Date({{ r[3][0:4] }}, {{ r[3][5:7] }}-1, {{ r[3][8:10] }}), y: {{ r[28] + r[29] * r[30] }} },
+        {% endfor %}
+		    ]
+	    }
+      ]
+	    });
+      fund_chart.render();
+
+      function toggleDataSeries(e) {
+        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+          e.dataSeries.visible = false;
+        } else {
+          e.dataSeries.visible = true;
+        }
+        e.chart.render();
       }
-      e.chart.render();
-    }
-    
     }
     </script>
 {% endif %}
@@ -232,6 +312,9 @@
             </div>
             <div class="card-body">
               <div id="chartContainer" style="height: 370px; width: 100%; margin: 0px auto;"></div>
+            </div>
+            <div class="card-body">
+              <div id="fundchartContainer" style="height: 370px; width: 100%; margin: 0px auto;"></div>
             </div>
           </div>
           {% endif %}
