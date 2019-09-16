@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import numpy
 import my_logger
 import my_lock
@@ -485,9 +486,23 @@ class BacktestDumper():
         )
         return msg
 
+    def get_dates(self):
+        end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
+        start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
+        start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
+        start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
+        return (
+                 end_date 
+                , start_date_3month
+                , start_date_1year
+                , start_date_3year
+                , start_date_15year
+                )
+
     def update_expected_rate(self):
         self.logger.info("update_expected_rate()")
-        (end_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = get_dates()
+        (end_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #backtest_result table取得
         conn = MyDB().get_db()
         c = conn.cursor()

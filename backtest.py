@@ -173,20 +173,6 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         fin_cnt += len(symbols_work)
         logger.info("backtest(%d/%d)" % (fin_cnt, max_cnt))
 
-def get_dates():
-    end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-    start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
-    start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
-    start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
-    start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
-    return (
-              end_date 
-            , start_date_3month
-            , start_date_1year
-            , start_date_3year
-            , start_date_15year
-            )
-
 if __name__ == '__main__':
     trade_fee = 0.1
     conf = common.read_conf()
