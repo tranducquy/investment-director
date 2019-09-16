@@ -52,33 +52,38 @@ create table backtest_result
     short_expected_rate decimal(10,5),
     short_expected_rate_per_1day decimal(10,5),
     regist_date text,
+    profit_rate_3month decimal(10,5),
+    profit_rate_1year decimal(10,5),
+    profit_rate_3year decimal(10,5),
+    profit_rate_15year decimal(10,5),
+    long_profit_rate_3month decimal(10,5),
+    long_profit_rate_1year decimal(10,5),
+    long_profit_rate_3year decimal(10,5),
+    long_profit_rate_15year decimal(10,5),
+    short_profit_rate_3month decimal(10,5),
+    short_profit_rate_1year decimal(10,5),
+    short_profit_rate_3year decimal(10,5),
+    short_profit_rate_15year decimal(10,5),
+    expected_rate_3month decimal(10,5),
+    expected_rate_1year decimal(10,5),
+    expected_rate_3year decimal(10,5),
+    expected_rate_15year decimal(10,5),
+    long_expected_rate_3month decimal(10,5),
+    long_expected_rate_1year decimal(10,5),
+    long_expected_rate_3year decimal(10,5),
+    long_expected_rate_15year decimal(10,5),
+    short_expected_rate_3month decimal(10,5),
+    short_expected_rate_1year decimal(10,5),
+    short_expected_rate_3year decimal(10,5),
+    short_expected_rate_15year decimal(10,5),
     primary key(symbol, strategy_id, strategy_option)
 )
 ;
-alter table backtest_result add column profit_rate_3month decimal(10,5);
-alter table backtest_result add column profit_rate_1year decimal(10,5);
-alter table backtest_result add column profit_rate_3year decimal(10,5);
-alter table backtest_result add column profit_rate_15year decimal(10,5);
-alter table backtest_result add column long_profit_rate_3month decimal(10,5);
-alter table backtest_result add column long_profit_rate_1year decimal(10,5);
-alter table backtest_result add column long_profit_rate_3year decimal(10,5);
-alter table backtest_result add column long_profit_rate_15year decimal(10,5);
-alter table backtest_result add column short_profit_rate_3month decimal(10,5);
-alter table backtest_result add column short_profit_rate_1year decimal(10,5);
-alter table backtest_result add column short_profit_rate_3year decimal(10,5);
-alter table backtest_result add column short_profit_rate_15year decimal(10,5);
-alter table backtest_result add column expected_rate_3month decimal(10,5);
-alter table backtest_result add column expected_rate_1year decimal(10,5);
-alter table backtest_result add column expected_rate_3year decimal(10,5);
-alter table backtest_result add column expected_rate_15year decimal(10,5);
-alter table backtest_result add column long_expected_rate_3month decimal(10,5);
-alter table backtest_result add column long_expected_rate_1year decimal(10,5);
-alter table backtest_result add column long_expected_rate_3year decimal(10,5);
-alter table backtest_result add column long_expected_rate_15year decimal(10,5);
-alter table backtest_result add column short_expected_rate_3month decimal(10,5);
-alter table backtest_result add column short_expected_rate_1year decimal(10,5);
-alter table backtest_result add column short_expected_rate_3year decimal(10,5);
-alter table backtest_result add column short_expected_rate_15year decimal(10,5);
+alter table backtest_result add column drawdown decimal(10,5);
+alter table backtest_result add column drawdown_3month decimal(10,5);
+alter table backtest_result add column drawdown_1year decimal(10,5);
+alter table backtest_result add column drawdown_3year decimal(10,5);
+alter table backtest_result add column drawdown_15year decimal(10,5);
 
 create table m_strategy
 (

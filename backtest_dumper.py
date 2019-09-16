@@ -488,12 +488,14 @@ class BacktestDumper():
 
     def get_dates(self):
         end_date = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        start_date = '2001-01-01'
         start_date_3month = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(months=3)).strftime("%Y-%m-%d")
         start_date_1year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=1)).strftime("%Y-%m-%d")
         start_date_3year = (datetime.strptime(end_date, "%Y-%m-%d")- relativedelta(years=3)).strftime("%Y-%m-%d")
         start_date_15year = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(years=15)).strftime("%Y-%m-%d")
         return (
                  end_date 
+                , start_date
                 , start_date_3month
                 , start_date_1year
                 , start_date_3year
@@ -502,7 +504,7 @@ class BacktestDumper():
 
     def update_expected_rate(self):
         self.logger.info("update_expected_rate()")
-        (end_date , start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
+        (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #backtest_result table取得
         conn = MyDB().get_db()
         c = conn.cursor()
@@ -818,3 +820,100 @@ class BacktestDumper():
             )
             conn.commit()
             conn.close()
+
+    def update_drawdown(self):
+        (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
+        #バックテスト結果を取得
+        conn = MyDB().get_db()
+        c = conn.cursor()
+        c.execute("""
+        select symbol,strategy_id,strategy_option from backtest_result
+        """)
+        rs = c.fetchall()
+        #TODO:ドローダウン算出
+        for r in rs:
+            symbol = r[0]
+            strategy_id = r[1]
+            strategy_option = r[2]
+            drawdown = self.get_drawdown(symbol, strategy_id, strategy_option, start_date, end_date)
+            drawdown_3month = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_3month, end_date)
+            drawdown_1year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_1year, end_date)
+            drawdown_3year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_3year, end_date)
+            drawdown_15year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_15year, end_date)
+            #DB更新
+            c3 = conn.cursor()
+            c3.execute("""
+            update backtest_result set 
+             drawdown = {drawdown} 
+            ,drawdown_3month = {drawdown_3month} 
+            ,drawdown_1year = {drawdown_1year} 
+            ,drawdown_3year = {drawdown_3year} 
+            ,drawdown_15year = {drawdown_15year} 
+            where symbol = '{symbol}'
+            and strategy_id = {strategy_id}
+            and strategy_option = '{strategy_option}'
+            """.format(
+                         symbol=symbol
+                        ,strategy_id=strategy_id
+                        ,strategy_option=strategy_option
+                        ,drawdown=drawdown
+                        ,drawdown_3month=drawdown_3month
+                        ,drawdown_1year=drawdown_1year
+                        ,drawdown_3year=drawdown_3year
+                        ,drawdown_15year=drawdown_15year
+            ))
+            self.logger.info("update_drawdown() {symbol},{strategy_id},{strategy_option}".format(
+                                                                                             symbol=symbol
+                                                                                            ,strategy_id=strategy_id
+                                                                                            ,strategy_option=strategy_option
+                                                                                            ))
+        conn.commit()
+        conn.close()
+
+    def get_drawdown(self, symbol, strategy_id, strategy_option, start_date, end_date):
+        conn = MyDB().get_db()
+        c = conn.cursor()
+        #cash+建玉(取得価格) 
+        c.execute("""
+        select
+        business_date
+        ,cash
+        ,pos_price
+        ,pos_vol 
+        from backtest_history 
+        where symbol = '{symbol}'
+        and strategy_id = {strategy_id}
+        and strategy_option = '{strategy_option}'
+        and business_date between '{start_date}' and '{end_date}'
+        order by business_date
+        """.format(
+                     symbol=symbol
+                    ,strategy_id=strategy_id
+                    ,strategy_option=strategy_option
+                    ,start_date=start_date
+                    ,end_date=end_date
+        ))
+        rs = c.fetchall()
+        maxv = 0
+        minv = 0
+        max_drawdown = 0
+        drawdown = 0
+        count = 0
+        if rs:
+            for r in rs:
+                v = r[1] + (r[2] * r[3])
+                if count == 0:
+                    maxv = v
+                    minv = v
+                elif maxv < v:
+                    maxv = v
+                elif minv > v:
+                    minv = v
+                    diff = maxv - minv
+                    drawdown = round(diff / maxv, 2)
+                    if max_drawdown < drawdown:
+                        max_drawdown = drawdown
+                count += 1
+        return max_drawdown
+
+

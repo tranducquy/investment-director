@@ -197,5 +197,6 @@ if __name__ == '__main__':
     else:
         brute_force = args.brute_force
     backtest(ss, start_date, end_date, inicash, brute_force)
-    BacktestDumper().update_expected_rate()
+    #BacktestDumper().update_expected_rate()
+    BacktestDumper().update_drawdown()
 
