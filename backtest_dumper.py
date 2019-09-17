@@ -821,7 +821,7 @@ class BacktestDumper():
             conn.commit()
             conn.close()
 
-    def update_drawdown(self):
+    def update_maxdrawdown(self):
         (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #バックテスト結果を取得
         conn = MyDB().get_db()
@@ -830,19 +830,21 @@ class BacktestDumper():
         select symbol,strategy_id,strategy_option from backtest_result
         """)
         rs = c.fetchall()
-        #TODO:ドローダウン算出
+        conn.close()
+        #ドローダウン算出
         for r in rs:
             symbol = r[0]
             strategy_id = r[1]
             strategy_option = r[2]
-            drawdown = self.get_drawdown(symbol, strategy_id, strategy_option, start_date, end_date)
-            drawdown_3month = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_3month, end_date)
-            drawdown_1year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_1year, end_date)
-            drawdown_3year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_3year, end_date)
-            drawdown_15year = self.get_drawdown(symbol, strategy_id, strategy_option, start_date_15year, end_date)
+            drawdown = self.get_maxdrawdown(symbol, strategy_id, strategy_option, start_date, end_date)
+            drawdown_3month = self.get_maxdrawdown(symbol, strategy_id, strategy_option, start_date_3month, end_date)
+            drawdown_1year = self.get_maxdrawdown(symbol, strategy_id, strategy_option, start_date_1year, end_date)
+            drawdown_3year = self.get_maxdrawdown(symbol, strategy_id, strategy_option, start_date_3year, end_date)
+            drawdown_15year = self.get_maxdrawdown(symbol, strategy_id, strategy_option, start_date_15year, end_date)
             #DB更新
-            c3 = conn.cursor()
-            c3.execute("""
+            conn = MyDB().get_db()
+            c = conn.cursor()
+            c.execute("""
             update backtest_result set 
              drawdown = {drawdown} 
             ,drawdown_3month = {drawdown_3month} 
@@ -867,10 +869,10 @@ class BacktestDumper():
                                                                                             ,strategy_id=strategy_id
                                                                                             ,strategy_option=strategy_option
                                                                                             ))
-        conn.commit()
-        conn.close()
+            conn.commit()
+            conn.close()
 
-    def get_drawdown(self, symbol, strategy_id, strategy_option, start_date, end_date):
+    def get_maxdrawdown(self, symbol, strategy_id, strategy_option, start_date, end_date):
         conn = MyDB().get_db()
         c = conn.cursor()
         #cash+建玉(取得価格) 
@@ -894,6 +896,7 @@ class BacktestDumper():
                     ,end_date=end_date
         ))
         rs = c.fetchall()
+        conn.close()
         maxv = 0
         minv = 0
         max_drawdown = 0
@@ -907,12 +910,22 @@ class BacktestDumper():
                     minv = v
                 elif maxv < v:
                     maxv = v
+                    minv = v
                 elif minv > v:
                     minv = v
                     diff = maxv - minv
-                    drawdown = round(diff / maxv, 2)
+                    drawdown = round(diff / maxv, 6)
                     if max_drawdown < drawdown:
                         max_drawdown = drawdown
+                        self.logger.info("maxdrawdown:{symbol},{strategy_id},{strategy_option},{start_date},{end_date},{business_date},{max_drawdown}".format(
+                            symbol=symbol
+                            ,strategy_id=strategy_id
+                            ,strategy_option=strategy_option
+                            ,start_date=start_date
+                            ,end_date=end_date
+                            ,business_date=r[0]
+                            ,max_drawdown=max_drawdown
+                        ))
                 count += 1
         return max_drawdown
 

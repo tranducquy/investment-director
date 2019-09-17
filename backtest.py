@@ -32,7 +32,7 @@ def get_option():
     argparser.add_argument('--start_date', type=str, help='Date of backtest start')
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
-    argparser.add_argument('--brute_force', type=str, help='breaking the code!')
+    argparser.add_argument('--brute_force', action='store_true', help='breaking the code!')
     args = argparser.parse_args()
     return args
 
@@ -98,7 +98,7 @@ def get_bollingerband_dailytrail_settings(symbol):
     conn.close()
     return rs
 
-def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
+def backtest(symbols, start_date, end_date, initial_cash, brute_force=False):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
     fin_cnt = 0
@@ -118,7 +118,7 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=None):
         #symbol単位でスレッド作成
         for symbol in symbols_work:
             """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
-            if not brute_force is None:
+            if brute_force:
                 bruteforce_bollingerband_dailytrail(symbol, start_date, end_date, initial_cash)
                 continue
             #ストラテジ取得
@@ -192,11 +192,11 @@ if __name__ == '__main__':
         end_date = investment_director.get_max_businessdate_from_ohlc(ss)
     else:
         end_date = args.end_date
-    if args.brute_force is None:
-        brute_force = None
+    if args.brute_force:
+        brute_force = True
     else:
-        brute_force = args.brute_force
+        brute_force = False
     backtest(ss, start_date, end_date, inicash, brute_force)
-    #BacktestDumper().update_expected_rate()
-    BacktestDumper().update_drawdown()
+    BacktestDumper().update_expected_rate()
+    BacktestDumper().update_maxdrawdown()
 

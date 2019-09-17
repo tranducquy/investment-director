@@ -111,6 +111,11 @@ r.symbol
 ,r.profit_rate_15year as 利益率15年
 ,r.long_profit_rate_15year as 利益率15年long
 ,r.short_profit_rate_15year as 利益率15年short
+,r.drawdown as 最大ドローダウン
+,r.drawdown_3month as 最大ドローダウン3か月
+,r.drawdown_1year as 最大ドローダウン1年
+,r.drawdown_3year as 最大ドローダウン3年
+,r.drawdown_15year as 最大ドローダウン15年
 ,r.expected_rate_3month as 期待利益率3か月
 ,r.long_expected_rate_3month as 期待利益率3か月long
 ,r.short_expected_rate_3month as 期待利益率3か月short
