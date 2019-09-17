@@ -284,6 +284,26 @@ delete from backtest_result where symbol = '1885.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '1885.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '1914.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '1914.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '1954.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '1954.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2109.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2109.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2120.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2120.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2168.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2168.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2378.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2378.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2462.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2462.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2695.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2695.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2752.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2752.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2767.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2767.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '2792.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '2792.T' and strategy_option = 'SMA3SD1.0';
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 20, 0.3);
@@ -314,9 +334,18 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1813.T', 8, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1861.T', 3, 1.0);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1866.T', 5, 1.0);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1885.T', 9, 0.4);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1914T', 4, 1.4);
-
-
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1914.T', 4, 1.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1954.T', 3, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2109.T', 5, 1.2);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2120.T', 18, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2168.T', 9, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2286.T', 10, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2378.T', 15, 1.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2462.T', 24, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2695.T', 13, 0.7);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2752.T', 7, 1.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2767.T', 3, 1.2);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2792.T', 3, 1.1);
 
 
 
