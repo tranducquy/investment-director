@@ -24,6 +24,7 @@ class Market():
             current_position = p.get_position()
             low = quotes.quotes['low'][idx]
             open_price = quotes.quotes['open'][idx]
+            close_price = quotes.quotes['close'][idx]
             business_date = quotes.quotes['business_date'][idx]
             order_info = { 'create_date':'' ,'order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
             call_order_info = { 'create_date':'' ,'order_date':'' ,'order_type':0 ,'order_status':0 ,'vol':0.00 ,'price':0.00 }
@@ -58,12 +59,20 @@ class Market():
                     elif high >= p.order.price and open_price >= p.order.price: #寄り付きが高値の場合
                         #最大volまで購入
                         order_vol = assets.get_max_vol(open_price)
-                        p.open_long(business_date, open_price, order_vol)
+                        order_price = open_price
+                        p.open_long(business_date, order_price, order_vol)
                     elif high >= p.order.price:
-                        p.open_long(business_date, p.order.price, p.order.vol)
+                        order_vol = p.order.vol
+                        order_price = p.order.price
+                        p.open_long(business_date, order_price, order_vol)
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
+                    #TODO:当日ロスカット
+                    losscut_price = order_price - (order_price * assets.get_losscut_ratio(symbol))
+                    if close_price < losscut_price:
+                        #TODO:
+                        pass
                 elif p.order.order_type == OrderType.STOP_MARKET_SHORT:
                     #約定判定
                     if p.order.price == -1:
@@ -78,6 +87,7 @@ class Market():
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
+                    #TODO:当日ロスカット
                 elif p.order.order_type == OrderType.MARKET_LONG:
                     #約定判定
                     if p.order.price == -1:

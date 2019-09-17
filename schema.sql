@@ -148,6 +148,8 @@ create table backtest_history
     execution_order_status text,
     execution_order_vol decimal(10, 5),
     execution_order_price decimal(10, 5),
+    current_losscut_vol decimal(10, 5),
+    current_losscut_price decimal(10, 5),
     position integer,
     cash decimal(10, 5),
     pos_vol decimal(10, 5),
