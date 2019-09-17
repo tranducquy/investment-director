@@ -17,6 +17,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,order_table.order_name
     ,order_table.order_price
     ,r.end_date
+    ,r.rate_of_return as 全期間騰落率
     ,r.profit_rate_3month as 利益率3か月
     ,r.long_profit_rate_3month as 利益率3か月long
     ,r.short_profit_rate_3month as 利益率3か月short
@@ -29,6 +30,11 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,r.profit_rate_15year as 利益率15年
     ,r.long_profit_rate_15year as 利益率15年long
     ,r.short_profit_rate_15year as 利益率15年short
+    ,r.drawdown as 最大ドローダウン全期間
+    ,r.drawdown_3month as 最大ドローダウン3か月
+    ,r.drawdown_1year as 最大ドローダウン1年
+    ,r.drawdown_3year as 最大ドローダウン3年
+    ,r.drawdown_15year as 最大ドローダウン15年
     ,r.expected_rate_3month as 期待利益率3か月
     ,r.long_expected_rate_3month as 期待利益率3か月long
     ,r.short_expected_rate_3month as 期待利益率3か月short
@@ -112,6 +118,7 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     ,order_table.order_name
     ,order_table.order_price
     ,r.end_date
+    ,r.rate_of_return as 全期間騰落率
     ,r.profit_rate_3month as 利益率3か月
     ,r.long_profit_rate_3month as 利益率3か月long
     ,r.short_profit_rate_3month as 利益率3か月short
@@ -124,6 +131,11 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     ,r.profit_rate_15year as 利益率15年
     ,r.long_profit_rate_15year as 利益率15年long
     ,r.long_profit_rate_15year as 利益率15年short
+    ,r.drawdown as 最大ドローダウン全期間
+    ,r.drawdown_3month as 最大ドローダウン3か月
+    ,r.drawdown_1year as 最大ドローダウン1年
+    ,r.drawdown_3year as 最大ドローダウン3年
+    ,r.drawdown_15year as 最大ドローダウン15年
     ,r.expected_rate_3month as 期待利益率3か月
     ,r.long_expected_rate_3month as 期待利益率3か月long
     ,r.short_expected_rate_3month as 期待利益率3か月short

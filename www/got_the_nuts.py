@@ -315,8 +315,21 @@ def index():
                 ,"7003.T"
                 ,"9107.T"
                 ]
+    symbols_mindrawdown = [
+                 "2792.T"
+                ,"2811.T"
+                ,"3172.T"
+                ,"7616.T"
+                ,"7630.T"
+                ,"8136.T"
+                ,"8904.T"
+                ,"9041.T"
+                ,"9601.T"
+                ,"9861.T"
+                ]
     return render_template('index.html'
                             , symbols=symbols
+                            , symbols_mindrawdown=symbols_mindrawdown
                             , index=index
                             )
 
@@ -332,8 +345,21 @@ def index2():
                 ,"7003.T"
                 ,"9107.T"
                 ]
+    symbols_mindrawdown = [
+                 "2792.T"
+                ,"2811.T"
+                ,"3172.T"
+                ,"7616.T"
+                ,"7630.T"
+                ,"8136.T"
+                ,"8904.T"
+                ,"9041.T"
+                ,"9601.T"
+                ,"9861.T"
+                ]
     return render_template('index.html'
                             , symbols=symbols
+                            , symbols_mindrawdown=symbols_mindrawdown
                             , index=index
                             )
 
