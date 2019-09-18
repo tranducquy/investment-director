@@ -222,10 +222,10 @@ create table bollingerband_dailytrail
 delete from bollingerband_dailytrail where symbol = 'XBTUSD';
 delete from bollingerband_dailytrail where symbol = 'ETHUSD';
 delete from bollingerband_dailytrail where symbol = 'GBPJPY';
-delete from backtest_result where symbol = 'XBTUSD' and strategy_option = 'SMA8SD1.2';
-delete from backtest_history where symbol = 'XBTUSD' and strategy_option = 'SMA8SD1.2';
-delete from backtest_result where symbol = 'ETHUSD' and strategy_option = 'SMA2SD1.6';
-delete from backtest_history where symbol = 'ETHUSD' and strategy_option = 'SMA2SD1.6';
+delete from backtest_result where symbol = 'XBTUSD';
+delete from backtest_history where symbol = 'XBTUSD';
+delete from backtest_result where symbol = 'ETHUSD';
+delete from backtest_history where symbol = 'ETHUSD';
 delete from backtest_result where symbol = 'GBPJPY';
 delete from backtest_history where symbol = 'GBPJPY';
 delete from backtest_result where symbol = '3103.T' and strategy_option = 'SMA3SD1.0';
