@@ -208,6 +208,7 @@ if __name__ == '__main__':
     else:
         brute_force = False
     backtest(ss, start_date, end_date, inicash, brute_force)
+    ss = symbol.get_symbols(symbol_txt)
     BacktestDumper().update_expected_rate(ss)
     BacktestDumper().update_maxdrawdown(ss)
 

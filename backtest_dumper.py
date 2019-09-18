@@ -225,39 +225,39 @@ class BacktestDumper():
             , strategy_id
             , strategy_option
             , business_date
-            , self._check_float(quotes.quotes['open'][idx])
-            , self._check_float(quotes.quotes['high'][idx])
-            , self._check_float(quotes.quotes['low'][idx])
-            , self._check_float(quotes.quotes['close'][idx])
+            , self.round(self._check_float(quotes.quotes['open'][idx]))
+            , self.round(self._check_float(quotes.quotes['high'][idx]))
+            , self.round(self._check_float(quotes.quotes['low'][idx]))
+            , self.round(self._check_float(quotes.quotes['close'][idx]))
             , vol
-            , self._check_float(quotes.sma[idx])
-            , self._check_float(quotes.upper_ev_sigma[idx])
-            , self._check_float(quotes.lower_ev_sigma[idx])
-            , self._check_float(quotes.upper_ev2_sigma[idx])
-            , self._check_float(quotes.lower_ev2_sigma[idx])
+            , self.round(self._check_float(quotes.sma[idx]))
+            , self.round(self._check_float(quotes.upper_ev_sigma[idx]))
+            , self.round(self._check_float(quotes.lower_ev_sigma[idx]))
+            , self.round(self._check_float(quotes.upper_ev2_sigma[idx]))
+            , self.round(self._check_float(quotes.lower_ev2_sigma[idx]))
             , 0.00 # vol_sma
             , 0.00 # vol_upper_sigma1
             , 0.00 # vol_lower_sigma1
             , order_info['create_date']
             , order_info['order_type']
-            , self._check_float(order_info['vol'])
-            , self._check_float(order_info['price'])
+            , self.round(self._check_float(order_info['vol']))
+            , self.round(self._check_float(order_info['price']))
             , call_order_info['order_date']
             , call_order_info['order_type']
-            , self._check_float(call_order_info['vol'])
-            , self._check_float(call_order_info['price'])
+            , self.round(self._check_float(call_order_info['vol']))
+            , self.round(self._check_float(call_order_info['price']))
             , execution_order_info['close_order_date']
             , execution_order_info['order_type']
             , execution_order_info['order_status']
-            , self._check_float(execution_order_info['vol'])
-            , self._check_float(execution_order_info['price'])
+            , self.round(self._check_float(execution_order_info['vol']))
+            , self.round(self._check_float(execution_order_info['price']))
             , position
-            , self._check_float(cash)
-            , self._check_float(pos_vol)
-            , self._check_float(pos_price)
-            , self._check_float(total_value)
-            , self._check_float(trade_perfomance['profit_value'])
-            , self._check_float(trade_perfomance['profit_rate'])
+            , self.round(self._check_float(cash))
+            , self.round(self._check_float(pos_vol))
+            , self.round(self._check_float(pos_price))
+            , self.round(self._check_float(total_value))
+            , self.round(self._check_float(trade_perfomance['profit_value']))
+            , self.round(self._check_float(trade_perfomance['profit_rate']))
         )
         return t
     
@@ -366,59 +366,59 @@ class BacktestDumper():
         if summary['WinCount'] == 0 and summary['LoseCount'] == 0:
             win_rate = 0
         else:
-            win_rate = round(summary['WinCount'] / (summary['WinCount'] + summary['LoseCount']) * 100, 2)
+            win_rate = self.round(summary['WinCount'] / (summary['WinCount'] + summary['LoseCount']) * 100)
         if summary['LongWinCount'] == 0 and summary['LongLoseCount'] == 0:
             long_win_rate = 0
         else:
-            long_win_rate = round(summary['LongWinCount'] / (summary['LongWinCount'] + summary['LongLoseCount']) * 100, 2)
+            long_win_rate = self.round(summary['LongWinCount'] / (summary['LongWinCount'] + summary['LongLoseCount']) * 100)
         if summary['ShortWinCount'] == 0 and summary['ShortLoseCount'] == 0:
             short_win_rate = 0
         else:
-            short_win_rate = round(summary['ShortWinCount'] / (summary['ShortWinCount'] + summary['ShortLoseCount']) * 100, 2)
+            short_win_rate = self.round(summary['ShortWinCount'] / (summary['ShortWinCount'] + summary['ShortLoseCount']) * 100)
         if summary['WinCount'] == 0 or summary['LoseCount'] == 0:
             payoffratio = 0
         else:
-            payoffratio = round((summary['WinValue'] / summary['WinCount']) / (summary['LoseValue'] / summary['LoseCount']), 2)
+            payoffratio = self.round((summary['WinValue'] / summary['WinCount']) / (summary['LoseValue'] / summary['LoseCount']))
         if summary['LongWinCount'] == 0 or summary['LongLoseCount'] == 0:
             long_payoffratio = 0
         else:
-            long_payoffratio = round((summary['LongWinValue'] / summary['LongWinCount']) / (summary['LongLoseValue'] / summary['LongLoseCount']), 2)
+            long_payoffratio = self.round((summary['LongWinValue'] / summary['LongWinCount']) / (summary['LongLoseValue'] / summary['LongLoseCount']))
         if summary['ShortWinCount'] == 0 or summary['ShortLoseCount'] == 0:
             short_payoffratio = 0
         else:
-            short_payoffratio = round((summary['ShortWinValue'] / summary['ShortWinCount']) / (summary['ShortLoseValue'] / summary['ShortLoseCount']), 2)
+            short_payoffratio = self.round((summary['ShortWinValue'] / summary['ShortWinCount']) / (summary['ShortLoseValue'] / summary['ShortLoseCount']))
         if summary['InitValue'] == 0:
             rate_of_return = 0
         else:
-            rate_of_return = round((summary['LastValue'] - summary['InitValue']) / summary['InitValue'] * 100, 2) 
+            rate_of_return = self.round((summary['LastValue'] - summary['InitValue']) / summary['InitValue'] * 100) 
         if summary['WinCount'] == 0 and summary['LoseCount'] == 0:
             expected_rate = 0
         else:
-            expected_rate = round(summary['ProfitRateSummary'] / (summary['WinCount'] + summary['LoseCount']), 2)
+            expected_rate = self.round(summary['ProfitRateSummary'] / (summary['WinCount'] + summary['LoseCount']))
         if summary['LongWinCount'] == 0 and summary['LongLoseCount'] == 0:
             long_expected_rate = 0
         else:
-            long_expected_rate = round(summary['LongProfitRateSummary'] / (summary['LongWinCount'] + summary['LongLoseCount']), 2)
+            long_expected_rate = self.round(summary['LongProfitRateSummary'] / (summary['LongWinCount'] + summary['LongLoseCount']))
         if summary['ShortWinCount'] == 0 and summary['ShortLoseCount'] == 0:
             short_expected_rate = 0
         else:
-            short_expected_rate = round(summary['ShortProfitRateSummary'] / (summary['ShortWinCount'] + summary['ShortLoseCount']), 2)
+            short_expected_rate = self.round(summary['ShortProfitRateSummary'] / (summary['ShortWinCount'] + summary['ShortLoseCount']))
         if (summary['WinCount'] == 0 and summary['LoseCount'] == 0) or summary['PositionHavingDays'] == 0:
             expected_rate_per_1day = 0
         else:
-            expected_rate_per_1day = round(expected_rate / (summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount'])), 2)
+            expected_rate_per_1day = self.round(expected_rate / (summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount'])))
         if (summary['LongWinCount'] == 0 and summary['LongLoseCount'] == 0) or summary['LongPositionHavingDays'] == 0:
             long_expected_rate_per_1day = 0
         else:
-            long_expected_rate_per_1day = round(long_expected_rate / (summary['LongPositionHavingDays'] / (summary['LongWinCount'] + summary['LongLoseCount'])), 2)
+            long_expected_rate_per_1day = self.round(long_expected_rate / (summary['LongPositionHavingDays'] / (summary['LongWinCount'] + summary['LongLoseCount'])))
         if (summary['ShortWinCount'] == 0 and summary['ShortLoseCount'] == 0) or summary['ShortPositionHavingDays'] == 0:
             short_expected_rate_per_1day = 0
         else:
-            short_expected_rate_per_1day = round(short_expected_rate / (summary['ShortPositionHavingDays'] / (summary['ShortWinCount'] + summary['ShortLoseCount'])), 2)
+            short_expected_rate_per_1day = self.round(short_expected_rate / (summary['ShortPositionHavingDays'] / (summary['ShortWinCount'] + summary['ShortLoseCount'])))
         if summary['PositionHavingDays'] == 0 and (summary['WinCount'] + summary['LoseCount']) == 0:
             position_having_days_per_trade = 0
         else:
-            position_having_days_per_trade = round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']), 2)
+            position_having_days_per_trade = self.round(summary['PositionHavingDays'] / (summary['WinCount'] + summary['LoseCount']))
         start_date = quotes.start_date
         end_date =quotes.end_date
         market_start_date = quotes.get_headdate()
@@ -454,34 +454,34 @@ class BacktestDumper():
             ,market_end_date
             ,(datetime.strptime(market_end_date, "%Y-%m-%d") - datetime.strptime(market_start_date, "%Y-%m-%d")).days
             ,summary['PositionHavingDays']
-            ,round(position_having_days_per_trade, 2)
+            ,self.round(position_having_days_per_trade)
             ,summary['InitValue']
             ,summary['LastValue']
-            ,rate_of_return
+            ,self.round(rate_of_return)
             ,summary['WinCount']
             ,summary['LoseCount']
             ,summary['WinValue']
             ,summary['LoseValue']
-            ,win_rate
-            ,payoffratio
-            ,expected_rate
-            ,expected_rate_per_1day
+            ,self.round(win_rate)
+            ,self.round(payoffratio)
+            ,self.round(expected_rate)
+            ,self.round(expected_rate_per_1day)
             ,summary['LongWinCount']
             ,summary['LongLoseCount']
             ,summary['LongWinValue']
             ,summary['LongLoseValue']
-            ,long_win_rate
-            ,long_payoffratio
-            ,long_expected_rate
-            ,long_expected_rate_per_1day
+            ,self.round(long_win_rate)
+            ,self.round(long_payoffratio)
+            ,self.round(long_expected_rate)
+            ,self.round(long_expected_rate_per_1day)
             ,summary['ShortWinCount']
             ,summary['ShortLoseCount']
             ,summary['ShortWinValue']
             ,summary['ShortLoseValue']
-            ,short_win_rate
-            ,short_payoffratio
-            ,short_expected_rate
-            ,short_expected_rate_per_1day
+            ,self.round(short_win_rate)
+            ,self.round(short_payoffratio)
+            ,self.round(short_expected_rate)
+            ,self.round(short_expected_rate_per_1day)
             ,regist_date
         )
         return msg
@@ -515,7 +515,7 @@ class BacktestDumper():
         ,strategy_option
         from backtest_result
         where symbol in ({symbols})
-        """.format(symbols=', '.join('?' for _ in symbols)))
+        """.format(symbols=', '.join('?' for _ in symbols)), symbols)
         rs = c.fetchall()
         conn.close()
         for r in rs:
@@ -528,7 +528,7 @@ class BacktestDumper():
                      profit_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -539,7 +539,7 @@ class BacktestDumper():
                     ,profit_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -550,7 +550,7 @@ class BacktestDumper():
                     ,profit_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -561,7 +561,7 @@ class BacktestDumper():
                     ,profit_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -572,7 +572,7 @@ class BacktestDumper():
                     ,long_profit_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -584,7 +584,7 @@ class BacktestDumper():
                     ,long_profit_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -596,7 +596,7 @@ class BacktestDumper():
                     ,long_profit_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -608,7 +608,7 @@ class BacktestDumper():
                     ,long_profit_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -620,7 +620,7 @@ class BacktestDumper():
                     ,short_profit_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -632,7 +632,7 @@ class BacktestDumper():
                     ,short_profit_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -644,7 +644,7 @@ class BacktestDumper():
                     ,short_profit_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -656,7 +656,7 @@ class BacktestDumper():
                     ,short_profit_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) 
+                         round(sum(profit_rate) ,4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -669,7 +669,7 @@ class BacktestDumper():
                     ,expected_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -680,7 +680,7 @@ class BacktestDumper():
                     ,expected_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -691,7 +691,7 @@ class BacktestDumper():
                     ,expected_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -702,7 +702,7 @@ class BacktestDumper():
                     ,expected_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -713,7 +713,7 @@ class BacktestDumper():
                     ,long_expected_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -725,7 +725,7 @@ class BacktestDumper():
                     ,long_expected_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -737,7 +737,7 @@ class BacktestDumper():
                     ,long_expected_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -749,7 +749,7 @@ class BacktestDumper():
                     ,long_expected_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -761,7 +761,7 @@ class BacktestDumper():
                     ,short_expected_rate_3month = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -773,7 +773,7 @@ class BacktestDumper():
                     ,short_expected_rate_1year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -785,7 +785,7 @@ class BacktestDumper():
                     ,short_expected_rate_3year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -797,7 +797,7 @@ class BacktestDumper():
                     ,short_expected_rate_15year = 
                     (
                         select 
-                         sum(profit_rate) / count(profit_rate)
+                         round(sum(profit_rate) / count(profit_rate), 4)
                         from backtest_history 
                         where symbol='{symbol}' 
                         and strategy_id = {strategy_id} 
@@ -834,7 +834,7 @@ class BacktestDumper():
         ,strategy_option 
         from backtest_result
         where symbol in ({symbols})
-        """.format(symbols=', '.join('?' for _ in symbols)))
+        """.format(symbols=', '.join('?' for _ in symbols)), symbols)
         rs = c.fetchall()
         conn.close()
         #ドローダウン算出
@@ -920,19 +920,22 @@ class BacktestDumper():
                 elif minv > v:
                     minv = v
                     diff = maxv - minv
-                    drawdown = round(diff / maxv, 6)
+                    drawdown = self.round(diff / maxv)
                     if max_drawdown < drawdown:
                         max_drawdown = drawdown
-                        self.logger.info("maxdrawdown:{symbol},{strategy_id},{strategy_option},{start_date},{end_date},{business_date},{max_drawdown}".format(
+                        business_date = r[0]
+                count += 1
+            self.logger.info("maxdrawdown:{symbol},{strategy_id},{strategy_option},{start_date},{end_date},{business_date},{max_drawdown}".format(
                             symbol=symbol
                             ,strategy_id=strategy_id
                             ,strategy_option=strategy_option
                             ,start_date=start_date
                             ,end_date=end_date
-                            ,business_date=r[0]
+                            ,business_date=business_date
                             ,max_drawdown=max_drawdown
-                        ))
-                count += 1
+                            ))
         return max_drawdown
 
+    def round(self, v):
+        return round(v, 4)
 
