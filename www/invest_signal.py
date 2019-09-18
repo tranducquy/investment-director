@@ -261,6 +261,8 @@ def direct_close_order(db, symbol, position, open_price, bitmex_flg, firstday_fl
     if bitmex_flg and business_date is not None:
         business_date = (datetime.strptime(business_date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
         losscut_ratio = 0.05
+    if symbol == 'GBPJPY' or symbol == 'USDJPY':
+        losscut_ratio = 0.005
     #高値、安値取得
     q = _get_quotes(db, symbol, business_date)
     #前日日付の高値、安値より１ティック上または下を返す
