@@ -502,7 +502,7 @@ class BacktestDumper():
                 , start_date_15year
                 )
 
-    def update_expected_rate(self):
+    def update_expected_rate(self, symbols):
         self.logger.info("update_expected_rate()")
         (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #backtest_result table取得
@@ -514,7 +514,8 @@ class BacktestDumper():
         ,strategy_id
         ,strategy_option
         from backtest_result
-        """)
+        where symbol in ({symbols})
+        """.format(symbols=', '.join('?' for _ in symbols)))
         rs = c.fetchall()
         conn.close()
         for r in rs:
@@ -821,14 +822,19 @@ class BacktestDumper():
             conn.commit()
             conn.close()
 
-    def update_maxdrawdown(self):
+    def update_maxdrawdown(self, symbols):
         (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #バックテスト結果を取得
         conn = MyDB().get_db()
         c = conn.cursor()
         c.execute("""
-        select symbol,strategy_id,strategy_option from backtest_result
-        """)
+        select 
+        symbol
+        ,strategy_id
+        ,strategy_option 
+        from backtest_result
+        where symbol in ({symbols})
+        """.format(symbols=', '.join('?' for _ in symbols)))
         rs = c.fetchall()
         conn.close()
         #ドローダウン算出

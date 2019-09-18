@@ -13,10 +13,7 @@ from argparse import ArgumentParser
 import common
 import my_logger 
 from butler import bollingerband
-from butler import new_value_and_moving_average
-from butler import bandwalk 
 from www import tick
-import investment_director
 from www import symbol
 from market import Market
 from my_db import MyDB
@@ -35,6 +32,20 @@ def get_option():
     argparser.add_argument('--brute_force', action='store_true', help='breaking the code!')
     args = argparser.parse_args()
     return args
+
+def get_max_businessdate_from_ohlc(symbols):
+    conn = MyDB().get_db()
+    c = conn.cursor()
+    #ohlcの最終登録日を取得
+    c.execute("""
+    select
+    max(business_date)
+    from ohlc 
+    where symbol in ({0})""".format(', '.join('?' for _ in symbols)), symbols)
+    max_date = c.fetchone()
+    conn.close()
+    return max_date[0]
+
 
 def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, sigma1, sigma2, initial_cash):
     q = Quotes(symbol, start_date, end_date, ma, sigma1, sigma2)
@@ -189,7 +200,7 @@ if __name__ == '__main__':
     else:
         start_date = args.start_date
     if args.end_date is None:
-        end_date = investment_director.get_max_businessdate_from_ohlc(ss)
+        end_date = get_max_businessdate_from_ohlc(ss)
     else:
         end_date = args.end_date
     if args.brute_force:
@@ -197,6 +208,6 @@ if __name__ == '__main__':
     else:
         brute_force = False
     backtest(ss, start_date, end_date, inicash, brute_force)
-    BacktestDumper().update_expected_rate()
-    BacktestDumper().update_maxdrawdown()
+    BacktestDumper().update_expected_rate(ss)
+    BacktestDumper().update_maxdrawdown(ss)
 
