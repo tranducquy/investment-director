@@ -25,7 +25,7 @@ class Assets():
         if (symbol == 'XBTUSD' or symbol == 'ETHUSD'):
             leverage = 3.5 
         elif (symbol == 'USDJPY' or symbol == 'GBPJPY'):
-            leverage = 20
+            leverage = 25
         return leverage
 
     def get_margin_cash(self, symbol, factor=1):
