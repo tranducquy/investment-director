@@ -906,6 +906,7 @@ class BacktestDumper():
         maxv = 0
         minv = 0
         max_drawdown = 0
+        business_date = ''
         drawdown = 0
         count = 0
         if rs:
