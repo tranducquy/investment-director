@@ -316,16 +316,9 @@ def index():
                 ,"9107.T"
                 ]
     symbols_mindrawdown = [
-                 "2792.T"
-                ,"2811.T"
-                ,"3172.T"
-                ,"7616.T"
-                ,"7630.T"
+                 "7616.T"
                 ,"8136.T"
                 ,"8904.T"
-                ,"9041.T"
-                ,"9601.T"
-                ,"9861.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
@@ -346,16 +339,9 @@ def index2():
                 ,"9107.T"
                 ]
     symbols_mindrawdown = [
-                 "2792.T"
-                ,"2811.T"
-                ,"3172.T"
-                ,"7616.T"
-                ,"7630.T"
+                 "7616.T"
                 ,"8136.T"
                 ,"8904.T"
-                ,"9041.T"
-                ,"9601.T"
-                ,"9861.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
@@ -578,7 +564,7 @@ def backtest_summary():
 #@auth.login_required
 def symbols():
     symbols = "active"
-    symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX500.txt")
+    symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX_20190918.txt")
     symbol2 = request.args.get("symbol2", "bitmex_xbtusd.txt")
     symbol3 = request.args.get("symbol3", "bitmex_ethusd.txt")
     symbol4 = request.args.get("symbol4", "minkabu_fx_gbpjpy.txt")

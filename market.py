@@ -5,6 +5,7 @@ import my_logger
 from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
+from orderstatus import OrderStatus
 from backtest_dumper import BacktestDumper
 
 class Market():
@@ -68,11 +69,15 @@ class Market():
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
-                    #TODO:当日ロスカット
-                    losscut_price = order_price - (order_price * assets.get_losscut_ratio(symbol))
-                    if close_price < losscut_price:
-                        #TODO:
-                        pass
+                    #Open約定期間中のロスカット
+                    if p.order.order_status == OrderStatus.EXECUTION:
+                        losscut_price = order_price - (order_price * assets.get_losscut_ratio(symbol))
+                        if close_price <= losscut_price:
+                            p.order.order_type = OrderType.CLOSE_STOP_MARKET_LONG
+                            call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_LONG
+                            p.close_long(business_date, losscut_price)
+                            trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
+                            self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.STOP_MARKET_SHORT:
                     #約定判定
                     if p.order.price == -1:
@@ -80,14 +85,25 @@ class Market():
                         p.order.fail_order()
                     elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
                         #最大volまで売却
+                        order_price = open_price
                         order_vol = assets.get_max_vol(open_price) * -1
-                        p.open_short(business_date, open_price, order_vol)
+                        p.open_short(business_date, order_price, order_vol)
                     elif low <= p.order.price:
+                        order_price = p.order.price
+                        order_vol = p.order.vol
                         p.open_short(business_date, p.order.price, p.order.vol)
                     else:
                         p.order.fail_order()
                     self.set_order_info(execution_order_info, p.order)
-                    #TODO:当日ロスカット
+                    #Open約定期間中のロスカット
+                    if p.order.order_status == OrderStatus.EXECUTION:
+                        losscut_price = order_price + (order_price * assets.get_losscut_ratio(symbol))
+                        if close_price >= losscut_price:
+                            p.order.order_type = OrderType.CLOSE_STOP_MARKET_SHORT
+                            call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_LONG
+                            p.close_short(business_date, losscut_price)
+                            trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
+                            self.set_order_info(execution_order_info, p.order)
                 elif p.order.order_type == OrderType.MARKET_LONG:
                     #約定判定
                     if p.order.price == -1:
