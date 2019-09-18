@@ -164,23 +164,23 @@ class Market():
                 short_order_type = butler.check_open_short(quotes, idx)
                 if long_order_type == OrderType.STOP_MARKET_LONG:
                     #create stop market long
-                    margin_cash = assets.get_margin_cash()
+                    margin_cash = assets.get_margin_cash(symbol)
                     t = butler.create_order_stop_market_long_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_stop_market_long(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.STOP_MARKET_SHORT:
                     #create stop market short
-                    margin_cash = assets.get_margin_cash()
+                    margin_cash = assets.get_margin_cash(symbol)
                     t = butler.create_order_stop_market_short_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_stop_market_short(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif long_order_type == OrderType.MARKET_LONG:
-                    margin_cash = assets.get_margin_cash()
+                    margin_cash = assets.get_margin_cash(symbol)
                     t = butler.create_order_market_long_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_market_long(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.MARKET_SHORT:
-                    margin_cash = assets.get_margin_cash()
+                    margin_cash = assets.get_margin_cash(symbol)
                     t = butler.create_order_market_short_for_all_cash(margin_cash, quotes, idx)
                     p.create_order_market_short(business_date, t[0], t[1])
                     self.set_order_info(order_info, p.order)

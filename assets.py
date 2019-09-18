@@ -19,12 +19,17 @@ class Assets():
             losscut_ratio = 0.005 #TODO:調整
         return losscut_ratio
 
-    def _calc_leverage(self, factor):
+    def _calc_leverage(self, symbol, factor):
+        leverage = 3
         #TODO:factor対応
-        return 3
+        if (symbol == 'XBTUSD' or symbol == 'ETHUSD'):
+            leverage = 3.5 
+        elif (symbol == 'USDJPY' or symbol == 'GBPJPY'):
+            leverage = 20
+        return leverage
 
-    def get_margin_cash(self, factor=1):
-        leverage = self._calc_leverage(factor)
+    def get_margin_cash(self, symbol, factor=1):
+        leverage = self._calc_leverage(symbol, factor)
         return math.floor(self.cash * leverage)
 
     def get_max_vol(self, price, factor=1):
