@@ -215,7 +215,8 @@ class BacktestDumper():
                 , pos_vol
                 , pos_price
                 , total_value
-                , trade_perfomance):
+                , trade_perfomance
+                , leverage):
         if 'volume' in quotes.quotes:
             vol = float(quotes.quotes['volume'][idx])
         else:
@@ -258,6 +259,7 @@ class BacktestDumper():
             , self.round(self._check_float(total_value))
             , self.round(self._check_float(trade_perfomance['profit_value']))
             , self.round(self._check_float(trade_perfomance['profit_rate']))
+            , self.round(leverage)
         )
         return t
     
@@ -305,11 +307,13 @@ class BacktestDumper():
                             pos_price,
                             total_value,
                             profit_value,
-                            profit_rate
+                            profit_rate,
+                            leverage
                         )
                         values
                         ( 
                              ?
+                            ,?
                             ,?
                             ,?
                             ,?

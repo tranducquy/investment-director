@@ -66,9 +66,25 @@ select
 ,bh.total_value
 ,bh.profit_value
 ,bh.profit_rate
+,bh.leverage
+,mot1.ordertype_name
+,mot2.ordertype_name
+,mot3.ordertype_name
+,mos.orderstatus_name
+,mpt.positiontype_name
 from backtest_history as bh
 left outer join m_strategy as ms
 on bh.strategy_id = ms.strategy_id
+left outer join m_ordertype as mot1
+on bh.order_type = mot1.ordertype_id
+left outer join m_ordertype as mot2
+on bh.call_order_type = mot2.ordertype_id
+left outer join m_ordertype as mot3
+on bh.execution_order_type = mot3.ordertype_id
+left outer join m_orderstatus as mos
+on bh.execution_order_status = mos.orderstatus_id
+left outer join m_positiontype as mpt
+on bh.position = mpt.positiontype_id
 where 
 bh.symbol = '{symbol}'
 and bh.strategy_id = {strategy_id}

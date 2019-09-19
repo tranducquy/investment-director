@@ -116,6 +116,29 @@ insert into m_ordertype (ordertype_id, ordertype_name) values (10, '成行売');
 insert into m_ordertype (ordertype_id, ordertype_name) values (11, '指値返売');
 insert into m_ordertype (ordertype_id, ordertype_name) values (12, '指値返買');
 
+create table m_orderstatus
+(
+    orderstatus_id integer,
+    orderstatus_name text,
+    primary key(orderstatus_id)
+)
+;
+insert into m_orderstatus (orderstatus_id, orderstatus_name) values (0, '注文なし');
+insert into m_orderstatus (orderstatus_id, orderstatus_name) values (1, '注文中');
+insert into m_orderstatus (orderstatus_id, orderstatus_name) values (2, '失効');
+insert into m_orderstatus (orderstatus_id, orderstatus_name) values (3, '約定');
+
+create table m_positiontype
+(
+    positiontype_id integer,
+    positiontype_name text,
+    primary key(positiontype_id)
+)
+;
+insert into m_positiontype (positiontype_id, positiontype_name) values (0, 'NOTHING');
+insert into m_positiontype (positiontype_id, positiontype_name) values (1, 'LONG');
+insert into m_positiontype (positiontype_id, positiontype_name) values (2, 'SHORT');
+
 create table backtest_history
 (
     symbol text,
@@ -156,8 +179,8 @@ create table backtest_history
     profit_value decimal(10, 5),
     profit_rate decimal(10, 5),
     primary key(symbol, strategy_id, strategy_option, business_date)
-)
-;
+);
+alter table backtest_history add column leverage decimal(10,5);
 
 create table position
 (
@@ -352,7 +375,7 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8801.T', 4, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8904.T', 8, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9107.T', 19, 0.4);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 8, 0.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 4, 0.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 11, 0.7);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
 

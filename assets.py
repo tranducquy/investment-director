@@ -30,11 +30,11 @@ class Assets():
 
     def get_margin_cash(self, symbol, factor=1):
         leverage = self._calc_leverage(symbol, factor)
-        return math.floor(self.cash * leverage)
+        return (math.floor(self.cash * leverage), leverage)
 
     def get_max_vol(self, price, factor=1):
         #TODO:最小単元
-        margin_cash = self.get_margin_cash(factor)
+        (margin_cash, leverage) = self.get_margin_cash(factor)
         return math.floor(margin_cash / price)
 
     def open_long(self, price, vol):
