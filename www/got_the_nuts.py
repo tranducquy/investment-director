@@ -239,21 +239,39 @@ select
 ,order_table.order_name
 ,order_table.order_price
 ,r.end_date
-,r.expected_rate_3month as 利益率3か月
-,r.long_expected_rate_3month as 利益率3か月long
-,r.short_expected_rate_3month as 利益率3か月short
-,r.expected_rate_1year as 利益率1年
-,r.long_expected_rate_1year as 利益率1年long
-,r.short_expected_rate_1year as 利益率1年short
-,r.expected_rate_3year as 利益率3年
-,r.long_expected_rate_3year as 利益率3年long
-,r.short_expected_rate_3year as 利益率3年short
-,r.expected_rate_15year as 利益率15年
-,r.long_expected_rate_15year as 利益率15年long
-,r.short_expected_rate_15year as 利益率15年short
-,r.expected_rate as 全期間利益率
-,r.long_expected_rate as 全期間利益率long
-,r.short_expected_rate as 全期間利益率short
+,r.rate_of_return as 全期間騰落率
+,r.profit_rate_3month as 利益率3か月
+,r.long_profit_rate_3month as 利益率3か月long
+,r.short_profit_rate_3month as 利益率3か月short
+,r.profit_rate_1year as 利益率1年
+,r.long_profit_rate_1year as 利益率1年long
+,r.short_profit_rate_1year as 利益率1年short
+,r.profit_rate_3year as 利益率3年
+,r.long_profit_rate_3year as 利益率3年long
+,r.short_profit_rate_3year as 利益率3年short
+,r.profit_rate_15year as 利益率15年
+,r.long_profit_rate_15year as 利益率15年long
+,r.short_profit_rate_15year as 利益率15年short
+,r.drawdown as 最大ドローダウン全期間
+,r.drawdown_3month as 最大ドローダウン3か月
+,r.drawdown_1year as 最大ドローダウン1年
+,r.drawdown_3year as 最大ドローダウン3年
+,r.drawdown_15year as 最大ドローダウン15年
+,r.expected_rate_3month as 期待利益率3か月
+,r.long_expected_rate_3month as 期待利益率3か月long
+,r.short_expected_rate_3month as 期待利益率3か月short
+,r.expected_rate_1year as 期待利益率1年
+,r.long_expected_rate_1year as 期待利益率1年long
+,r.short_expected_rate_1year as 期待利益率1年short
+,r.expected_rate_3year as 期待利益率3年
+,r.long_expected_rate_3year as 期待利益率3年long
+,r.short_expected_rate_3year as 期待利益率3年short
+,r.expected_rate_15year as 期待利益率15年
+,r.long_expected_rate_15year as 期待利益率15年long
+,r.short_expected_rate_15year as 期待利益率15年short
+,r.expected_rate as 全期間期待利益率
+,r.long_expected_rate as 全期間期待利益率long
+,r.short_expected_rate as 全期間期待利益率short
 ,r.win_rate as 勝率
 ,r.average_period_per_trade as 平均取引期間
 ,r.win_count+r.loss_count as 取引数
@@ -263,7 +281,7 @@ select
 from backtest_result r
 inner join (
     select
-    bh.symbol
+     bh.symbol
     ,bh.strategy_id
     ,bh.strategy_option
     ,bh.order_create_date
@@ -273,20 +291,20 @@ inner join (
     ,bh.order_price
     from backtest_history as bh
     inner join m_ordertype as mo
-    on bh.order_type = mo.ordertype_id
+     on bh.order_type = mo.ordertype_id
     inner join (
         select
-        symbol
-        ,strategy_id
-        ,strategy_option
-        ,max(business_date) as max_business_date
+         symbol
+         ,strategy_id
+         ,strategy_option
+         ,max(business_date) as max_business_date
         from backtest_history
         group by symbol, strategy_id, strategy_option
-    ) as bhmd
-    on bh.symbol = bhmd.symbol
-    and bh.strategy_id = bhmd.strategy_id
-    and bh.strategy_option = bhmd.strategy_option
-    and bh.business_date = bhmd.max_business_date
+        ) as bhmd
+     on bh.symbol = bhmd.symbol
+     and bh.strategy_id = bhmd.strategy_id
+     and bh.strategy_option = bhmd.strategy_option
+     and bh.business_date = bhmd.max_business_date
     where 0 = 0
     and bh.order_type in (1, 2)
     and bh.order_price > 0
@@ -298,13 +316,13 @@ and r.strategy_option = order_table.strategy_option
 where 0 = 0
 and r.rate_of_return > 0
 and (
-    (order_table.order_type = 1 and (r.long_expected_rate_3month > 15 or r.long_expected_rate_1year > 15)) 
+    (order_table.order_type = 1 and (r.long_profit_rate_3month > 15 or r.long_profit_rate_1year > 15)) 
     or 
-    (order_table.order_type = 2 and (r.short_expected_rate_3month > 15 or r.short_expected_rate_1year > 15))
+    (order_table.order_type = 2 and (r.short_profit_rate_3month > 15 or r.short_profit_rate_1year > 15))
 )
-and (r.expected_rate_3month > 5 and r.expected_rate_1year > 15 and r.expected_rate_3year > 45 and r.expected_rate_15year > 225)
+and (r.profit_rate_3month > 5 and r.profit_rate_1year > 15 and r.profit_rate_3year > 45 and r.profit_rate_15year > 225)
 and r.symbol in ({symbols})
-order by r.expected_rate_3month desc
+order by r.profit_rate_1year desc
 """
 
 def get_db():
