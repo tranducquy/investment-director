@@ -1,7 +1,7 @@
 
 import pandas as pd
-import my_lock
-from my_db import MyDB
+import mylock
+from mydb import MyDB
 
 class Quotes():
     def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3):
@@ -19,7 +19,7 @@ class Quotes():
 
     def get_history(self):
         try:
-            my_lock.lock.acquire()
+            mylock.lock.acquire()
             conn = MyDB().get_db()
             df = pd.read_sql_query("""select
                                       symbol
@@ -47,7 +47,7 @@ class Quotes():
                 conn.close
             else:
                 self.quotes = None
-            my_lock.lock.release()
+            mylock.lock.release()
 
     def set_sigma(self):
         #終値の配列から移動平均、標準偏差の配列を算出

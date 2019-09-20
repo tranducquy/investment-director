@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy
-import my_logger
+import mylogger
 from position import Position
 from positiontype import PositionType
 from ordertype import OrderType
@@ -11,7 +11,7 @@ from backtest_dumper import BacktestDumper
 class Market():
     def __init__(self, logger=None):
         if logger is None:
-            self.logger = my_logger.Logger().myLogger()
+            self.logger = mylogger.Logger().myLogger()
         else:
             self.logger = logger
         self.dumper = BacktestDumper()
@@ -73,7 +73,9 @@ class Market():
                     #Open約定期間中のロスカット
                     if p.order.order_status == OrderStatus.EXECUTION:
                         losscut_price = order_price - (order_price * assets.get_losscut_ratio(symbol))
-                        if close_price <= losscut_price:
+                        if low <= losscut_price:
+                        #if close_price <= losscut_price:
+                        #if False:
                             p.order.order_type = OrderType.CLOSE_STOP_MARKET_LONG
                             call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_LONG
                             p.close_long(business_date, losscut_price)
@@ -99,7 +101,9 @@ class Market():
                     #Open約定期間中のロスカット
                     if p.order.order_status == OrderStatus.EXECUTION:
                         losscut_price = order_price + (order_price * assets.get_losscut_ratio(symbol))
-                        if close_price >= losscut_price:
+                        if high >= losscut_price:
+                        #if close_price >= losscut_price:
+                        #if False:
                             p.order.order_type = OrderType.CLOSE_STOP_MARKET_SHORT
                             call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_LONG
                             p.close_short(business_date, losscut_price)

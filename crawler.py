@@ -6,16 +6,16 @@ import calendar, requests
 import pandas as pd
 import yfinance as yf
 import common
-import my_logger
+import mylogger
 import backtest
 from www import symbol as sym
-from my_db import MyDB
+from mydb import MyDB
 
 
 class Crawler():
     def __init__(self, logger=None):
         if logger is None:
-            self.logger = my_logger.Logger().myLogger()
+            self.logger = mylogger.Logger().myLogger()
         else:
             self.logger = logger
 
@@ -126,7 +126,7 @@ class Crawler():
                 self.logger.info("downloaded:[%s][%s-%s] [%s-%s]" % (symbol, start_date, end_date, min_date, max_date))
 
 def crawler(start_date, end_date, symbol_txt, unix_period):
-    s = my_logger.Logger()
+    s = mylogger.Logger()
     logger = s.myLogger(conf['logger'])
     logger.info('crawler.')
     Crawler().download(start_date, end_date, symbol_txt, unix_period)

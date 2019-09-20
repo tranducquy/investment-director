@@ -3,14 +3,14 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy
-import my_logger
-import my_lock
-from my_db import MyDB
+import mylogger
+import mylock
+from mydb import MyDB
 
 class BacktestDumper():
     def __init__(self, logger=None):
         if logger is None:
-            self.logger = my_logger.Logger().myLogger()
+            self.logger = mylogger.Logger().myLogger()
         else:
             self.logger = logger
 
@@ -56,7 +56,7 @@ class BacktestDumper():
                         ,regist_date
         ):
         try:
-            my_lock.lock.acquire()
+            mylock.lock.acquire()
             conn = MyDB().get_db()
             c = conn.cursor()
             c.execute("""
@@ -191,7 +191,7 @@ class BacktestDumper():
             if conn: 
                 conn.commit()
                 conn.close
-            my_lock.lock.release()
+            mylock.lock.release()
     
     def _check_float(self, num):
         if ( num is None or numpy.isnan(num)):
@@ -265,7 +265,7 @@ class BacktestDumper():
     
     def save_history(self, backtest_history):
         try:
-            my_lock.lock.acquire()
+            mylock.lock.acquire()
             conn = MyDB().get_db()
             c = conn.cursor()
             c.executemany("""
@@ -362,7 +362,7 @@ class BacktestDumper():
             if conn: 
                 conn.commit()
                 conn.close
-            my_lock.lock.release()
+            mylock.lock.release()
     
     def make_summary_msg(self, symbol, strategy_id, strategy_option, title, summary, quotes):
         if quotes.quotes.index.size == 0:

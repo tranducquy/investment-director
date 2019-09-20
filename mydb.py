@@ -1,12 +1,12 @@
 
 import sqlite3
 import common
-import my_logger
+import mylogger
 
 class MyDB():
     def __init__(self, l=None, dbfile=None):
         if l is None:
-            self.logger = my_logger.Logger().myLogger()
+            self.logger = mylogger.Logger().myLogger()
         else:
             self.logger = l
         if dbfile is None:
