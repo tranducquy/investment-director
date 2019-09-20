@@ -16,7 +16,7 @@ class Assets():
         if 'XBTUSD' == symbol or 'ETHUSD' == symbol:
             losscut_ratio = 0.05
         elif 'GBPJPY' == symbol or 'USDJPY' == symbol:
-            losscut_ratio = 0.005 #TODO:調整
+            losscut_ratio = 0.03 #TODO:調整
         return losscut_ratio
 
     def _calc_leverage(self, symbol, factor):
@@ -25,7 +25,7 @@ class Assets():
         if (symbol == 'XBTUSD' or symbol == 'ETHUSD'):
             leverage = 3.5 
         elif (symbol == 'USDJPY' or symbol == 'GBPJPY'):
-            leverage = 25
+            leverage = 15
         return leverage
 
     def get_margin_cash(self, symbol, factor=1):

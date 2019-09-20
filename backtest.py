@@ -11,16 +11,16 @@ import threading
 import numpy
 from argparse import ArgumentParser
 import common
-import my_logger 
+import mylogger 
 from butler import bollingerband
 from www import tick
 from www import symbol
 from market import Market
-from my_db import MyDB
+from mydb import MyDB
 from assets import Assets
 from backtest_dumper import BacktestDumper
 
-s = my_logger.Logger()
+s = mylogger.Logger()
 logger = s.myLogger()
 
 def get_option():
@@ -28,7 +28,7 @@ def get_option():
     argparser.add_argument('--symbol', type=str, help='Absolute/relative path to input file')
     argparser.add_argument('--start_date', type=str, help='Date of backtest start')
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
-    argparser.add_argument('--period', type=str, help='for bitmex_cc/minkabu_fx')
+    argparser.add_argument('--period', type=str, help='for bitmex/minkabu_fx')
     argparser.add_argument('--brute_force', action='store_true', help='breaking the code!')
     args = argparser.parse_args()
     return args
@@ -187,7 +187,7 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=False):
 if __name__ == '__main__':
     trade_fee = 0.1
     conf = common.read_conf()
-    s = my_logger.Logger()
+    s = mylogger.Logger()
     inicash = int(conf['initial_cash'])
     args = get_option()
     if args.symbol is None:
