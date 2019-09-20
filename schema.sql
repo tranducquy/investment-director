@@ -245,12 +245,21 @@ create table bollingerband_dailytrail
 delete from bollingerband_dailytrail where symbol = 'XBTUSD';
 delete from bollingerband_dailytrail where symbol = 'ETHUSD';
 delete from bollingerband_dailytrail where symbol = 'GBPJPY';
+delete from bollingerband_dailytrail where symbol = 'USDJPY';
 delete from backtest_result where symbol = 'XBTUSD';
 delete from backtest_history where symbol = 'XBTUSD';
 delete from backtest_result where symbol = 'ETHUSD';
 delete from backtest_history where symbol = 'ETHUSD';
 delete from backtest_result where symbol = 'GBPJPY';
 delete from backtest_history where symbol = 'GBPJPY';
+delete from backtest_result where symbol = 'USDJPY';
+delete from backtest_history where symbol = 'USDJPY';
+delete from backtest_result where symbol = 'EURJPY';
+delete from backtest_history where symbol = 'EURJPY';
+delete from backtest_result where symbol = 'AUDJPY';
+delete from backtest_history where symbol = 'AUDJPY';
+delete from backtest_result where symbol = 'SGDJPY';
+delete from backtest_history where symbol = 'SGDJPY';
 delete from backtest_result where symbol = '3103.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '3103.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '5202.T' and strategy_option = 'SMA3SD1.0';
@@ -353,6 +362,12 @@ delete from backtest_result where symbol = '1820.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '1820.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '1821.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '1821.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '5981.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '5981.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '7599.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '7599.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '7513.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '7513.T' and strategy_option = 'SMA3SD1.0';
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1514.T', 3, 0.8);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1515.T', 4, 0.8);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1805.T', 5, 1.1);
@@ -403,10 +418,12 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5801.T', 9, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6205.T', 8, 0.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8613.T', 4, 1.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5406.T', 4, 1.3);
-
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1518.T', 23, 0.2);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1766.T', 9, 0.7);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1808.T', 16, 0.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1820.T', 5, 0.7);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1821.T', 12, 1.2);
-
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('USDJPY', 2, 1.9);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5981.T', 6, 0.7);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7599.T', 17, 1.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7513.T', 4, 0.9);
