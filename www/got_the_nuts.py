@@ -346,7 +346,6 @@ def index():
                 ,"6141.T"
                 ,"6728.T"
                 ,"6753.T"
-                ,"7003.T"
                 ,"9107.T"
                 ]
     symbols_mindrawdown = [
@@ -369,7 +368,6 @@ def index2():
                 ,"6141.T"
                 ,"6728.T"
                 ,"6753.T"
-                ,"7003.T"
                 ,"9107.T"
                 ]
     symbols_mindrawdown = [
@@ -388,13 +386,11 @@ def index2():
 def open_signal():
     signal="active"
     symbol1 = request.args.get("symbol", "Nikkei225_TOPIX_20190918.txt")
-    symbol2 = request.args.get("symbol", "bitmex_xbtusd.txt")
-    symbol3 = request.args.get("symbol", "bitmex_ethusd.txt")
-    symbol4 = request.args.get("symbol", "minkabu_fx.txt")
+    symbol2 = request.args.get("symbol", "bitmex.txt")
+    symbol3 = request.args.get("symbol", "minkabu_fx.txt")
     symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
     symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
     symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
-    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
     start_date = request.args.get("start_date", "2001-01-01")
     today = datetime.now()
     end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
@@ -402,7 +398,6 @@ def open_signal():
     (open_signals1, query1) = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date)
     (open_signals2, query2) = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
     (open_signals3, query3) = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
-    (open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
     header_title = "Open Signal"
     content_title = "Open Signal"
     return render_template('open_signal.html'
@@ -414,15 +409,12 @@ def open_signal():
                         , symbol1=symbol1
                         , symbol2=symbol2
                         , symbol3=symbol3
-                        , symbol4=symbol4
                         , open_signals1=open_signals1
                         , open_signals2=open_signals2
                         , open_signals3=open_signals3
-                        , open_signals4=open_signals4
                         , query1=query1
                         , query2=query2
                         , query3=query3
-                        , query4=query4
                         )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
@@ -599,17 +591,14 @@ def backtest_summary():
 def symbols():
     symbols = "active"
     symbol1 = request.args.get("symbol1", "Nikkei225_TOPIX_20190918.txt")
-    symbol2 = request.args.get("symbol2", "bitmex_xbtusd.txt")
-    symbol3 = request.args.get("symbol3", "bitmex_ethusd.txt")
-    symbol4 = request.args.get("symbol4", "minkabu_fx.txt")
+    symbol2 = request.args.get("symbol2", "bitmex.txt")
+    symbol3 = request.args.get("symbol3", "minkabu_fx.txt")
     symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
     symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
     symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
-    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
     symbol1_list = sy.get_symbols(symbol1_txt)
     symbol2_list = sy.get_symbols(symbol2_txt)
     symbol3_list = sy.get_symbols(symbol3_txt)
-    symbol4_list = sy.get_symbols(symbol4_txt)
     header_title = u"Symbol List"
     content_title = u"Symbol List"
     return render_template('symbols.html'
@@ -619,11 +608,9 @@ def symbols():
                         , symbol1=symbol1
                         , symbol2=symbol2
                         , symbol3=symbol3
-                        , symbol4=symbol4
                         , symbol1_list=symbol1_list
                         , symbol2_list=symbol2_list
                         , symbol3_list=symbol3_list
-                        , symbol4_list=symbol4_list
                         )
 
 @app.route('/crontab')
