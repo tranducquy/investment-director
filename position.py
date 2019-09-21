@@ -12,6 +12,8 @@ class Position():
         self.position = PositionType.NOTHING
         self.pos_price = 0
         self.pos_vol = 0
+        self.close_price = 0
+        self.close_vol = 0
         self.order = None
         self.win_count = 0
         self.lose_count = 0
@@ -108,9 +110,10 @@ class Position():
     def close_long(self, business_date, order_price):
         self.position = PositionType.NOTHING
         self.order.price = order_price
-        self.pos_price = self.order.price
+        self.close_price = self.order.price
+        self.close_vol = self.pos_vol
         #self.cash = round(self.cash + (self.pos_vol * self.pos_price), 2)
-        self.assets.close_long(self.pos_price, self.pos_vol)
+        self.assets.close_long(self.close_price, self.close_vol)
         self.pos_vol = 0
         self.order.execution_order(business_date)
         self.close_date = self.order.close_order_date
@@ -122,9 +125,10 @@ class Position():
     def close_short(self, business_date, order_price):
         self.position = PositionType.NOTHING
         self.order.price = order_price
-        self.pos_price = self.order.price
+        self.close_price = self.order.price
+        self.close_vol = self.pos_vol
         #self.cash = round(self.cash + (self.pos_vol * self.pos_price), 2)
-        self.assets.close_short(self.pos_price, self.pos_vol)
+        self.assets.close_short(self.close_price, self.close_vol)
         self.pos_vol = 0
         self.order.execution_order(business_date)
         self.close_date = self.order.close_order_date
@@ -140,8 +144,13 @@ class Position():
             win = 1
         else:
             lose = 1
-        profit_value = self.assets.cash - self.assets.before_cash
-        profit_rate = profit_value / self.assets.before_cash * 100
+        #profit_value = self.assets.cash - self.assets.before_cash
+        #profit_rate = profit_value / self.assets.before_cash * 100
+        profit_value = (self.close_price * self.close_vol) - (self.pos_price * self.close_vol)
+        if self.pos_price != 0 and self.close_vol != 0 and profit_value != 0:
+            profit_rate = profit_value / abs(self.pos_price * self.close_vol)
+        else:
+            profit_rate = 0
         trade_perfomance = {
               'before_cash': self.assets.before_cash
             , 'cash': self.assets.cash
