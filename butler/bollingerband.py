@@ -5,17 +5,10 @@ from position import Position
 from ordertype import OrderType
 
 class Butler():
-    #アルゴリズム
-    '''
-    # 超短期ボリンジャーバンド
-     1. 2から8日から期間を選択
-     2. 単純移動平均と標準偏差を求める
-     3. 転換価格をσの何倍にするか決める
-     4. 翌日場が開く前にその転換価格±１ティックの価格(買いは上、売りは下)で逆指値注文を入れる
-    '''
-    def __init__(self, tick, bollinger_duration):
+    def __init__(self, tick, bollinger_duration, order_vol_ratio=0.01):
         self.duration = bollinger_duration
         self.diff_price = 0.0
+        self.order_vol_ratio = order_vol_ratio
         self.tick = tick
     
     def _check_quotes(self, q, idx):
@@ -87,19 +80,45 @@ class Butler():
             return OrderType.NONE_ORDER
         return OrderType.CLOSE_STOP_MARKET_SHORT
 
-    def create_order_stop_market_long_for_all_cash(self, cash, q, idx):
+    def get_unit(self, symbol):
+        if '.T' in symbol:
+            unit = 100
+        else:
+            unit = 1
+        return unit
+
+    def get_order_vol(self, symbol, cash, q, idx, price):
+        unit = self.get_unit(symbol)
+        order_vol_from_cash = math.floor(cash / price / unit) * unit
+        #出来高平均
+        #current_vol = q.quotes['volume'][idx]
+        current_vol = q.vol_sma[idx]
+        if math.isnan(current_vol):
+            current_vol = q.quotes['volume'][idx]
+        #出来高平均から発注数量を取得
+        temp_vol = current_vol * self.order_vol_ratio
+        order_vol_from_current = math.floor(temp_vol / unit) * unit
+        if 'XBTUSD' == symbol or 'ETHUSD' == symbol or 'USDJPY' == symbol or 'GBPJPY' == symbol or 'EURJPY' == symbol:
+            vol = order_vol_from_cash
+        elif order_vol_from_cash < order_vol_from_current:
+            vol = order_vol_from_cash
+        else:
+            vol = order_vol_from_current
+        return vol
+
+    def create_order_stop_market_long_for_all_cash(self, symbol, cash, q, idx):
         if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = self.create_order_stop_market_long(q, idx)
-        vol = math.floor(cash / price)
+        vol = self.get_order_vol(symbol, cash, q, idx, price)
         return (price, vol)
 
-    def create_order_stop_market_short_for_all_cash(self, cash, q, idx):
+    def create_order_stop_market_short_for_all_cash(self, symbol, cash, q, idx):
         if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = self.create_order_stop_market_short(q, idx)
-        vol = math.floor((cash / price) * -1)
-        return (price, vol)
+        vol = self.get_order_vol(symbol, cash, q, idx, price)
+        return (price, vol * -1)
 
     def create_order_stop_market_long(self, q, idx):
         if not self._check_quotes(q, idx):
@@ -137,16 +156,16 @@ class Butler():
     def create_order_close_market_short(self, q, idx):
         return 0.00
 
-    def create_order_market_long_for_all_cash(self, cash, q, idx):
+    def create_order_market_long_for_all_cash(self, symbol, cash, q, idx):
         if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = q.quotes['close'][idx]
-        vol = math.floor((cash / price) * -1)
+        vol = self.get_order_vol(symbol, cash, q, idx, price)
         return (price, vol)
 
-    def create_order_market_short_for_all_cash(self, cash, q, idx):
+    def create_order_market_short_for_all_cash(self, symbol, cash, q, idx):
         if not self._check_quotes(q, idx) or cash <= 0:
             return (-1, -1)
         price = q.quotes['close'][idx]
-        vol = math.floor((cash / price) * -1)
-        return (price, vol)
+        vol = self.get_order_vol(symbol, cash, q, idx, price)
+        return (price, vol * -1)

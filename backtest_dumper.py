@@ -236,7 +236,7 @@ class BacktestDumper():
             , self.round(self._check_float(quotes.lower_ev_sigma[idx]))
             , self.round(self._check_float(quotes.upper_ev2_sigma[idx]))
             , self.round(self._check_float(quotes.lower_ev2_sigma[idx]))
-            , 0.00 # vol_sma
+            , self.round(self._check_float(quotes.vol_sma[idx]))
             , 0.00 # vol_upper_sigma1
             , 0.00 # vol_lower_sigma1
             , order_info['create_date']
