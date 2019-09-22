@@ -72,6 +72,7 @@ select
 ,mot3.ordertype_name
 ,mos.orderstatus_name
 ,mpt.positiontype_name
+,bh.vol_sma
 from backtest_history as bh
 left outer join m_strategy as ms
 on bh.strategy_id = ms.strategy_id
