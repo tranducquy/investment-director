@@ -192,7 +192,7 @@ class Market():
                     #create stop market short
                     (margin_cash, leverage) = assets.get_margin_cash(symbol)
                     (price, vol) = butler.create_order_stop_market_short_for_all_cash(symbol, margin_cash, quotes, idx)
-                    if vol > 0:
+                    if vol < 0:
                         p.create_order_stop_market_short(business_date, price, vol)
                         self.set_order_info(order_info, p.order)
                 elif long_order_type == OrderType.MARKET_LONG:
