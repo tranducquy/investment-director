@@ -56,6 +56,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,r.long_win_count+r.long_loss_count as 取引数long
     ,r.short_win_count+r.short_loss_count as 取引数short
     ,r.payoffratio as ペイオフレシオ
+    ,cast(cast(order_table.order_max_vol / 100 as int) * 100 * 0.01 as int)
     from backtest_result r
     inner join (
         select
@@ -67,6 +68,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
         ,mo.ordertype_name as order_name
         ,bh.order_vol
         ,bh.order_price
+        ,bh.vol_sma as order_max_vol
         from backtest_history as bh
         inner join m_ordertype as mo
          on bh.order_type = mo.ordertype_id
@@ -93,12 +95,6 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     and r.strategy_option = order_table.strategy_option
     where 0 = 0
     and r.rate_of_return > 0
-    and (
-        (order_table.order_type = 1 and (r.long_profit_rate_3month > 15 or r.long_profit_rate_1year > 15)) 
-        or 
-        (order_table.order_type = 2 and (r.short_profit_rate_3month > 15 or r.short_profit_rate_1year > 15))
-    )
-    and (r.profit_rate_3month > 5 and r.profit_rate_1year > 15 and r.profit_rate_3year > 45 and r.profit_rate_15year > 225)
     and r.symbol in ({symbols})
     order by r.profit_rate_1year desc
        """.format(symbols=', '.join('?' for _ in symbols))
