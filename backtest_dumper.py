@@ -383,11 +383,11 @@ class BacktestDumper():
             payoffratio = 0
         else:
             payoffratio = self.round((summary['WinValue'] / summary['WinCount']) / (summary['LoseValue'] / summary['LoseCount']))
-        if summary['LongWinCount'] == 0 or summary['LongLoseCount'] == 0:
+        if summary['LongWinCount'] == 0 or summary['LongLoseCount'] == 0 or summary['LongWinValue'] == 0 or summary['LongLoseValue'] == 0:
             long_payoffratio = 0
         else:
             long_payoffratio = self.round((summary['LongWinValue'] / summary['LongWinCount']) / (summary['LongLoseValue'] / summary['LongLoseCount']))
-        if summary['ShortWinCount'] == 0 or summary['ShortLoseCount'] == 0:
+        if summary['ShortWinCount'] == 0 or summary['ShortLoseCount'] == 0 or summary['ShortWinValue'] == 0 or summary['ShortLoseValue'] == 0:
             short_payoffratio = 0
         else:
             short_payoffratio = self.round((summary['ShortWinValue'] / summary['ShortWinCount']) / (summary['ShortLoseValue'] / summary['ShortLoseCount']))
