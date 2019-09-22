@@ -91,19 +91,20 @@ class Butler():
         unit = self.get_unit(symbol)
         order_vol_from_cash = math.floor(cash / price / unit) * unit
         #出来高平均
-        #current_vol = q.quotes['volume'][idx]
         current_vol = q.vol_sma[idx]
-        if math.isnan(current_vol):
-            current_vol = q.quotes['volume'][idx]
+        if math.isnan(current_vol) or current_vol < 0:
+            current_vol = -1
         #出来高平均から発注数量を取得
         temp_vol = current_vol * self.order_vol_ratio
-        order_vol_from_current = math.floor(temp_vol / unit) * unit
+        order_vol_from_sma = math.floor(temp_vol / unit) * unit
         if 'XBTUSD' == symbol or 'ETHUSD' == symbol or 'USDJPY' == symbol or 'GBPJPY' == symbol or 'EURJPY' == symbol:
             vol = order_vol_from_cash
-        elif order_vol_from_cash < order_vol_from_current:
+        elif current_vol == -1:
+            vol = 0
+        elif order_vol_from_cash < order_vol_from_sma:
             vol = order_vol_from_cash
         else:
-            vol = order_vol_from_current
+            vol = order_vol_from_sma
         return vol
 
     def create_order_stop_market_long_for_all_cash(self, symbol, cash, q, idx):
