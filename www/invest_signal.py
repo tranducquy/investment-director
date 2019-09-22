@@ -56,7 +56,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     ,r.long_win_count+r.long_loss_count as 取引数long
     ,r.short_win_count+r.short_loss_count as 取引数short
     ,r.payoffratio as ペイオフレシオ
-    ,cast(cast(order_table.order_max_vol / 100 as int) * 100 * 0.01 as int)
+    ,cast(order_table.order_max_vol * 0.01 / 100 as int) * 100
     from backtest_result r
     inner join (
         select
