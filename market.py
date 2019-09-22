@@ -58,6 +58,8 @@ class Market():
                     if p.order.price == -1:
                         self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
                         p.order.fail_order()
+                    elif p.order.vol == 0:
+                        p.order.fail_order()
                     elif high >= p.order.price and open_price >= p.order.price: #寄り付きが高値の場合
                         #最大volまで購入
                         order_price = open_price
@@ -90,6 +92,8 @@ class Market():
                     #約定判定
                     if p.order.price == -1:
                         self.logger.error("symbol:[%s] idx:[%d] order_price:[%f]" % (symbol, idx, p.order.price))
+                        p.order.fail_order()
+                    elif p.order.vol == 0:
                         p.order.fail_order()
                     elif low <= p.order.price and open_price <= p.order.price: #寄り付きが安値の場合
                         #最大volまで売却
@@ -180,25 +184,29 @@ class Market():
                 if long_order_type == OrderType.STOP_MARKET_LONG:
                     #create stop market long
                     (margin_cash, leverage) = assets.get_margin_cash(symbol)
-                    t = butler.create_order_stop_market_long_for_all_cash(symbol, margin_cash, quotes, idx)
-                    p.create_order_stop_market_long(business_date, t[0], t[1])
-                    self.set_order_info(order_info, p.order)
+                    (price, vol) = butler.create_order_stop_market_long_for_all_cash(symbol, margin_cash, quotes, idx)
+                    if vol > 0:
+                        p.create_order_stop_market_long(business_date, price, vol)
+                        self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.STOP_MARKET_SHORT:
                     #create stop market short
                     (margin_cash, leverage) = assets.get_margin_cash(symbol)
-                    t = butler.create_order_stop_market_short_for_all_cash(symbol, margin_cash, quotes, idx)
-                    p.create_order_stop_market_short(business_date, t[0], t[1])
-                    self.set_order_info(order_info, p.order)
+                    (price, vol) = butler.create_order_stop_market_short_for_all_cash(symbol, margin_cash, quotes, idx)
+                    if vol > 0:
+                        p.create_order_stop_market_short(business_date, price, vol)
+                        self.set_order_info(order_info, p.order)
                 elif long_order_type == OrderType.MARKET_LONG:
                     (margin_cash, leverage) = assets.get_margin_cash(symbol)
-                    t = butler.create_order_market_long_for_all_cash(symbol, margin_cash, quotes, idx)
-                    p.create_order_market_long(business_date, t[0], t[1])
-                    self.set_order_info(order_info, p.order)
+                    (price, vol) = butler.create_order_market_long_for_all_cash(symbol, margin_cash, quotes, idx)
+                    if vol > 0:
+                        p.create_order_market_long(business_date, price, vol)
+                        self.set_order_info(order_info, p.order)
                 elif short_order_type == OrderType.MARKET_SHORT:
                     (margin_cash, leverage) = assets.get_margin_cash(symbol)
-                    t = butler.create_order_market_short_for_all_cash(symbol, margin_cash, quotes, idx)
-                    p.create_order_market_short(business_date, t[0], t[1])
-                    self.set_order_info(order_info, p.order)
+                    (price, vol) = butler.create_order_market_short_for_all_cash(symbol, margin_cash, quotes, idx)
+                    if vol > 0:
+                        p.create_order_market_short(business_date, price, vol)
+                        self.set_order_info(order_info, p.order)
             elif current_position == PositionType.LONG:
                 close_order_type = butler.check_close_long(p.pos_price, quotes, idx)
                 if close_order_type == OrderType.CLOSE_STOP_MARKET_LONG:
