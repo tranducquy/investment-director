@@ -51,6 +51,6 @@ inner join m_strategy as ms
 on r.strategy_id = ms.strategy_id
 
 where 0 = 0 
-and r.rate_of_return > 2000
+and r.rate_of_return > 1000
 order by r.rate_of_return desc
 
