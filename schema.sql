@@ -547,14 +547,14 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6315.T', 6, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1570.T', 4, 0.4);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1605.T', 5, 1.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1809.T', 5, 0.9);
-insert into bollingerband_dailytrail (symbol, sma, sigma2) values ('2428.T', 4, 1.1);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('2768.T', 3, 1.0);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3068.T', 3, 1.0);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3116.T', 8, 0.3);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3401.T', 8, 0.6);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4004.T', 6, 1.2);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4043.T', 13, 0.5);
-insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4062.T', 24, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2428.T', 4, 1.1);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2768.T', 3, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3068.T', 3, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3116.T', 8, 0.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3401.T', 8, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4004.T', 6, 1.2);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4043.T', 13, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4062.T', 24, 0.6);
 
 
 
