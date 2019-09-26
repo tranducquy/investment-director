@@ -444,7 +444,16 @@ delete from backtest_result where symbol = '2768.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '2768.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '3068.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '3068.T' and strategy_option = 'SMA3SD1.0';
-
+delete from backtest_result where symbol = '3116.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '3116.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '3401.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '3401.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '4004.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '4004.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '4043.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '4043.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '4062.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_history where symbol = '4062.T' and strategy_option = 'SMA3SD1.0';
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1514.T', 3, 0.8);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1515.T', 4, 0.8);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1518.T', 23, 0.2);
@@ -541,4 +550,12 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1809.T', 5, 
 insert into bollingerband_dailytrail (symbol, sma, sigma2) values ('2428.T', 4, 1.1);
 insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('2768.T', 3, 1.0);
 insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3068.T', 3, 1.0);
+insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3116.T', 8, 0.3);
+insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('3401.T', 8, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4004.T', 6, 1.2);
+insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4043.T', 13, 0.5);
+insert into bollingerband_dailytrail (symbol, sma, sigma3) values ('4062.T', 24, 0.6);
+
+
+
 
