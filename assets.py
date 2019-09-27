@@ -24,7 +24,7 @@ class Assets():
         #TODO:factor対応
         if (symbol == 'XBTUSD' or symbol == 'ETHUSD'):
             leverage = 3.5 
-        elif (symbol == 'USDJPY' or symbol == 'GBPJPY'):
+        elif (symbol == 'USDJPY' or symbol == 'GBPJPY' or symbol == 'EURUSD' or symbol == 'GBPUSD'):
             leverage = 15
         return leverage
 
