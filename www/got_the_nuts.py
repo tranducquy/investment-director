@@ -386,7 +386,8 @@ def index2():
 #@auth.login_required
 def open_signal():
     signal="active"
-    symbol1 = request.args.get("symbol", "Nikkei225_TOPIX_20190923.txt")
+    #symbol1 = request.args.get("symbol", "Nikkei225_TOPIX_20190923.txt")
+    symbol1 = request.args.get("symbol", "recommend_20190927.txt")
     symbol2 = request.args.get("symbol", "bitmex.txt")
     symbol3 = request.args.get("symbol", "minkabu_fx.txt")
     symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
