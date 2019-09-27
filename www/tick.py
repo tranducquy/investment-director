@@ -11,6 +11,10 @@ def get_tick(symbol):
         tick = 0.5
     elif 'ETHUSD' in symbol: #bitmex ethusd
         tick = 0.05
+    elif symbol == 'GBPJPY':
+        tick = 0.0001
+    elif symbol == 'EURUSD' or symbol == 'GBPUSD':
+        tick = 0.00001
     else: #未知
         tick = 0.01
     return tick
