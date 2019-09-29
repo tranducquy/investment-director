@@ -785,3 +785,37 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9202.T', 14,
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9474.T', 4, 0.6);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9501.T', 24, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9983.T', 19, 0.2);
+
+create table bollingerband_closeondaily
+(
+    symbol text,
+    sma integer,
+    sigma1 decimal(10,5),
+    primary key(symbol, sma, sigma1)
+);
+delete from bollingerband_closeondaily;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('6674.T', 18, 0.4);
+delete from backtest_result where symbol = '6674.T' and strategy_id = 2;
+delete from backtest_history where symbol = '6674.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('4502.T', 20, 0.7);
+delete from backtest_result where symbol = '4502.T' and strategy_id = 2;
+delete from backtest_history where symbol = '4502.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('5333.T', 15, 0.3);
+delete from backtest_result where symbol = '5333.T' and strategy_id = 2;
+delete from backtest_history where symbol = '5333.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9041.T', 22, 0.4);
+delete from backtest_result where symbol = '9041.T' and strategy_id = 2;
+delete from backtest_history where symbol = '9041.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9001.T', 17, 0.5);
+delete from backtest_result where symbol = '9001.T' and strategy_id = 2;
+delete from backtest_history where symbol = '9001.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('7550.T', 23, 0.2);
+delete from backtest_result where symbol = '7550.T' and strategy_id = 2;
+delete from backtest_history where symbol = '7550.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9005.T', 3, 0.8);
+delete from backtest_result where symbol = '9005.T' and strategy_id = 2;
+delete from backtest_history where symbol = '9005.T' and strategy_id = 2;
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9008.T', 24, 0.1);
+delete from backtest_result where symbol = '9008.T' and strategy_id = 2;
+delete from backtest_history where symbol = '9008.T' and strategy_id = 2;
+

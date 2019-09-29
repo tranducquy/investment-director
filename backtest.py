@@ -109,6 +109,21 @@ def get_bollingerband_dailytrail_settings(symbol):
     conn.close()
     return rs
 
+def get_bollingerband_closeondaily_settings(symbol):
+    conn = MyDB().get_db()
+    c = conn.cursor()
+    c.execute("""
+    select
+     symbol
+    ,sma
+    ,sigma1
+    from bollingerband_closeondaily
+    where symbol = '{symbol}'
+    """.format(symbol=symbol))
+    rs = c.fetchall()
+    conn.close()
+    return rs
+
 def backtest(symbols, strategy_id, start_date, end_date, initial_cash, brute_force=False):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
@@ -133,7 +148,13 @@ def backtest(symbols, strategy_id, start_date, end_date, initial_cash, brute_for
                 bruteforce_bollingerband(symbol, strategy_id, start_date, end_date, initial_cash)
                 continue
             #ストラテジ取得
-            rs = get_bollingerband_dailytrail_settings(symbol)
+            rs = None
+            if strategy_id == 1:
+                rs = get_bollingerband_dailytrail_settings(symbol)
+            elif strategy_id == 2:
+                rs = get_bollingerband_closeondaily_settings(symbol)
+            else:
+                continue
             #デフォルト設定
             bollinger_ma = 3 #移動平均の日数
             sigma1_ratio = 1.0 #トレンドを判定するsigmaの倍率
