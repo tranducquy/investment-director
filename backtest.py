@@ -30,6 +30,7 @@ def get_option():
     argparser.add_argument('--end_date', type=str, help='Date of backtest end')
     argparser.add_argument('--period', type=str, help='for bitmex/minkabu_fx')
     argparser.add_argument('--brute_force', action='store_true', help='breaking the code!')
+    argparser.add_argument('--strategy', type=str, help='Choose Strategy!')
     args = argparser.parse_args()
     return args
 
@@ -55,9 +56,8 @@ def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_o
     a = Assets(initial_cash)
     Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, a, trade_fee) 
 
-def bruteforce_bollingerband_dailytrail(symbol, start_date, end_date, initial_cash):
+def bruteforce_bollingerband(symbol, strategy_id, start_date, end_date, initial_cash):
     #デフォルト設定
-    strategy_id = 1
     sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
     #単純移動平均2-25
     min_sma_duration = 2
@@ -109,7 +109,7 @@ def get_bollingerband_dailytrail_settings(symbol):
     conn.close()
     return rs
 
-def backtest(symbols, start_date, end_date, initial_cash, brute_force=False):
+def backtest(symbols, strategy_id, start_date, end_date, initial_cash, brute_force=False):
     work_size = 16 #16symbolずつ実行
     thread_pool = list()
     fin_cnt = 0
@@ -130,13 +130,11 @@ def backtest(symbols, start_date, end_date, initial_cash, brute_force=False):
         for symbol in symbols_work:
             """ボリンジャーバンド""" #TODO:他のテクニカル指標対応
             if brute_force:
-                bruteforce_bollingerband_dailytrail(symbol, start_date, end_date, initial_cash)
+                bruteforce_bollingerband(symbol, strategy_id, start_date, end_date, initial_cash)
                 continue
             #ストラテジ取得
             rs = get_bollingerband_dailytrail_settings(symbol)
-            #ボリンジャーバンド+DailyTrail
             #デフォルト設定
-            strategy_id = 1
             bollinger_ma = 3 #移動平均の日数
             sigma1_ratio = 1.0 #トレンドを判定するsigmaの倍率
             sigma2_ratio = 3.0 #トレンドを判定するsigma2の倍率
@@ -207,7 +205,11 @@ if __name__ == '__main__':
         brute_force = True
     else:
         brute_force = False
-    backtest(ss, start_date, end_date, inicash, brute_force)
+    if args.strategy is None:
+        strategy_id = 1
+    else:
+        strategy_id = int(args.strategy)
+    backtest(ss, strategy_id, start_date, end_date, inicash, brute_force)
     ss = symbol.get_symbols(symbol_txt)
     BacktestDumper().update_expected_rate(ss)
     BacktestDumper().update_maxdrawdown(ss)

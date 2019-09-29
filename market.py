@@ -118,7 +118,7 @@ class Market():
                         #before_high= quotes.quotes['high'][idx-1]
                         #if before_high <= high:
                             p.order.order_type = OrderType.CLOSE_STOP_MARKET_SHORT
-                            call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_LONG
+                            call_order_info['order_type'] = OrderType.CLOSE_STOP_MARKET_SHORT
                             p.close_short(business_date, losscut_price)
                             #p.close_short(business_date, before_high)
                             trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
@@ -173,10 +173,27 @@ class Market():
                     p.close_short(business_date, open_price)
                     trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
                 self.set_order_info(execution_order_info, p.order)
+
+            if strategy_id == 2:
+                current_position = p.get_position()
+                # ポジションがある場合、大引けで成行クローズ
+                if current_position == PositionType.LONG:
+                    p.order.order_type = OrderType.CLOSE_MARKET_LONG
+                    call_order_info['order_type'] = OrderType.CLOSE_MARKET_LONG
+                    p.close_long(business_date, close_price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.LONG)
+                    self.set_order_info(execution_order_info, p.order)
+                elif current_position == PositionType.SHORT:
+                    p.order.order_type = OrderType.CLOSE_MARKET_SHORT
+                    call_order_info['order_type'] = OrderType.CLOSE_MARKET_SHORT
+                    p.close_short(business_date, close_price)
+                    trade_perfomance = p.save_trade_perfomance(PositionType.SHORT)
+                    self.set_order_info(execution_order_info, p.order)
+
             #注文は1日だけ有効
             p.clear_order()
     
-            # 引け後、翌日の注文作成
+            # 大引け後、翌日の注文作成
             current_position = p.get_position()
             if current_position == PositionType.NOTHING:
                 long_order_type = butler.check_open_long(quotes, idx)
