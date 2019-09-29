@@ -94,6 +94,7 @@ create table m_strategy
 )
 ;
 insert into m_strategy (strategy_id, strategy_name, strategy_option) values (1, 'Bollingerband/DailyTrail', 'SMA{sma}SD{sd}');
+insert into m_strategy (strategy_id, strategy_name, strategy_option) values (2, 'Bollingerband/CloseOnDaily', 'SMA{sma}SD{sd}');
 
 create table m_ordertype
 (
