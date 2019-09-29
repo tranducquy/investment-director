@@ -582,7 +582,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_profit_rate_1year = 
@@ -594,7 +594,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_profit_rate_3year = 
@@ -606,7 +606,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_profit_rate_15year = 
@@ -618,7 +618,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_profit_rate_3month = 
@@ -630,7 +630,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_profit_rate_1year = 
@@ -642,7 +642,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_profit_rate_3year = 
@@ -654,7 +654,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_profit_rate_15year = 
@@ -666,7 +666,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
     
@@ -723,7 +723,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_expected_rate_1year = 
@@ -735,7 +735,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_expected_rate_3year = 
@@ -747,7 +747,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,long_expected_rate_15year = 
@@ -759,7 +759,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
-                        and execution_order_type = 5
+                        and execution_order_type in (5,7,11)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_expected_rate_3month = 
@@ -771,7 +771,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_expected_rate_1year = 
@@ -783,7 +783,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_expected_rate_3year = 
@@ -795,7 +795,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
                     ,short_expected_rate_15year = 
@@ -807,7 +807,7 @@ class BacktestDumper():
                         and strategy_id = {strategy_id} 
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
-                        and execution_order_type = 6
+                        and execution_order_type in (6,8,12)
                         group by symbol, strategy_id, strategy_option, execution_order_type
                     )
     
