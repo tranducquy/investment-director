@@ -390,9 +390,11 @@ def open_signal():
     symbol1 = request.args.get("symbol", "recommend_20190927.txt")
     symbol2 = request.args.get("symbol", "bitmex.txt")
     symbol3 = request.args.get("symbol", "minkabu_fx.txt")
+    symbol4 = request.args.get("symbol", "close_on_daily_20190929.txt")
     symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
     symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
     symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
+    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
     start_date = request.args.get("start_date", "2001-01-01")
     today = datetime.now()
     end_date = request.args.get("end_date", (today - timedelta(days=1)).strftime('%Y-%m-%d'))
@@ -400,6 +402,7 @@ def open_signal():
     (open_signals1, query1) = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date)
     (open_signals2, query2) = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date)
     (open_signals3, query3) = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date)
+    (open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date, end_date)
     header_title = "Open Signal"
     content_title = "Open Signal"
     return render_template('open_signal.html'
@@ -411,12 +414,15 @@ def open_signal():
                         , symbol1=symbol1
                         , symbol2=symbol2
                         , symbol3=symbol3
+                        , symbol4=symbol4
                         , open_signals1=open_signals1
                         , open_signals2=open_signals2
                         , open_signals3=open_signals3
+                        , open_signals4=open_signals4
                         , query1=query1
                         , query2=query2
                         , query3=query3
+                        , query4=query4
                         )
 
 @app.route('/close_signal', methods=['GET', 'POST'])
