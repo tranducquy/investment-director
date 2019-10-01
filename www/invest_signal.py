@@ -12,7 +12,7 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strat
     sql = u"""
     select
      r.symbol
-    ,r.strategy_id
+    ,ms.strategy_name
     ,r.strategy_option
     ,order_table.order_name
     ,order_table.order_price
@@ -93,6 +93,8 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strat
     on r.symbol = order_table.symbol
     and r.strategy_id = order_table.strategy_id
     and r.strategy_option = order_table.strategy_option
+    left outer join m_strategy as ms
+    on r.strategy_id = ms.strategy_id
     where 0 = 0
     and r.rate_of_return > 0
     and r.symbol in ({symbols})
@@ -200,7 +202,7 @@ def direct_open_order(db, symbol_txt, start_date, end_date, strategy_id):
     symbols = sy.get_symbols(symbol_txt)
     start_date = start_date
     end_date = end_date
-    if 'Nikkei225' in symbol_txt or 'recommend' in symbol_txt:
+    if 'Nikkei225' in symbol_txt or 'recommend' in symbol_txt or 'close_on_daily' in symbol_txt:
         (result, query) = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strategy_id)
     elif 'bitmex' in symbol_txt or 'minkabu' in symbol_txt:
         (result, query) = _get_open_signal(db, start_date, end_date, symbols, True)

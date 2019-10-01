@@ -214,14 +214,6 @@ if __name__ == '__main__':
     else:
         symbol_txt = args.symbol
     ss = symbol.get_symbols(symbol_txt)
-    if args.start_date is None:
-        start_date = conf['backtest_startdate']
-    else:
-        start_date = args.start_date
-    if args.end_date is None:
-        end_date = get_max_businessdate_from_ohlc(ss)
-    else:
-        end_date = args.end_date
     if args.brute_force:
         brute_force = True
     else:
@@ -230,6 +222,14 @@ if __name__ == '__main__':
         strategy_id = 1
     else:
         strategy_id = int(args.strategy)
+    if args.start_date is None and strategy_id == 2:
+        start_date = (datetime.today() - relativedelta(years=3)).strftime('%Y-%m-%d') #今日の3年前
+    elif args.start_date is None:
+        start_date = conf['backtest_startdate']
+    if args.end_date is None:
+        end_date = get_max_businessdate_from_ohlc(ss)
+    else:
+        end_date = args.end_date
     backtest(ss, strategy_id, start_date, end_date, inicash, brute_force)
     ss = symbol.get_symbols(symbol_txt)
     BacktestDumper().update_expected_rate(ss)

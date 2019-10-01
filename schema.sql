@@ -76,14 +76,14 @@ create table backtest_result
     short_expected_rate_1year decimal(10,5),
     short_expected_rate_3year decimal(10,5),
     short_expected_rate_15year decimal(10,5),
+    drawdown decimal(10,5),
+    drawdown_3month decimal(10,5),
+    drawdown_1year decimal(10,5),
+    drawdown_3year decimal(10,5),
+    drawdown_15year decimal(10,5),
     primary key(symbol, strategy_id, strategy_option)
 )
 ;
-alter table backtest_result add column drawdown decimal(10,5);
-alter table backtest_result add column drawdown_3month decimal(10,5);
-alter table backtest_result add column drawdown_1year decimal(10,5);
-alter table backtest_result add column drawdown_3year decimal(10,5);
-alter table backtest_result add column drawdown_15year decimal(10,5);
 
 create table m_strategy
 (
