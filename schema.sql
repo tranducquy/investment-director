@@ -933,7 +933,7 @@ delete from backtest_history where symbol = '8613.T' and strategy_id = 2;
 insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('8628.T', 11, 1.7);
 delete from backtest_result where symbol = '8628.T' and strategy_id = 2;
 delete from backtest_history where symbol = '8628.T' and strategy_id = 2;
-insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('.9001T', 20, 1.1);
+insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9001.T', 20, 1.1);
 delete from backtest_result where symbol = '9001.T' and strategy_id = 2;
 delete from backtest_history where symbol = '9001.T' and strategy_id = 2;
 insert into bollingerband_closeondaily(symbol, sma, sigma1) values ('9005.T', 3, 1.0);
