@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 import symbol as sy
 import tick
 
-def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
+def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strategy_id):
     #3ヶ月、1,3,15年のバックテストで利益の出ている銘柄のみ探す
     c = db.cursor()
     sql = u"""
@@ -96,8 +96,9 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols):
     where 0 = 0
     and r.rate_of_return > 0
     and r.symbol in ({symbols})
+    and r.strategy_id = {strategy_id}
     order by r.profit_rate_1year desc
-       """.format(symbols=', '.join('?' for _ in symbols))
+    """.format(symbols=', '.join('?' for _ in symbols), strategy_id=strategy_id)
     c.execute(sql, symbols)
     symbols = c.fetchall()
     c.close()
@@ -195,12 +196,12 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     c.close()
     return (symbols, sql)
 
-def direct_open_order(db, symbol_txt, start_date, end_date):
+def direct_open_order(db, symbol_txt, start_date, end_date, strategy_id):
     symbols = sy.get_symbols(symbol_txt)
     start_date = start_date
     end_date = end_date
     if 'Nikkei225' in symbol_txt or 'recommend' in symbol_txt:
-        (result, query) = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols)
+        (result, query) = _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strategy_id)
     elif 'bitmex' in symbol_txt or 'minkabu' in symbol_txt:
         (result, query) = _get_open_signal(db, start_date, end_date, symbols, True)
     else:

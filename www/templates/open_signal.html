@@ -82,7 +82,7 @@
                         {% elif 'GBPJPY' in r[0] %}
                         <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
                         {% endif %}
-                        <a href="/backtest_history?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/backtest_history?symbol={{ r[0] }}&strategy_id=1" target="_blank"><i class="fas fa-fw fa-history"></i></a>
                         <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
                       </td>
                       <td>{{ r[1] }}</td>
@@ -136,6 +136,131 @@
               </div>
             </div>
           </div>
+
+          <!-- Symbol4 -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">ファイル:{{ symbol4 }}, バックテスト開始日:{{ start_date_3year }}, バックテスト終了日:{{ end_date }}</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable4" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>バックテスト最終営業日</th>
+                      <th>シンボル</th>
+                      <th>ストラテジ</th>
+                      <th>パラメータ</th>
+                      <th>注文方法</th>
+                      <th>注文価格</th>
+                      <th>全期間騰落率</th>
+                      <th>直近3か月利益率</th>
+                      <th>直近3か月利益率long</th>
+                      <th>直近3か月利益率short</th>
+                      <th>直近1年利益率</th>
+                      <th>直近1年利益率long</th>
+                      <th>直近1年利益率short</th>
+                      <th>直近3年利益率</th>
+                      <th>直近3年利益率long</th>
+                      <th>直近3年利益率short</th>
+                      <th>直近15年利益率</th>
+                      <th>直近15年利益率long</th>
+                      <th>直近15年利益率short</th>
+                      <th>最大ドローダウン(全期間)</th>
+                      <th>最大ドローダウン(3か月)</th>
+                      <th>最大ドローダウン(1年)</th>
+                      <th>最大ドローダウン(3年)</th>
+                      <th>最大ドローダウン(15年)</th>
+                      <th>期待利益率(3か月)</th>
+                      <th>期待利益率long(3か月)</th>
+                      <th>期待利益率short(3か月)</th>
+                      <th>期待利益率(1年)</th>
+                      <th>期待利益率long(1年)</th>
+                      <th>期待利益率short(1年)</th>
+                      <th>期待利益率(3年)</th>
+                      <th>期待利益率long(3年)</th>
+                      <th>期待利益率short(3年)</th>
+                      <th>期待利益率(15年)</th>
+                      <th>期待利益率long(15年)</th>
+                      <th>期待利益率short(15年)</th>
+                      <th>期待利益率(全期間)</th>
+                      <th>期待利益率long(全期間)</th>
+                      <th>期待利益率short(全期間)</th>
+                      <th>勝率</th>
+                      <th>平均取引日数</th>
+                      <th>取引数</th>
+                      <th>取引数long</th>
+                      <th>取引数short</th>
+                      <th>ペイオフレシオ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for r in open_signals4 %}
+                    <tr>
+                      <td>{{ r[5] }}</td>
+                      <td>
+                        {{ r[0] }}
+                        {% if '.T' in r[0] %}<br />
+                        <a href="https://stocks.finance.yahoo.co.jp/stocks/detail/?code={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif ('XBTUSD' in r[0] or 'ETHUSD' in r[0]) %}
+                        <a href="https://www.bitmex.com/app/trade/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% elif 'GBPJPY' in r[0] %}
+                        <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r[0] }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
+                        {% endif %}
+                        <a href="/backtest_history?symbol={{ r[0] }}&strategy_id=2" target="_blank"><i class="fas fa-fw fa-history"></i></a>
+                        <a href="/ohlcv_daily?symbol={{ r[0] }}" target="_blank"><i class="fas fa-fw fa-play-circle"></i></a>
+                      </td>
+                      <td>{{ r[1] }}</td>
+                      <td>{{ r[2] }}</td>
+                      <td>{{ r[3] }}</td>
+                      <td>{{ r[4] }}</td>
+                      <td>{{ r[6] }}</td>
+                      <td>{{ r[7] }}</td>
+                      <td>{{ r[8] }}</td>
+                      <td>{{ r[9] }}</td>
+                      <td>{{ r[10] }}</td>
+                      <td>{{ r[11] }}</td>
+                      <td>{{ r[12] }}</td>
+                      <td>{{ r[13] }}</td>
+                      <td>{{ r[14] }}</td>
+                      <td>{{ r[15] }}</td>
+                      <td>{{ r[16] }}</td>
+                      <td>{{ r[17] }}</td>
+                      <td>{{ r[18] }}</td>
+                      <td>{{ r[19] }}</td>
+                      <td>{{ r[20] }}</td>
+                      <td>{{ r[21] }}</td>
+                      <td>{{ r[22] }}</td>
+                      <td>{{ r[23] }}</td>
+                      <td>{{ r[24] }}</td>
+                      <td>{{ r[25] }}</td>
+                      <td>{{ r[26] }}</td>
+                      <td>{{ r[27] }}</td>
+                      <td>{{ r[28] }}</td>
+                      <td>{{ r[29] }}</td>
+                      <td>{{ r[30] }}</td>
+                      <td>{{ r[31] }}</td>
+                      <td>{{ r[32] }}</td>
+                      <td>{{ r[33] }}</td>
+                      <td>{{ r[34] }}</td>
+                      <td>{{ r[35] }}</td>
+                      <td>{{ r[36] }}</td>
+                      <td>{{ r[37] }}</td>
+                      <td>{{ r[38] }}</td>
+                      <td>{{ r[39] }}</td>
+                      <td>{{ r[40] }}</td>
+                      <td>{{ r[41] }}</td>
+                      <td>{{ r[42] }}</td>
+                      <td>{{ r[43] }}</td>
+                      <td>{{ r[44] }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
 
           <!-- Symbol2 -->
           <div class="card shadow mb-4">
