@@ -226,6 +226,8 @@ if __name__ == '__main__':
         start_date = (datetime.today() - relativedelta(years=3)).strftime('%Y-%m-%d') #今日の3年前
     elif args.start_date is None:
         start_date = conf['backtest_startdate']
+    else:
+        start_date = args.start_date
     if args.end_date is None:
         end_date = get_max_businessdate_from_ohlc(ss)
     else:
