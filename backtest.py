@@ -232,6 +232,6 @@ if __name__ == '__main__':
         end_date = args.end_date
     backtest(ss, strategy_id, start_date, end_date, inicash, brute_force)
     ss = symbol.get_symbols(symbol_txt)
-    BacktestDumper().update_expected_rate(ss)
-    BacktestDumper().update_maxdrawdown(ss)
+    BacktestDumper().update_expected_rate(ss, strategy_id)
+    BacktestDumper().update_maxdrawdown(ss, strategy_id)
 

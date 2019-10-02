@@ -506,7 +506,7 @@ class BacktestDumper():
                 , start_date_15year
                 )
 
-    def update_expected_rate(self, symbols):
+    def update_expected_rate(self, symbols, strategy_id):
         self.logger.info("update_expected_rate()")
         (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #backtest_result table取得
@@ -519,7 +519,8 @@ class BacktestDumper():
         ,strategy_option
         from backtest_result
         where symbol in ({symbols})
-        """.format(symbols=', '.join('?' for _ in symbols)), symbols)
+        and strategy_id = {strategy_id}
+        """.format(symbols=', '.join('?' for _ in symbols), strategy_id=strategy_id), symbols)
         rs = c.fetchall()
         conn.close()
         for r in rs:
@@ -583,7 +584,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_profit_rate_1year = 
                     (
@@ -595,7 +596,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_profit_rate_3year = 
                     (
@@ -607,7 +608,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_profit_rate_15year = 
                     (
@@ -619,7 +620,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_profit_rate_3month = 
                     (
@@ -631,7 +632,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_profit_rate_1year = 
                     (
@@ -643,7 +644,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_profit_rate_3year = 
                     (
@@ -655,7 +656,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_profit_rate_15year = 
                     (
@@ -667,7 +668,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
     
                     ,expected_rate_3month = 
@@ -724,7 +725,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_expected_rate_1year = 
                     (
@@ -736,7 +737,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_expected_rate_3year = 
                     (
@@ -748,7 +749,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,long_expected_rate_15year = 
                     (
@@ -760,7 +761,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
                         and execution_order_type in (5,7,11)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_expected_rate_3month = 
                     (
@@ -772,7 +773,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3month}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_expected_rate_1year = 
                     (
@@ -784,7 +785,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_1year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_expected_rate_3year = 
                     (
@@ -796,7 +797,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_3year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
                     ,short_expected_rate_15year = 
                     (
@@ -808,7 +809,7 @@ class BacktestDumper():
                         and strategy_option = '{strategy_option}' 
                         and business_date between '{start_date_15year}' and '{end_date}'
                         and execution_order_type in (6,8,12)
-                        group by symbol, strategy_id, strategy_option, execution_order_type
+                        group by symbol, strategy_id, strategy_option
                     )
     
                     where symbol = '{symbol}' and strategy_id = {strategy_id} and strategy_option = '{strategy_option}'
@@ -826,7 +827,7 @@ class BacktestDumper():
             conn.commit()
             conn.close()
 
-    def update_maxdrawdown(self, symbols):
+    def update_maxdrawdown(self, symbols, strategy_id):
         (end_date , start_date, start_date_3month , start_date_1year , start_date_3year , start_date_15year) = self.get_dates()
         #バックテスト結果を取得
         conn = MyDB().get_db()
@@ -838,7 +839,8 @@ class BacktestDumper():
         ,strategy_option 
         from backtest_result
         where symbol in ({symbols})
-        """.format(symbols=', '.join('?' for _ in symbols)), symbols)
+        and strategy_id = {strategy_id}
+        """.format(symbols=', '.join('?' for _ in symbols), strategy_id=strategy_id), symbols)
         rs = c.fetchall()
         conn.close()
         #ドローダウン算出

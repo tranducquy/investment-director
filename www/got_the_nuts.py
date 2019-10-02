@@ -503,7 +503,7 @@ def backtest_history():
         strategy_id = request.form.get("strategy_id", default_strategy_id)
         strategy_option = request.form.get("strategy_option", "")
         if strategy_option == "":
-            strategy_option = get_bb_strategy_option(symbol)
+            strategy_option = get_bb_strategy_option(symbol, strategy_id)
     else:
         symbol = request.args.get("symbol", "")
         start_date = request.args.get("start_date", default_start_date)
