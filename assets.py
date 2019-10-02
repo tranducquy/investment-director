@@ -12,7 +12,7 @@ class Assets():
         self.margin_remaining_ratio = margin_remaining_ratio
 
     def get_losscut_ratio(self, symbol):
-        losscut_ratio = 0.03
+        losscut_ratio = 0.10
         if 'XBTUSD' == symbol or 'ETHUSD' == symbol:
             losscut_ratio = 0.05
         elif 'GBPJPY' == symbol or 'USDJPY' == symbol:
