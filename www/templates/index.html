@@ -10,7 +10,7 @@
               <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">高利益率銘柄(東証) 2019-09-14</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">直近6か月及び1年高利益率銘柄(東証) 2019-10-03</h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -25,7 +25,7 @@
                         {% elif 'GBPJPY' in r %}
                         <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
                         {% endif %}
-                        <a href="/backtest_history?symbol={{ r }}"><i class="fas fa-fw fa-play-circle"></i></a>
+                        <a href="/backtest_history?symbol={{ r }}&strategy_id=1"><i class="fas fa-fw fa-play-circle"></i></a>
                         <a href="/ohlcv_daily?symbol={{ r }}"><i class="fas fa-fw fa-history"></i></a>
                       </li>
                     {% endfor %}
@@ -35,12 +35,12 @@
                 <div class="card shadow mb-4">
                   <!-- Card Header - Dropdown -->
                   <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">低ドローダウン銘柄(東証) 2019-09-17</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">直近6か月及び1年デイトレ高利益率銘柄(東証) 2019-10-03</h6>
                   </div>
                   <!-- Card Body -->
                   <div class="card-body">
                     <ul class="list-group">
-                      {% for r in symbols_mindrawdown %}
+                      {% for r in symbols_closeondaily %}
                         <li class="list-group-item">
                           {{ r }}
                           {% if '.T' in r %}
@@ -50,7 +50,7 @@
                           {% elif 'GBPJPY' in r %}
                           <a href="https://fx.minkabu.jp/pair/GBPJPY/{{ r }}" target="_blank"><i class="fas fa-fw fa-info"></i></a>
                           {% endif %}
-                          <a href="/backtest_history?symbol={{ r }}"><i class="fas fa-fw fa-play-circle"></i></a>
+                          <a href="/backtest_history?symbol={{ r }}&strategy_id=2"><i class="fas fa-fw fa-play-circle"></i></a>
                           <a href="/ohlcv_daily?symbol={{ r }}"><i class="fas fa-fw fa-history"></i></a>
                         </li>
                       {% endfor %}

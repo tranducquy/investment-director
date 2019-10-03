@@ -343,20 +343,24 @@ def query_db(query, args=(), one=False):
 def index():
     index="active"
     symbols = [
-                 "5202.T"
+                 "1570.T"
+                ,"1568.T"
+                ,"5019.T"
+                ,"5631.T"
+                ,"5801.T"
                 ,"6141.T"
-                ,"6728.T"
-                ,"6753.T"
-                ,"9107.T"
+                ,"9104.T"
                 ]
-    symbols_mindrawdown = [
-                 "7616.T"
-                ,"8136.T"
-                ,"8904.T"
+    symbols_closeondaily= [
+                 "2792.T"
+                ,"5202.T"
+                ,"7003.T"
+                ,"8086.T"
+                ,"8604.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
-                            , symbols_mindrawdown=symbols_mindrawdown
+                            , symbols_closeondaily=symbols_closeondaily
                             , index=index
                             )
 
@@ -365,20 +369,24 @@ def index():
 def index2():
     index="active"
     symbols = [
-                 "5202.T"
+                 "1570.T"
+                ,"1568.T"
+                ,"5019.T"
+                ,"5631.T"
+                ,"5801.T"
                 ,"6141.T"
-                ,"6728.T"
-                ,"6753.T"
-                ,"9107.T"
+                ,"9104.T"
                 ]
-    symbols_mindrawdown = [
-                 "7616.T"
-                ,"8136.T"
-                ,"8904.T"
+    symbols_closeondaily= [
+                 "2792.T"
+                ,"5202.T"
+                ,"7003.T"
+                ,"8086.T"
+                ,"8604.T"
                 ]
     return render_template('index.html'
                             , symbols=symbols
-                            , symbols_mindrawdown=symbols_mindrawdown
+                            , symbols_closeondaily=symbols_closeondaily
                             , index=index
                             )
 
