@@ -709,9 +709,10 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3401.T', 8, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4004.T', 6, 1.2);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4043.T', 13, 0.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4062.T', 24, 0.6);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1356.T', 4, 1.4);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1568.T', 4, 1.1);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1570.T', 4, 0.4);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1357.T', 8, 1.1);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1568.T', 4, 1.1);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1356.T', 4, 1.4);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4183.T', 5, 1.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4502.T', 24, 0.1);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('4661.T', 24, 1.5);
