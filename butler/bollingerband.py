@@ -81,7 +81,12 @@ class Butler():
         return OrderType.CLOSE_STOP_MARKET_SHORT
 
     def get_unit(self, symbol):
-        if '.T' in symbol:
+        if ('1570.T' in symbol 
+            or '1357.T' in symbol
+            or '1568.T' in symbol
+            or '1356.T' in symbol):
+            unit = 1
+        elif '.T' in symbol:
             unit = 100
         else:
             unit = 1
