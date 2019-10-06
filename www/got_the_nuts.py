@@ -86,8 +86,7 @@ left outer join m_orderstatus as mos
 on bh.execution_order_status = mos.orderstatus_id
 left outer join m_positiontype as mpt
 on bh.position = mpt.positiontype_id
-where 
-bh.symbol = '{symbol}'
+where bh.symbol = '{symbol}'
 and bh.strategy_id = {strategy_id}
 and bh.strategy_option = '{strategy_option}'
 and bh.business_date between '{start_date}' and '{end_date}'
@@ -517,6 +516,8 @@ def backtest_history():
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
         strategy_id = request.args.get("strategy_id", default_strategy_id)
+        if strategy_id == "":
+            strategy_id = 1
         strategy_option = request.args.get("strategy_option", get_bb_strategy_option(symbol, strategy_id))
     header_title = u"{symbol} {start_date} {end_date} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
