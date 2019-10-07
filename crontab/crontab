@@ -21,15 +21,17 @@
 # 
 # m h  dom mon dow   command
 
-30 17 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt --start_date `date --date "14 days ago" "+%Y-%m-%d"` --end_date `date --date "1 days" "+%Y-%m-%d"` >> /usr/local/investment-director/cron.log 2>&1
-40 17 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt --start_date `date --date "14 days ago" "+%Y-%m-%d"` --end_date `date --date "1 days" "+%Y-%m-%d"` >> /usr/local/investment-director/cron.log 2>&1
-50 17 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt --start_date `date --date "14 days ago" "+%Y-%m-%d"` --end_date `date --date "1 days" "+%Y-%m-%d"` >> /usr/local/investment-director/cron.log 2>&1
-0 18 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt >> /usr/local/investment-director/cron.log 2>&1
+10 19 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+20 19 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+30 19 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+40 19 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+0 21 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/close_on_daily_20191002.txt --strategy 2 >> /usr/local/investment-director/cron.log 2>&1
 
-10 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt >> /usr/local/investment-director/cron.log 2>&1
-20 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt >> /usr/local/investment-director/cron.log 2>&1
-30 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt >> /usr/local/investment-director/cron.log 2>&1
-40 0 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190918.txt >> /usr/local/investment-director/cron.log 2>&1
+10 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+20 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+30 0 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+40 0 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/Nikkei225_TOPIX_20190923.txt >> /usr/local/investment-director/cron.log 2>&1
+0 3 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/close_on_daily_20191002.txt --strategy 2 >> /usr/local/investment-director/cron.log 2>&1
 
 2 6 * * * python3 /usr/local/investment-director/crawler.py --symbol /usr/local/investment-director/symbol/minkabu_fx.txt  >> /usr/local/investment-director/cron.log 2>&1
 4 6 * * * python3 /usr/local/investment-director/backtest.py --symbol /usr/local/investment-director/symbol/minkabu_fx.txt >> /usr/local/investment-director/cron.log 2>&1
