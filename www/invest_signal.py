@@ -98,9 +98,17 @@ def _get_open_signal_nikkei225_topix500(db, start_date, end_date, symbols, strat
     where 0 = 0
     and r.rate_of_return > 0
     and r.symbol in ({symbols})
-    and r.strategy_id = {strategy_id}
-    order by r.profit_rate_1year desc
-    """.format(symbols=', '.join('?' for _ in symbols), strategy_id=strategy_id)
+    and r.strategy_id = {strategy_id}"""
+    if strategy_id == 2:
+        sql += """ 
+        and r.profit_rate_3month > 0
+        and r.profit_rate_1year > 0
+        and r.profit_rate_3year > 0
+        and r.profit_rate_1year > r.profit_rate_3month
+        and r.profit_rate_3year > r.profit_rate_1year
+        """
+    sql += """ order by r.profit_rate_1year desc"""
+    sql = sql.format(symbols=', '.join('?' for _ in symbols), strategy_id=strategy_id)
     c.execute(sql, symbols)
     symbols = c.fetchall()
     c.close()
@@ -189,6 +197,9 @@ def _get_open_signal(db, start_date, end_date, symbols, bitmex):
     on r.symbol = order_table.symbol
     where 0 = 0
     and r.rate_of_return > 0
+    and r.profit_rate_3month > 0
+    and r.profit_rate_1year > 0
+    and r.profit_rate_3year > 0
     and r.symbol in ({0})
     order by r.profit_rate_1year desc
     """ 
