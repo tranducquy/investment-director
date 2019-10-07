@@ -47,12 +47,14 @@ def get_max_businessdate_from_ohlc(symbols):
     conn.close()
     return max_date[0]
 
-
 def backtest_bollingerband(symbol, start_date, end_date, strategy_id, strategy_option, ma, sigma1, sigma2, initial_cash):
     q = Quotes(symbol, start_date, end_date, ma, sigma1, sigma2)
     t = tick.get_tick(symbol)
     bollinger_butler = bollingerband.Butler(t, ma)
-    title = "BollingerBand/DailyTrail SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
+    if strategy_id == 1:
+        title = "BollingerBand/DailyTrail SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
+    else:
+        title = "BollingerBand/CloseOnDaily SMA%dSD%s" % (ma, '{:.1f}'.format(sigma1))
     a = Assets(initial_cash)
     Market().simulator_run(title, strategy_id, strategy_option, q, bollinger_butler, symbol, a, trade_fee) 
 
