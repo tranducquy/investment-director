@@ -141,7 +141,7 @@ if __name__ == '__main__':
     else:
         start_date = args.start_date
     if args.end_date is None:
-        end_date = (datetime.datetime.now()).strftime('%Y-%m-%d')
+        end_date = (datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     else:
         end_date = args.end_date
     if args.symbol is None:
