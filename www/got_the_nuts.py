@@ -343,13 +343,15 @@ def index():
     index="active"
     symbols = [
                  "1568.T"
+                ,"1356.T"
                 ,"1570.T"
-                ,"5019.T"
+                ,"1357.T"
                 ,"5631.T"
                 ,"5801.T"
                 ,"6141.T"
                 ,"6753.T"
                 ,"9104.T"
+                ,"9107.T"
                 ]
     symbols_closeondaily= [
                  "2792.T"
@@ -370,13 +372,15 @@ def index2():
     index="active"
     symbols = [
                  "1568.T"
+                ,"1356.T"
                 ,"1570.T"
-                ,"5019.T"
+                ,"1357.T"
                 ,"5631.T"
                 ,"5801.T"
                 ,"6141.T"
                 ,"6753.T"
                 ,"9104.T"
+                ,"9107.T"
                 ]
     symbols_closeondaily= [
                  "2792.T"

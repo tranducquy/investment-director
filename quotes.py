@@ -4,7 +4,7 @@ import mylock
 from mydb import MyDB
 
 class Quotes():
-    def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=20):
+    def __init__(self, symbol, start_date, end_date, ma_duration=15, ev_sigma_ratio=2, ev2_sigma_ratio=3, vol_ma_duration=1):
         self.symbol = symbol
         self.start_date = start_date
         self.end_date = end_date
