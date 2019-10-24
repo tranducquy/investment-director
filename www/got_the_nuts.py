@@ -382,16 +382,12 @@ def index2():
                 ,"9104.T"
                 ,"9107.T"
                 ]
-    symbols_closeondaily= [
-                 "2792.T"
-                ,"5202.T"
-                ,"7003.T"
-                ,"8086.T"
-                ,"8604.T"
+    symbols2= [
+                 "GBPJPY"
                 ]
     return render_template('index.html'
                             , symbols=symbols
-                            , symbols_closeondaily=symbols_closeondaily
+                            , symbols2=symbols2
                             , index=index
                             )
 
