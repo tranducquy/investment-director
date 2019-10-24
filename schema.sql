@@ -773,7 +773,6 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9107.T', 13,
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6141.T', 4, 1.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5019.T', 3, 1.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1568.T', 3, 1.6);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5631.T', 4, 2.2);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('6753.T', 14, 0.4);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3101.T', 4, 1.4);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('3103.T', 10, 0.9);
@@ -784,6 +783,8 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7004.T', 7, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7013.T', 3, 1.1);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7616.T', 3, 0.7);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8233.T', 3, 0.9);
+--2019.10.24
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5631.T', 6, 1.6);
 
 
 create table bollingerband_closeondaily
