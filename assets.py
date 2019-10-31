@@ -24,8 +24,21 @@ class Assets():
         #TODO:factor対応
         if (symbol == 'XBTUSD' or symbol == 'ETHUSD'):
             leverage = 3.5 
-        elif (symbol == 'USDJPY' or symbol == 'GBPJPY' or symbol == 'EURUSD' or symbol == 'GBPUSD'):
+        elif (symbol == 'USDJPY' 
+            or symbol == 'GBPJPY' 
+            or symbol == 'EURUSD' 
+            or symbol == 'GBPUSD' 
+        ):
             leverage = 15
+        elif (symbol == 'BRLJPY' 
+            or symbol == 'EURJPY' 
+            or symbol == 'TRYJPY'
+            or symbol == 'ZARJPY'
+            or symbol == 'SEKJPY'
+            or symbol == 'NOKJPY'
+            or symbol == 'MXNJPY'
+        ):
+            leverage = 5
         return leverage
 
     def get_margin_cash(self, symbol, factor=1):

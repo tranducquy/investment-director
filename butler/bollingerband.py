@@ -102,7 +102,19 @@ class Butler():
         #出来高平均から発注数量を取得
         temp_vol = current_vol * self.order_vol_ratio
         order_vol_from_sma = math.floor(temp_vol / unit) * unit
-        if 'XBTUSD' == symbol or 'ETHUSD' == symbol or 'USDJPY' == symbol or 'GBPJPY' == symbol or 'EURJPY' == symbol or 'EURUSD' == symbol:
+        if ('XBTUSD' == symbol 
+            or 'ETHUSD' == symbol 
+            or 'USDJPY' == symbol 
+            or 'GBPJPY' == symbol 
+            or 'EURJPY' == symbol 
+            or 'EURUSD' == symbol 
+            or 'BRLJPY' == symbol
+            or 'TRYJPY' == symbol
+            or 'ZARJPY' == symbol
+            or 'SEKJPY' == symbol
+            or 'NOKJPY' == symbol
+            or 'MXNJPY' == symbol
+        ):
             vol = order_vol_from_cash
         elif current_vol == -1:
             vol = 0
