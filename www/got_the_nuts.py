@@ -399,7 +399,8 @@ def open_signal():
     symbol1_txt = os.path.join(SYMBOL_DIR, symbol1)
     symbol2_txt = os.path.join(SYMBOL_DIR, symbol2)
     symbol3_txt = os.path.join(SYMBOL_DIR, symbol3)
-    symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
+    #symbol4_txt = os.path.join(SYMBOL_DIR, symbol4)
+    symbol4_txt = ""
     start_date = request.args.get("start_date", "2001-01-01")
     start_date_3year = request.args.get("start_date", (datetime.today() - relativedelta(years=3)).strftime('%Y-%m-%d')) #今日の3年前
     today = datetime.now()
@@ -408,7 +409,8 @@ def open_signal():
     (open_signals1, query1) = invest_signal.direct_open_order(db, symbol1_txt, start_date, end_date, 1) #dailytrail
     (open_signals2, query2) = invest_signal.direct_open_order(db, symbol2_txt, start_date, end_date, 1)
     (open_signals3, query3) = invest_signal.direct_open_order(db, symbol3_txt, start_date, end_date, 1)
-    (open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date_3year, end_date, 2) #close on daily
+    #(open_signals4, query4) = invest_signal.direct_open_order(db, symbol4_txt, start_date_3year, end_date, 2) #close on daily
+    (open_signals4, query4) = ([], "")
     header_title = "Open Signal"
     content_title = "Open Signal"
     return render_template('open_signal.html'
