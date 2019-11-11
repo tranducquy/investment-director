@@ -502,7 +502,7 @@ def backtest_history():
     backtest_history="active"
     default_end_date = datetime.today().strftime('%Y-%m-%d')
     default_start_date = (datetime.today() - relativedelta(months=3)).strftime('%Y-%m-%d') #今日の3ヶ月前
-    default_strategy_id = 1
+    default_strategy_id = "1"
     if request.method == 'POST':
         symbol = request.form.get("symbol", "")
         start_date = request.form.get("start_date", default_start_date)
@@ -516,9 +516,9 @@ def backtest_history():
         start_date = request.args.get("start_date", default_start_date)
         end_date = request.args.get("end_date", default_end_date)
         strategy_id = request.args.get("strategy_id", default_strategy_id)
-        if strategy_id == "":
-            strategy_id = 1
-        strategy_option = request.args.get("strategy_option", get_bb_strategy_option(symbol, strategy_id))
+        strategy_option = request.args.get("strategy_option", "")
+        if strategy_option == "":
+            strategy_option = get_bb_strategy_option(symbol, strategy_id)
     header_title = u"{symbol} {start_date} {end_date} Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     content_title = u"Backtest Data".format(symbol=symbol, start_date=start_date, end_date=end_date)
     query = BACKTEST_HISTORY_QUERY.format(symbol=symbol
