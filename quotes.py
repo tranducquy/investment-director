@@ -40,6 +40,7 @@ class Quotes():
                                          ,self.start_date
                                          ,self.end_date
                                         ), conn)
+            df = df.fillna(method='ffill')
         except Exception as err:
             print(err)
         finally:
