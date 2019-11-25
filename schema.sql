@@ -603,6 +603,10 @@ delete from backtest_result where symbol = '9501.T' and strategy_option = 'SMA3S
 delete from backtest_history where symbol = '9501.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_result where symbol = '9983.T' and strategy_option = 'SMA3SD1.0';
 delete from backtest_history where symbol = '9983.T' and strategy_option = 'SMA3SD1.0';
+delete from backtest_result where symbol = '1321.T' and strategy_id = 1;
+delete from backtest_history where symbol = '1321.T' and strategy_id = 1;
+delete from backtest_result where symbol = '1571.T' and strategy_id = 1;
+delete from backtest_history where symbol = '1571.T' and strategy_id = 1;
 
 delete from bollingerband_dailytrail;
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1514.T', 3, 0.8);
@@ -661,7 +665,7 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8801.T', 4, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8904.T', 8, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('9101.T', 23, 0.3);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('ETHUSD', 4, 0.9);
-insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 11, 0.7);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('GBPJPY', 3, 1.2);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('USDJPY', 2, 1.9);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('XBTUSD', 13, 0.5);
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('2501.T', 14, 0.4);
@@ -785,6 +789,9 @@ insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('7616.T', 3, 
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('8233.T', 3, 0.9);
 --2019.10.24
 insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('5631.T', 6, 1.6);
+--2019.11.25
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1321.T', 4, 0.6);
+insert into bollingerband_dailytrail (symbol, sma, sigma1) values ('1571.T', 7, 0.4);
 
 
 create table bollingerband_closeondaily
